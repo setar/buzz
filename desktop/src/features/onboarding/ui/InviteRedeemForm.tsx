@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import {
@@ -71,6 +72,7 @@ export function InviteRedeemForm({
   placeholder,
   variant = "default",
 }: InviteRedeemFormProps) {
+  const { t } = useTranslation();
   const formId = React.useId();
   const [inviteInput, setInviteInput] = React.useState(initialValue);
   const [bareCodeRelayUrl, setBareCodeRelayUrl] = React.useState(
@@ -176,14 +178,14 @@ export function InviteRedeemForm({
           }
 
           if (policy.ageAttestationRequired && !ageConfirmed) {
-            setPolicyError("Confirm that you are at least 18 years old.");
+            setPolicyError(t("onboarding.invite.error_confirm_age"));
             return;
           }
           if (
             (policy.termsMarkdown || policy.privacyMarkdown) &&
             !agreementConfirmed
           ) {
-            setPolicyError("Agree to the Terms of Service and Privacy Policy.");
+            setPolicyError(t("onboarding.invite.error_agree_terms"));
             return;
           }
 
@@ -225,14 +227,14 @@ export function InviteRedeemForm({
         }
 
         if (policy.ageAttestationRequired && !ageConfirmed) {
-          setPolicyError("Confirm that you are at least 18 years old.");
+          setPolicyError(t("onboarding.invite.error_confirm_age"));
           return;
         }
         if (
           (policy.termsMarkdown || policy.privacyMarkdown) &&
           !agreementConfirmed
         ) {
-          setPolicyError("Agree to the Terms of Service and Privacy Policy.");
+          setPolicyError(t("onboarding.invite.error_agree_terms"));
           return;
         }
 
@@ -260,6 +262,7 @@ export function InviteRedeemForm({
       onRedeem,
       parsedInvite,
       policyTarget,
+      t,
     ],
   );
 
@@ -311,21 +314,25 @@ export function InviteRedeemForm({
     >
       {isRedeeming || isLoadingPolicy ? (
         <Spinner
-          aria-label={isRedeeming ? "Redeeming invite" : "Loading policy"}
+          aria-label={
+            isRedeeming
+              ? t("onboarding.invite.redeeming")
+              : t("onboarding.invite.loading_policy")
+          }
           className="h-4 w-4 border-2"
         />
       ) : isOnboardingSpotlight ? (
-        "Next"
+        t("onboarding.invite.btn_next")
       ) : isAddCommunity ? (
         joinPolicy ? (
-          "Accept and join"
+          t("onboarding.invite.btn_accept_join")
         ) : (
-          "Join community"
+          t("onboarding.invite.btn_join")
         )
       ) : joinPolicy ? (
-        "Accept and redeem invite"
+        t("onboarding.invite.btn_accept_redeem")
       ) : (
-        "Redeem invite"
+        t("onboarding.invite.btn_redeem")
       )}
     </Button>
   );
@@ -342,7 +349,7 @@ export function InviteRedeemForm({
       type="button"
       variant="ghost"
     >
-      {isOnboardingSpotlight ? "Back" : "Cancel"}
+      {isOnboardingSpotlight ? t("common.back") : t("common.cancel")}
     </Button>
   );
 
@@ -370,7 +377,9 @@ export function InviteRedeemForm({
             style={SPOTLIGHT_OVERFLOW_FADE}
           >
             <label className="block w-full" htmlFor="invite-input">
-              <span className="sr-only">Invite link or code</span>
+              <span className="sr-only">
+                {t("onboarding.invite.invite_label")}
+              </span>
               <span className={ONBOARDING_KEY_ROW_CLASS}>
                 <input
                   autoCapitalize="none"
@@ -402,8 +411,8 @@ export function InviteRedeemForm({
             htmlFor="invite-input"
           >
             {isAddCommunity
-              ? "Community URL or invite link"
-              : "Invite link or code"}
+              ? t("onboarding.invite.community_url_label")
+              : t("onboarding.invite.invite_label")}
           </label>
           <Input
             autoComplete="off"
@@ -420,8 +429,8 @@ export function InviteRedeemForm({
             onChange={handleInviteInputChange}
             placeholder={
               isAddCommunity
-                ? "https://community.example.com or paste an invite link"
-                : "https://relay.example.com/invite/abc123 or paste a code"
+                ? t("onboarding.invite.placeholder_community")
+                : t("onboarding.invite.placeholder_invite")
             }
             spellCheck={false}
             type="text"
@@ -440,7 +449,7 @@ export function InviteRedeemForm({
           )}
           data-testid="invalid-invite-tip"
         >
-          Please enter a valid invite link or community URL
+          {t("onboarding.invite.invalid_invite")}
         </p>
       ) : null}
 
@@ -455,14 +464,14 @@ export function InviteRedeemForm({
             className="text-sm font-medium text-foreground"
             htmlFor="invite-relay-url"
           >
-            Relay URL
+            {t("onboarding.invite.relay_url_label")}
           </label>
           <Input
             className="h-10 bg-background"
             disabled={isRedeeming}
             id="invite-relay-url"
             onChange={handleRelayInputChange}
-            placeholder="wss://relay.example.com"
+            placeholder={t("onboarding.invite.placeholder_relay")}
             type="text"
             value={bareCodeRelayUrl}
           />
@@ -477,9 +486,9 @@ export function InviteRedeemForm({
                 className="text-sm font-medium text-foreground"
                 htmlFor="community-api-token"
               >
-                API token
+                {t("onboarding.invite.api_token_label")}
                 <span className="ml-1 text-xs font-normal text-muted-foreground">
-                  (optional)
+                  ({t("common.optional")})
                 </span>
               </label>
               <button
@@ -490,7 +499,7 @@ export function InviteRedeemForm({
                 }}
                 type="button"
               >
-                Remove
+                {t("onboarding.invite.api_token_remove")}
               </button>
             </div>
             <Input
@@ -513,7 +522,7 @@ export function InviteRedeemForm({
             onClick={() => setShowApiToken(true)}
             type="button"
           >
-            Use an API token
+            {t("onboarding.invite.use_api_token")}
           </button>
         )
       ) : null}
