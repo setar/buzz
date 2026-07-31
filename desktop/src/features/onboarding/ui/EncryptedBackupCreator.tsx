@@ -1,6 +1,7 @@
 import { AlertTriangle, Eye, EyeOff, RefreshCw } from "lucide-react";
 import * as React from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 
 import {
   createNcryptsecBackup,
@@ -63,11 +64,7 @@ const DEFAULT_SEPARATOR = SEPARATOR_OPTIONS[0].value;
  */
 const ENCRYPT_DEBOUNCE_MS = 400;
 
-const PENDING_TICKER_MESSAGES = [
-  "Downloading once finished",
-  "Encrypting your password",
-  "Just a bit longer...",
-] as const;
+const PENDING_TICKER_MESSAGE_COUNT = 3;
 
 /** How long each ticker message holds before sliding to the next. */
 const PENDING_TICKER_INTERVAL_MS = 2500;
@@ -85,6 +82,7 @@ const PENDING_TICKER_SLIDE_MS = 300;
  * message instead of resizing on each swap.
  */
 function PendingDownloadTicker() {
+  const { t } = useTranslation();
   // Index into the rendered column (messages + trailing clone of the first).
   const [position, setPosition] = React.useState(0);
   const [snap, setSnap] = React.useState(false);
@@ -100,7 +98,7 @@ function PendingDownloadTicker() {
   // The clone is visually identical to the first message: once its slide-in
   // finishes, jump back to the real first row without animating.
   React.useEffect(() => {
-    if (position !== PENDING_TICKER_MESSAGES.length) return;
+    if (position !== PENDING_TICKER_MESSAGE_COUNT) return;
     const timer = window.setTimeout(() => {
       setSnap(true);
       setPosition(0);
@@ -115,11 +113,16 @@ function PendingDownloadTicker() {
     return () => window.cancelAnimationFrame(raf);
   }, [snap]);
 
+  const messages = [
+    t("onboarding.encrypted_backup.ticker_downloading"),
+    t("onboarding.encrypted_backup.ticker_encrypting"),
+    t("onboarding.encrypted_backup.ticker_longer"),
+  ];
   // The clone row duplicates the first message's text, so it carries its own
   // stable key.
   const column = [
-    ...PENDING_TICKER_MESSAGES.map((message) => ({ key: message, message })),
-    { key: "wrap-clone", message: PENDING_TICKER_MESSAGES[0] },
+    ...messages.map((message, i) => ({ key: `msg-${i}`, message })),
+    { key: "wrap-clone", message: messages[0] },
   ];
 
   return (
@@ -458,6 +461,7 @@ export function EncryptedBackupCreator({
   const fallbackSession = useEncryptedBackupSession();
   const session = sessionProp ?? fallbackSession;
   const { state, dispatch, savedPath, setSavedPath, savedForRef } = session;
+  const { t } = useTranslation();
   const [isRevealed, setIsRevealed] = React.useState(false);
   const [saveError, setSaveError] = React.useState<string | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -675,7 +679,7 @@ export function EncryptedBackupCreator({
             placeholder={
               state.savedPassword
                 ? ""
-                : `Password (min ${MIN_PASSPHRASE_LEN} characters)`
+                : t("onboarding.encrypted_backup.password_placeholder", { min: MIN_PASSPHRASE_LEN })
             }
             type={isRevealed ? "text" : "password"}
             value={state.passphrase}
@@ -694,16 +698,16 @@ export function EncryptedBackupCreator({
           ) : null}
           {state.savedPassword ? (
             <span className="sr-only" id="backup-saved-password-description">
-              Backup password saved; hidden for security.
+              {t("onboarding.encrypted_backup.password_saved_sr")}
             </span>
           ) : null}
           <Button
             aria-label={
               state.savedPassword
-                ? "Change saved backup password"
+                ? t("onboarding.encrypted_backup.change_password")
                 : isRevealed
-                  ? "Hide password"
-                  : "Reveal password"
+                  ? t("onboarding.encrypted_backup.hide_password")
+                  : t("onboarding.encrypted_backup.reveal_password")
             }
             className={cn(
               "absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground",
@@ -761,11 +765,10 @@ export function EncryptedBackupCreator({
             className="text-xs text-muted-foreground"
             data-testid="encrypted-backup-saved-path"
           >
-            Backup saved to {savedPath}
+            {t("onboarding.encrypted_backup.saved_path", { path: savedPath })}
           </p>
           <p className="text-xs leading-5 text-muted-foreground">
-            Your password isn't kept — download another copy anytime, or start
-            over to choose a new password.
+            {t("onboarding.encrypted_backup.saved_hint")}
           </p>
         </div>
       ) : null}
@@ -795,7 +798,7 @@ export function EncryptedBackupCreator({
           <div className="relative">
             {state.downloadPending || isSaving ? (
               <Spinner
-                aria-label="Encrypting your key"
+                aria-label={t("onboarding.encrypted_backup.encrypting_aria")}
                 className="absolute right-full top-1/2 mr-3 h-4 w-4 -translate-y-1/2 border-2"
                 data-testid="encrypted-backup-encrypting"
               />
@@ -814,9 +817,9 @@ export function EncryptedBackupCreator({
               {state.downloadPending ? (
                 <PendingDownloadTicker />
               ) : state.savedPassword ? (
-                "Download backup again"
+                t("onboarding.encrypted_backup.download_again")
               ) : (
-                "Backup key"
+                t("onboarding.encrypted_backup.backup_key")
               )}
             </Button>
           </div>
@@ -843,11 +846,9 @@ export function EncryptedBackupCreator({
           textureTone={variant === "spotlight" ? "dark" : "light"}
         >
           <AlertDialogHeader>
-            <AlertDialogTitle>Create a new backup password?</AlertDialogTitle>
+            <AlertDialogTitle>{t("onboarding.encrypted_backup.dialog_title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Starting over lets you pick a new password and download a fresh
-              backup file. Backups you saved earlier will still work — just use
-              the password you created them with.
+              {t("onboarding.encrypted_backup.dialog_description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -858,7 +859,7 @@ export function EncryptedBackupCreator({
                   : undefined
               }
             >
-              Keep current backup
+              {t("onboarding.encrypted_backup.keep_current")}
             </AlertDialogCancel>
             <AlertDialogAction
               className={
@@ -875,7 +876,7 @@ export function EncryptedBackupCreator({
                 setIsRevealed(false);
               }}
             >
-              Start with a new password
+              {t("onboarding.encrypted_backup.start_new")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

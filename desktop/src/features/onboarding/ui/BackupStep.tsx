@@ -1,6 +1,7 @@
 import { Check, Copy, Eye, EyeOff, Info, ShieldCheck } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { getNsec } from "@/shared/api/tauriIdentity";
 import type { IdentityStorage } from "@/shared/api/types";
@@ -73,6 +74,7 @@ export function BackupStep({
   optionsExpanded,
   returningFromSecurity,
 }: BackupStepProps) {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion() ?? false;
   const [created, setCreated] = React.useState(introPlayed || reduceMotion);
   const [copyState, setCopyState] = React.useState<
@@ -127,10 +129,12 @@ export function BackupStep({
       if (cancelledRef.current) return;
       setCopyState("idle");
       setCopyError(
-        err instanceof Error ? err.message : "Failed to retrieve private key.",
+        err instanceof Error
+          ? err.message
+          : t("onboarding.backup_step.error_retrieve"),
       );
     }
-  }, [nsec]);
+  }, [nsec, t]);
 
   const toggleReveal = React.useCallback(async () => {
     if (isRevealed) {
@@ -147,10 +151,12 @@ export function BackupStep({
     } catch (err) {
       if (cancelledRef.current) return;
       setCopyError(
-        err instanceof Error ? err.message : "Failed to retrieve private key.",
+        err instanceof Error
+          ? err.message
+          : t("onboarding.backup_step.error_retrieve"),
       );
     }
-  }, [isRevealed, nsec]);
+  }, [isRevealed, nsec, t]);
 
   // Fixed-length decorative mask (nsec keys are 63 chars) so no key material
   // is fetched just to render the blurred row. Bullets are joined with a
@@ -162,22 +168,22 @@ export function BackupStep({
   );
   const storageDescription =
     identityStorage === "system-keyring"
-      ? "Buzz keeps your identity key in your system keychain. Your computer may ask for your password when Buzz needs to read the key."
+      ? t("onboarding.backup_step.storage_keyring_description")
       : identityStorage === "local-file"
-        ? "Your system keychain wasn’t available, so Buzz keeps your identity key in a private file on this device."
-        : "Buzz keeps your identity key protected on this device. Make a separate backup in case you lose access.";
+        ? t("onboarding.backup_step.storage_file_description")
+        : t("onboarding.backup_step.storage_device_description");
   const storageTitle =
     identityStorage === "system-keyring"
-      ? "Protected by your system keychain"
+      ? t("onboarding.backup_step.storage_keyring_title")
       : identityStorage === "local-file"
-        ? "Stored in private device storage"
-        : "Protected in private device storage";
+        ? t("onboarding.backup_step.storage_file_title")
+        : t("onboarding.backup_step.storage_device_title");
   const introStorageDescription =
     identityStorage === "system-keyring"
-      ? "Buzz keeps your identity key in your system keychain."
+      ? t("onboarding.backup_step.storage_keyring_intro")
       : identityStorage === "local-file"
-        ? "Buzz keeps your identity key in a private file on this device because the system keychain wasn’t available."
-        : "Your identity key is protected on this device.";
+        ? t("onboarding.backup_step.storage_file_intro")
+        : t("onboarding.backup_step.storage_device_intro");
 
   if (optionsExpanded) {
     return (
@@ -190,12 +196,10 @@ export function BackupStep({
       >
         <div className="flex w-full max-w-140 shrink-0 flex-col text-center">
           <h1 className="text-title font-normal text-foreground">
-            Backup options
+            {t("onboarding.backup_step.options_title")}
           </h1>
           <p className="mt-5 text-sm leading-6 text-foreground/75">
-            Your identity key works like a password for your Buzz account. Keep
-            a copy somewhere safe. You can create a backup file and lock it with
-            a password you can remember.
+            {t("onboarding.backup_step.options_description")}
           </p>
         </div>
 
@@ -219,11 +223,10 @@ export function BackupStep({
               data-testid="backup-option-panel"
             >
               <span className="text-lg font-medium">
-                Saved in your password manager
+                {t("onboarding.backup_step.pm_title")}
               </span>
               <span className="mt-3 block text-sm leading-6 text-foreground/65">
-                Copy your identity key, then save it in a password manager like
-                1Password.
+                {t("onboarding.backup_step.pm_description")}
               </span>
               <Button
                 className={cn(
@@ -244,10 +247,10 @@ export function BackupStep({
                   <Copy className="h-4 w-4" aria-hidden="true" />
                 )}
                 {copyState === "copying"
-                  ? "Copying…"
+                  ? t("onboarding.backup_step.copy_copying")
                   : copyState === "copied"
-                    ? "Copied to clipboard"
-                    : "Copy to clipboard"}
+                    ? t("onboarding.backup_step.copy_copied")
+                    : t("onboarding.backup_step.copy_to_clipboard")}
               </Button>
             </div>
 
@@ -256,11 +259,10 @@ export function BackupStep({
               data-testid="backup-option-panel"
             >
               <span className="text-lg font-medium">
-                Locked in a backup file
+                {t("onboarding.backup_step.locked_file_title")}
               </span>
               <span className="mt-3 block text-sm leading-6 text-foreground/65">
-                Create a backup file and choose a password you can remember.
-                You’ll need both to restore your account.
+                {t("onboarding.backup_step.locked_file_description")}
               </span>
               <Button
                 className={cn(
@@ -273,7 +275,7 @@ export function BackupStep({
                 variant="ghost"
               >
                 <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-                Create locked backup
+                {t("onboarding.backup_step.create_locked")}
               </Button>
             </div>
           </div>
@@ -283,8 +285,7 @@ export function BackupStep({
               className="mt-4 text-center text-sm text-destructive"
               data-testid="backup-copy-error"
             >
-              Could not retrieve your private key: {copyError}. You can continue
-              and find it later in Settings &gt; Profile &gt; Identity.
+              {t("onboarding.backup_step.error_copy", { error: copyError })}
             </p>
           ) : null}
         </div>
@@ -308,8 +309,8 @@ export function BackupStep({
           key={created ? "created" : "creating"}
         >
           {created
-            ? "Your unique identity key has been created"
-            : "Creating your identity key"}
+            ? t("onboarding.backup_step.title_created")
+            : t("onboarding.backup_step.title_creating")}
         </h1>
         {created ? (
           <p
@@ -325,7 +326,7 @@ export function BackupStep({
               onClick={onShowOptions}
               type="button"
             >
-              review backup options
+              {t("onboarding.backup_step.review_options_link")}
             </button>{" "}
             for ways to restore your account.
           </p>
@@ -370,7 +371,9 @@ export function BackupStep({
                 </div>
                 <Button
                   aria-label={
-                    isRevealed ? "Hide private key" : "Reveal private key"
+                    isRevealed
+                      ? t("onboarding.backup_step.hide_key")
+                      : t("onboarding.backup_step.reveal_key")
                   }
                   className="h-10 w-10 shrink-0 text-muted-foreground hover:text-foreground"
                   data-testid="backup-key-reveal-toggle"
@@ -393,18 +396,15 @@ export function BackupStep({
                 className="mt-4 text-center text-sm text-destructive"
                 data-testid="backup-copy-error"
               >
-                Could not retrieve your private key: {copyError}. You can
-                continue and find it later in Settings &gt; Profile &gt;
-                Identity.
+                {t("onboarding.backup_step.error_copy_detail", {
+                  error: copyError,
+                })}
               </p>
             ) : null}
 
             <p className="mx-auto mt-5 flex max-w-[440px] items-start justify-center gap-1.5 text-center text-xs leading-5 text-[var(--buzz-onboarding-backup-ink)]">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>
-                Never share your private key. Anyone with this key can
-                impersonate you and access everything in your account.
-              </span>
+              <span>{t("onboarding.backup_step.never_share")}</span>
             </p>
           </div>
         </div>
@@ -419,7 +419,7 @@ export function BackupStep({
             onClick={onNext}
             type="button"
           >
-            Next
+            {t("common.next")}
           </Button>
 
           <Button
@@ -429,7 +429,7 @@ export function BackupStep({
             type="button"
             variant="ghost"
           >
-            Back
+            {t("common.back")}
           </Button>
         </OnboardingFooter>
       ) : null}

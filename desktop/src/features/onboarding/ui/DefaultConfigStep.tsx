@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   useAcpRuntimesQuery,
@@ -40,8 +41,11 @@ type DefaultConfigStepProps = {
   readyRuntimeIds: readonly string[];
 };
 
-function formatHarnessLabel(runtime: AcpRuntimeCatalogEntry | undefined) {
-  if (!runtime) return "Select a harness";
+function formatHarnessLabel(
+  runtime: AcpRuntimeCatalogEntry | undefined,
+  t: (key: string) => string,
+) {
+  if (!runtime) return t("onboarding.config.select_harness");
   return runtime.id === "buzz-agent" ? "Buzz" : runtime.label;
 }
 
@@ -61,6 +65,7 @@ function AgentDefaultsSection({
   }) => void;
   readyRuntimeIds: readonly string[];
 }) {
+  const { t } = useTranslation();
   const runtimesQuery = useAcpRuntimesQuery();
   const initialDraftRef = React.useRef(draft);
   const [config, setConfig] = React.useState<GlobalAgentConfig>(
@@ -153,10 +158,10 @@ function AgentDefaultsSection({
   const harnessOptions = React.useMemo(
     () =>
       readyRuntimes.map((runtime) => ({
-        label: formatHarnessLabel(runtime),
+        label: formatHarnessLabel(runtime, t),
         value: runtime.id,
       })),
-    [readyRuntimes],
+    [readyRuntimes, t],
   );
 
   const updateDraft = React.useCallback(
@@ -230,11 +235,11 @@ function AgentDefaultsSection({
       {configSurfaceLoading ? (
         <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
           <Spinner className="h-4 w-4 border-2" />
-          Loading…
+          {t("common.loading")}
         </div>
       ) : configSurfaceError ? (
         <p className="py-4 text-center text-sm text-destructive">
-          Couldn't load harness settings. Go back and try again.
+          {t("onboarding.config.loading_error")}
         </p>
       ) : (
         <div className="space-y-7">
@@ -243,14 +248,14 @@ function AgentDefaultsSection({
               className="pl-3 text-sm font-medium"
               htmlFor="global-agent-default-harness"
             >
-              Default harness
+              {t("onboarding.config.harness_label")}
             </label>
             <AgentDropdownSelect
               className="h-12 rounded-2xl border-foreground/15 bg-white px-4 py-2 text-sm shadow-none hover:bg-white/95"
               id="global-agent-default-harness"
               onValueChange={handleHarnessChange}
               options={harnessOptions}
-              placeholder="Select a harness"
+              placeholder={t("onboarding.config.select_harness")}
               placeholderClassName="text-foreground/70"
               testId="global-agent-default-harness"
               value={selectedRuntimeId}
@@ -307,6 +312,7 @@ export function DefaultConfigStep({
   draft,
   readyRuntimeIds,
 }: DefaultConfigStepProps) {
+  const { t } = useTranslation();
   const [persistenceState, setPersistenceState] = React.useState<{
     canComplete: boolean;
     commit: () => Promise<void>;
@@ -326,7 +332,7 @@ export function DefaultConfigStep({
       setSaveError(
         cause instanceof Error
           ? cause.message
-          : "Couldn’t save model settings.",
+          : t("onboarding.config.error_save"),
       );
     } finally {
       setIsSaving(false);
@@ -347,12 +353,10 @@ export function DefaultConfigStep({
     >
       <div className="w-full max-w-[500px] text-center">
         <h1 className="text-title font-normal text-foreground">
-          Configure your default model settings
+          {t("onboarding.config.title")}
         </h1>
         <p className="mx-auto mt-3 max-w-[440px] text-sm leading-5 text-foreground/80">
-          This will be set as your default model configuration across Buzz. You
-          can always change this in your Settings or give specific agents a
-          different configuration.
+          {t("onboarding.config.description")}
         </p>
       </div>
 
@@ -378,7 +382,7 @@ export function DefaultConfigStep({
             onClick={() => void handleComplete()}
             type="button"
           >
-            {isSaving ? "Saving…" : "Next"}
+            {isSaving ? "Saving…" : t("common.next")}
           </Button>
           <Button
             className="absolute left-full ml-3 h-9 animate-in whitespace-nowrap rounded-full px-6 text-sm fade-in fill-mode-backwards [animation-delay:1000ms] animation-duration-[500ms] hover:bg-foreground/10 motion-reduce:animate-none"
@@ -388,7 +392,7 @@ export function DefaultConfigStep({
             type="button"
             variant="ghost"
           >
-            Skip for now
+            {t("onboarding.skip_for_now")}
           </Button>
         </div>
 
@@ -400,7 +404,7 @@ export function DefaultConfigStep({
           type="button"
           variant="ghost"
         >
-          Back
+          {t("common.back")}
         </Button>
 
         {saveError ? (

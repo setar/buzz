@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Check, Copy, KeyRound, ShieldX, Ticket } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useCommunityOnboarding } from "@/features/onboarding/communityOnboarding";
 import { nsecToNpub, pubkeyToNpub } from "@/shared/lib/nostrUtils";
@@ -29,9 +30,10 @@ export function MembershipDenied({
   onRetry,
   pubkey,
 }: MembershipDeniedProps) {
+  const { t } = useTranslation();
   const npub = React.useMemo(() => {
     if (!pubkey) {
-      return "Unknown public key";
+      return t("onboarding.membership_denied.unknown_pubkey");
     }
 
     try {
@@ -39,7 +41,7 @@ export function MembershipDenied({
     } catch {
       return pubkey;
     }
-  }, [pubkey]);
+  }, [pubkey, t]);
   const [copied, setCopied] = React.useState(false);
   const [importError, setImportError] = React.useState<string | null>(null);
   const [isImportFormOpen, setIsImportFormOpen] = React.useState(false);
@@ -64,9 +66,7 @@ export function MembershipDenied({
 
   const handleImportKey = React.useCallback(async () => {
     if (!previewNpub) {
-      setImportError(
-        "That doesn't look like a valid nsec. Paste an nsec1 key.",
-      );
+      setImportError(t("onboarding.membership_denied.error_invalid_nsec"));
       return;
     }
 
@@ -77,12 +77,14 @@ export function MembershipDenied({
       await onImportKey(trimmedNsec);
     } catch (error) {
       setImportError(
-        error instanceof Error ? error.message : "Failed to import key.",
+        error instanceof Error
+          ? error.message
+          : t("onboarding.membership_denied.error_import_failed"),
       );
     } finally {
       setIsImportingKey(false);
     }
-  }, [onImportKey, previewNpub, trimmedNsec]);
+  }, [onImportKey, previewNpub, trimmedNsec, t]);
 
   const handleInviteRedeem = React.useCallback(
     (relayWsUrl: string, code: string, policyReceipt?: string) => {
@@ -104,25 +106,26 @@ export function MembershipDenied({
       <StartupWindowDragRegion />
       <div className="w-full max-w-md rounded-[28px] border border-border/70 bg-background/92 p-8 shadow-2xl backdrop-blur-sm">
         <div className="space-y-3">
-          <Badge variant="warning">Membership required</Badge>
+          <Badge variant="warning">
+            {t("onboarding.membership_denied.badge")}
+          </Badge>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
               <ShieldX className="h-4 w-4 text-destructive" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Not a member yet
+              {t("onboarding.membership_denied.title")}
             </h1>
           </div>
           <p className="text-sm leading-6 text-muted-foreground">
-            This relay requires an invitation. Ask a relay admin to add you as a
-            member, then come back and try again.
+            {t("onboarding.membership_denied.description")}
           </p>
         </div>
 
         <div className="mt-6 space-y-3">
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">
-              Your public key (npub)
+              {t("onboarding.membership_denied.npub_label")}
             </p>
             <div className="flex items-center gap-2">
               <code className="min-w-0 flex-1 truncate rounded-xl border border-border/70 bg-muted/30 px-3 py-2.5 font-mono text-xs text-foreground">
@@ -134,7 +137,7 @@ export function MembershipDenied({
                   void handleCopy();
                 }}
                 size="icon"
-                title="Copy npub"
+                title={t("onboarding.membership_denied.copy_npub")}
                 type="button"
                 variant="outline"
               >
@@ -147,8 +150,7 @@ export function MembershipDenied({
             </div>
           </div>
           <p className="text-xs leading-5 text-muted-foreground">
-            This is your public identity — it&apos;s safe to share. Send it to
-            the relay admin so they can invite you.
+            {t("onboarding.membership_denied.share_hint")}
           </p>
         </div>
 
@@ -174,7 +176,7 @@ export function MembershipDenied({
                   className="text-sm font-medium text-foreground"
                   htmlFor="membership-denied-nsec"
                 >
-                  Private key
+                  {t("onboarding.membership_denied.key_label")}
                 </label>
                 <Input
                   autoComplete="off"
@@ -224,11 +226,11 @@ export function MembershipDenied({
               >
                 {isImportingKey ? (
                   <Spinner
-                    aria-label="Importing key"
+                    aria-label={t("onboarding.membership_denied.importing")}
                     className="h-4 w-4 border-2"
                   />
                 ) : (
-                  "Import key"
+                  t("onboarding.membership_denied.import_key")
                 )}
               </Button>
               <Button
@@ -242,13 +244,13 @@ export function MembershipDenied({
                 type="button"
                 variant="ghost"
               >
-                Back
+                {t("common.back")}
               </Button>
             </form>
           ) : (
             <>
               <Button className="w-full" onClick={onRetry} type="button">
-                Try again
+                {t("onboarding.membership_denied.try_again")}
               </Button>
               <div className="flex gap-2">
                 <Button
@@ -257,7 +259,7 @@ export function MembershipDenied({
                   type="button"
                   variant="ghost"
                 >
-                  Back
+                  {t("common.back")}
                 </Button>
                 <Button
                   className="flex-1 text-muted-foreground hover:text-accent-foreground"
@@ -265,7 +267,7 @@ export function MembershipDenied({
                   type="button"
                   variant="ghost"
                 >
-                  Change community
+                  {t("onboarding.membership_denied.change_community")}
                 </Button>
               </div>
               <button
@@ -275,7 +277,7 @@ export function MembershipDenied({
                 type="button"
               >
                 <Ticket className="h-4 w-4" />
-                Have an invite?
+                {t("onboarding.membership_denied.have_invite")}
               </button>
               <button
                 className="flex w-full items-center justify-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
@@ -287,7 +289,7 @@ export function MembershipDenied({
                 type="button"
               >
                 <KeyRound className="h-4 w-4" />
-                Use a different key
+                {t("onboarding.membership_denied.use_different_key")}
               </button>
             </>
           )}

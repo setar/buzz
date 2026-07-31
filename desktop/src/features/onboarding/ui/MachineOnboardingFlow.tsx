@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { ArrowUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "motion/react";
 
 import {
@@ -71,6 +72,7 @@ export function MachineOnboardingFlow({
    */
   navigateAfterComplete?: (nav: PostOnboardingNavigation) => void;
 }) {
+  const { t } = useTranslation();
   const [page, setPage] = React.useState<MachineOnboardingPage>(
     identityLost ? "key-import" : (initialPage ?? "identity"),
   );
@@ -121,7 +123,7 @@ export function MachineOnboardingFlow({
       setPage("backup");
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "Failed to load identity",
+        cause instanceof Error ? cause.message : t("onboarding.machine.error_load"),
       );
     } finally {
       setIsPending(false);
@@ -147,7 +149,7 @@ export function MachineOnboardingFlow({
       setPage("backup");
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "Failed to save identity",
+        cause instanceof Error ? cause.message : t("onboarding.machine.error_save"),
       );
     } finally {
       setIsPending(false);
@@ -193,7 +195,7 @@ export function MachineOnboardingFlow({
             variant="ghost"
           >
             <ArrowUp className="h-4 w-4" aria-hidden="true" />
-            Return to onboarding
+            {t("onboarding.machine.return_to_onboarding")}
           </Button>
         </div>
       ) : page !== "identity" ? (
@@ -220,8 +222,7 @@ export function MachineOnboardingFlow({
                 src="/landing/buzz-wordmark.png"
               />
               <p className="mt-2 max-w-[560px] text-center text-2xl font-normal leading-none text-foreground">
-                Your people, your agents, your projects —<br />
-                all in one place.
+                {t("onboarding.machine.tagline")}
               </p>
               {error ? (
                 <p className="mt-4 text-sm text-destructive">{error}</p>
@@ -234,10 +235,10 @@ export function MachineOnboardingFlow({
                   type="button"
                 >
                   {isPending
-                    ? "Loading identity…"
+                    ? t("onboarding.machine.loading")
                     : selectedPubkey
-                      ? "Continue setup"
-                      : "Create a new identity key"}
+                      ? t("onboarding.machine.continue_setup")
+                      : t("onboarding.machine.create_key")}
                 </Button>
                 <Button
                   className={`${ONBOARDING_SECONDARY_CTA_CLASS} px-5`}
@@ -250,8 +251,8 @@ export function MachineOnboardingFlow({
                   variant="ghost"
                 >
                   {selectedPubkey
-                    ? "Use a different key instead"
-                    : "Use an existing key"}
+                    ? t("onboarding.machine.use_different_key")
+                    : t("onboarding.machine.use_existing")}
                 </Button>
               </div>
               <IdentityKeyHelpDialog />
@@ -275,22 +276,22 @@ export function MachineOnboardingFlow({
               >
                 <h1 className="text-title font-normal text-foreground">
                   {keyImportStage === "backup-password"
-                    ? "Unlock your account"
+                    ? t("onboarding.machine.heading_unlock")
                     : identityLost
-                      ? "Re-import your key"
-                      : "Enter your private key"}
+                      ? t("onboarding.machine.heading_reimport")
+                      : t("onboarding.machine.heading_enter_key")}
                 </h1>
                 <p className="mt-5 max-w-[440px] text-sm leading-6 text-foreground/80">
                   {keyImportStage === "backup-password"
-                    ? "Enter your backup password to unlock your key and restore your identity."
+                    ? t("onboarding.machine.desc_unlock")
                     : identityLost
-                      ? "Your identity is no longer in the system keyring. Re-import your nsec to restore it."
-                      : "If you already have a Buzz account, enter your private key below to get started."}
+                      ? t("onboarding.machine.desc_reimport")
+                      : t("onboarding.machine.desc_enter_key")}
                 </p>
               </motion.div>
               <div className="buzz-onboarding-key-import-position w-full">
                 <NostrKeyImportForm
-                  backLabel={identityLost ? "Start new identity" : "Back"}
+                  backLabel={identityLost ? t("onboarding.machine.back_start_new") : t("common.back")}
                   onBack={
                     identityLost
                       ? () => void replaceLostIdentity()

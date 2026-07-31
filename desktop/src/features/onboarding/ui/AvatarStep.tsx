@@ -5,6 +5,7 @@ import {
   ProfileAvatarEditor,
 } from "@/features/profile/ui/ProfileAvatarEditor";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 import { Spinner } from "@/shared/ui/spinner";
@@ -143,6 +144,7 @@ function AvatarStepActions({
   saveRecovery: ProfileStepState["saveRecovery"];
   showAlwaysSkip: boolean;
 }) {
+  const { t } = useTranslation();
   const areNavigationActionsDisabled = isSaving || isUploadingAvatar;
 
   return (
@@ -174,11 +176,15 @@ function AvatarStepActions({
             >
               {isSaving || isUploadingAvatar ? (
                 <Spinner
-                  aria-label={isSaving ? "Saving profile" : "Uploading avatar"}
+                  aria-label={
+                    isSaving
+                      ? t("onboarding.avatar.saving")
+                      : t("onboarding.avatar.uploading")
+                  }
                   className="h-4 w-4 border-2"
                 />
               ) : (
-                "Next"
+                t("common.next")
               )}
             </Button>
 
@@ -193,7 +199,7 @@ function AvatarStepActions({
                 type="button"
                 variant="ghost"
               >
-                Skip for now
+                {t("onboarding.avatar.skip_for_now")}
               </Button>
             ) : showAlwaysSkip && !saveRecovery.errorMessage ? (
               // Normal path: advances to the theme step without saving an avatar.
@@ -205,7 +211,7 @@ function AvatarStepActions({
                 type="button"
                 variant="ghost"
               >
-                Skip for now
+                {t("onboarding.avatar.skip_for_now")}
               </Button>
             ) : null}
 
@@ -218,7 +224,7 @@ function AvatarStepActions({
                 type="button"
                 variant="ghost"
               >
-                Continue without saving
+                {t("onboarding.avatar.continue_without_saving")}
               </Button>
             ) : null}
 
@@ -230,7 +236,7 @@ function AvatarStepActions({
               type="button"
               variant="ghost"
             >
-              Back
+              {t("common.back")}
             </Button>
           </motion.div>
         )}
@@ -253,6 +259,7 @@ export function AvatarStep({
     submit,
     updateAvatarUrl,
   } = actions;
+  const { t } = useTranslation();
   const { avatar, isSaving, isUploadingAvatar, name, saveRecovery } = state;
   const [avatarSquishKey, setAvatarSquishKey] = React.useState(0);
   const [avatarEditorMode, setAvatarEditorMode] =
@@ -277,7 +284,9 @@ export function AvatarStep({
   const areActionsHidden =
     isCustomColorPickerOpen || shouldHideActionsForAnimatedAvatar;
   const previewName =
-    name.draftValue.trim() || name.savedValue.trim() || "Your avatar";
+    name.draftValue.trim() ||
+    name.savedValue.trim() ||
+    t("onboarding.avatar.your_avatar");
   const animateEmojiAvatarChange = React.useCallback(() => {
     setAvatarSquishKey((key) => key + 1);
   }, []);
@@ -330,10 +339,10 @@ export function AvatarStep({
         <div className="flex w-full flex-col items-center text-center lg:items-start lg:text-left">
           <div className="w-full max-w-[500px]">
             <h1 className="text-title font-normal text-foreground">
-              Next, add a display image
+              {t("onboarding.avatar.title")}
             </h1>
             <p className="mt-5 text-sm leading-6 text-muted-foreground">
-              Choose an image or emoji as your avatar
+              {t("onboarding.avatar.subtitle")}
             </p>
           </div>
 

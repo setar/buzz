@@ -1,4 +1,5 @@
 import { relaunch } from "@tauri-apps/plugin-process";
+import { useTranslation } from "react-i18next";
 
 import { useSystemColorScheme } from "@/shared/theme/useSystemColorScheme";
 import { Button } from "@/shared/ui/button";
@@ -13,6 +14,7 @@ export function RecoveryScreen({
   title: string;
   body: string;
 }) {
+  const { t } = useTranslation();
   const systemColorScheme = useSystemColorScheme();
 
   return (
@@ -33,7 +35,7 @@ export function RecoveryScreen({
           }}
           type="button"
         >
-          Relaunch Buzz
+          {t("onboarding.keyring.relaunch")}
         </Button>
       </div>
     </div>

@@ -1,11 +1,13 @@
+import { useTranslation } from "react-i18next";
 import { RecoveryScreen } from "./RecoveryScreen";
 
 export function RelaunchRequiredScreen() {
+  const { t } = useTranslation();
   return (
     <RecoveryScreen
       testId="relaunch-required"
-      title="Restart Buzz to finish recovery"
-      body="Your identity was updated. Buzz needs to restart so syncing and agents run under it."
+      title={t("onboarding.relaunch.title")}
+      body={t("onboarding.relaunch.body")}
     />
   );
 }

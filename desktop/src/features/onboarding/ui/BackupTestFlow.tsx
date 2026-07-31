@@ -2,6 +2,7 @@ import { Check, CircleHelp, Eye, EyeOff, FileKey2, FileUp } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import * as React from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 
 import {
   getNsec,
@@ -205,6 +206,7 @@ export function BackupTestFlow({
   onProgressChange,
   onVerified,
 }: BackupTestFlowProps) {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion() ?? false;
   const { stage, fileName, ncryptsec, result } = progress;
   // True while a file drag is anywhere over the window — the drop overlay
@@ -279,20 +281,20 @@ export function BackupTestFlow({
       try {
         text = (await file.text()).trim();
       } catch {
-        if (mountedRef.current) setError("Could not read that file.");
+        if (mountedRef.current) setError(t("onboarding.backup_test.error_read_file"));
         return;
       }
       if (!mountedRef.current) return;
       if (!text.toLowerCase().startsWith("ncryptsec1")) {
         setError(
           expectedNcryptsec
-            ? "That doesn't look like your key backup. Choose the file you just downloaded."
-            : "That doesn't look like a key backup file.",
+            ? t("onboarding.backup_test.error_wrong_backup")
+            : t("onboarding.backup_test.error_not_backup"),
         );
         return;
       }
       if (expectedNcryptsec && text !== expectedNcryptsec.trim()) {
-        setError("That's a key backup, but not the one you just downloaded.");
+        setError(t("onboarding.backup_test.error_different_backup"));
         return;
       }
       setError(null);
@@ -329,7 +331,7 @@ export function BackupTestFlow({
     } catch (err) {
       if (mountedRef.current && requestId === requestRef.current)
         setError(
-          err instanceof Error ? err.message : "Could not verify this backup.",
+          err instanceof Error ? err.message : t("onboarding.backup_test.error_verify"),
         );
     } finally {
       if (mountedRef.current && requestId === requestRef.current)
@@ -356,7 +358,7 @@ export function BackupTestFlow({
     } catch (err) {
       if (!mountedRef.current) return;
       setSuccessNsecError(
-        err instanceof Error ? err.message : "Could not retrieve your key.",
+        err instanceof Error ? err.message : t("onboarding.backup_test.error_retrieve_key"),
       );
     } finally {
       if (mountedRef.current) setIsLoadingSuccessNsec(false);
@@ -398,11 +400,10 @@ export function BackupTestFlow({
           {isCeremony ? (
             <div className="w-full max-w-140">
               <p className="text-lg font-medium text-foreground">
-                Your backup works!
+                {t("onboarding.backup_test.success_title")}
               </p>
               <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-                File and password verified. Keep them both somewhere safe —
-                that&apos;s all you need to restore your identity.
+                {t("onboarding.backup_test.success_description")}
               </p>
               <div className="mx-auto mt-4 flex max-w-110 min-w-0 items-center gap-2 text-left">
                 <p
@@ -421,8 +422,8 @@ export function BackupTestFlow({
                 <Button
                   aria-label={
                     isSuccessNsecRevealed
-                      ? "Hide unlocked private key"
-                      : "Reveal unlocked private key"
+                      ? t("onboarding.backup_test.hide_unlocked_key")
+                      : t("onboarding.backup_test.reveal_unlocked_key")
                   }
                   className="size-9 shrink-0 text-muted-foreground hover:text-foreground"
                   data-testid="backup-success-nsec-toggle"
@@ -454,12 +455,12 @@ export function BackupTestFlow({
           ) : (
             <>
               <p className="text-lg font-medium text-foreground">
-                This backup works
+                {t("onboarding.backup_test.general_success_title")}
               </p>
               <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
                 {result.matchesCurrentIdentity
-                  ? "It restores your current Buzz identity."
-                  : "It restores a different identity than the one signed in here."}
+                  ? t("onboarding.backup_test.matches_current")
+                  : t("onboarding.backup_test.matches_other")}
               </p>
               <div className="mt-3 flex justify-center">
                 <PubKey
@@ -482,7 +483,7 @@ export function BackupTestFlow({
             type="button"
             variant="ghost"
           >
-            Test another backup
+            {t("onboarding.backup_test.test_another")}
           </Button>
         )}
       </div>
@@ -530,7 +531,7 @@ export function BackupTestFlow({
             onClick={() => fileInputRef.current?.click()}
             type="button"
           >
-            <span className="font-medium text-sm">Select your backup file</span>
+            <span className="font-medium text-sm">{t("onboarding.backup_test.select_file")}</span>
           </Button>
           {isWindowDragging ? (
             /*
@@ -557,7 +558,7 @@ export function BackupTestFlow({
                 variant="textured"
               >
                 <FileUp aria-hidden="true" className="size-4" />
-                <span>Drop your backup file here</span>
+                <span>{t("onboarding.backup_test.drop_file")}</span>
               </Card>
             </div>
           ) : null}
@@ -586,7 +587,7 @@ export function BackupTestFlow({
                 variant="ghost"
               >
                 {isSaving ? <Spinner className="h-4 w-4 border-2" /> : null}
-                Re-download backup
+                {t("onboarding.backup_test.redownload")}
               </Button>
             </div>
           ) : null}
@@ -622,7 +623,7 @@ export function BackupTestFlow({
             const passwordField = (
               <div className="relative w-full">
                 <Input
-                  aria-label="Backup password"
+                  aria-label={t("onboarding.backup_test.password_label")}
                   autoComplete="off"
                   className={cn(
                     "font-mono",
@@ -639,13 +640,13 @@ export function BackupTestFlow({
                       void handleVerify();
                     }
                   }}
-                  placeholder="Your backup password"
+                  placeholder={t("onboarding.backup_test.password_placeholder")}
                   ref={passwordInputRef}
                   type={isRevealed ? "text" : "password"}
                   value={attempt}
                 />
                 <Button
-                  aria-label={isRevealed ? "Hide password" : "Reveal password"}
+                  aria-label={isRevealed ? t("onboarding.backup_test.hide_password") : t("onboarding.backup_test.reveal_password")}
                   className={cn(
                     "absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground",
                     isSpotlight &&
@@ -680,7 +681,7 @@ export function BackupTestFlow({
                 <>
                   {fileRow}
                   <p className="text-center text-sm leading-6 text-muted-foreground">
-                    Enter the password to prove you can unlock this backup.
+                    {t("onboarding.backup_test.unlock_hint")}
                   </p>
                   {passwordField}
                 </>
@@ -722,10 +723,10 @@ export function BackupTestFlow({
                 {isVerifying ? (
                   <>
                     <Spinner className="h-4 w-4 border-2" />
-                    Checking…
+                    {t("onboarding.backup_test.checking")}
                   </>
                 ) : (
-                  "Verify backup"
+                  t("onboarding.backup_test.verify")
                 )}
               </Button>
             );

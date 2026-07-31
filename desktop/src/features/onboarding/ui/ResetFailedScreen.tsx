@@ -1,11 +1,13 @@
+import { useTranslation } from "react-i18next";
 import { RecoveryScreen } from "./RecoveryScreen";
 
 export function ResetFailedScreen() {
+  const { t } = useTranslation();
   return (
     <RecoveryScreen
       testId="reset-failed"
-      title="Sign out could not complete"
-      body="Buzz was unable to fully clear your local data. Try relaunching — the reset will resume automatically. If this persists, contact support."
+      title={t("onboarding.reset_failed.title")}
+      body={t("onboarding.reset_failed.body")}
     />
   );
 }

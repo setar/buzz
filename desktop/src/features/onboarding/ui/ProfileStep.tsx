@@ -1,5 +1,6 @@
 import * as React from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 import { SidebarRelayConnectionCompactCard } from "@/features/sidebar/ui/SidebarRelayConnectionCard";
 import { useRelayConnection } from "@/shared/api/useRelayConnection";
@@ -123,7 +124,7 @@ function OnboardingRelayConnectionErrorCard({
         .catch((error) => {
           hadActiveReconnectRef.current = false;
           const detail = error instanceof Error ? error.message : String(error);
-          toast.error(`Could not reconnect to the relay. ${detail}`);
+          toast.error(t("onboarding.flow.reconnect_error", { detail }));
         })
         .finally(() => {
           reconnectActionPendingRef.current = false;
@@ -132,6 +133,8 @@ function OnboardingRelayConnectionErrorCard({
     },
     [markSuccess],
   );
+
+  const { t } = useTranslation();
 
   const handleReconnectRelay = React.useCallback(() => {
     runConnectivityAction(reconnect);
@@ -193,6 +196,7 @@ export function ProfileStep({
   state,
   usesExistingIdentity = false,
 }: ProfileStepProps) {
+  const { t } = useTranslation();
   const {
     advanceWithoutSaving,
     back,
@@ -221,11 +225,10 @@ export function ProfileStep({
     >
       <div className="w-full max-w-2xl">
         <h1 className="text-title font-normal text-foreground">
-          What should we call you?
+          {t("onboarding.profile_step.title")}
         </h1>
         <p className="mt-5 text-sm leading-6 text-muted-foreground">
-          Pick the name people and agents will see in Buzz. You can change it
-          anytime.
+          {t("onboarding.profile_step.description")}
         </p>
       </div>
 
@@ -233,7 +236,7 @@ export function ProfileStep({
         className="mt-12 flex w-full cursor-text flex-col items-center"
         htmlFor="onboarding-display-name"
       >
-        <span className="sr-only">Name</span>
+        <span className="sr-only">{t("onboarding.profile_step.name_label")}</span>
         <div className="relative h-20 w-full max-w-[576px]">
           {!hasDisplayNameDraft ? (
             <div
@@ -245,12 +248,12 @@ export function ProfileStep({
                   aria-hidden="true"
                   className="buzz-onboarding-name-placeholder-caret h-[0.9em] w-0.5 rounded-full bg-primary"
                 />
-                Enter your name
+                {t("onboarding.profile_step.name_placeholder")}
               </span>
             </div>
           ) : null}
           <input
-            aria-label="Name"
+            aria-label={t("onboarding.profile_step.name_label")}
             autoCapitalize="none"
             autoComplete="off"
             autoCorrect="off"
@@ -288,11 +291,11 @@ export function ProfileStep({
           type="button"
         >
           {isSaving ? (
-            <Spinner aria-label="Saving profile" className="h-4 w-4 border-2" />
+            <Spinner aria-label={t("onboarding.profile_step.saving")} className="h-4 w-4 border-2" />
           ) : usesExistingIdentity ? (
-            "Continue"
+            t("common.continue")
           ) : (
-            "Create an identity key"
+            t("onboarding.profile_step.create_key")
           )}
         </Button>
 
@@ -305,7 +308,7 @@ export function ProfileStep({
             type="button"
             variant="ghost"
           >
-            Back
+            {t("common.back")}
           </Button>
         ) : null}
 
@@ -318,7 +321,7 @@ export function ProfileStep({
             type="button"
             variant="ghost"
           >
-            I already have a key
+            {t("onboarding.profile_step.have_key")}
           </Button>
         ) : null}
 
@@ -332,7 +335,7 @@ export function ProfileStep({
               type="button"
               variant="ghost"
             >
-              Skip for now
+              {t("onboarding.profile_step.skip_for_now")}
             </Button>
           ) : null}
           {saveRecovery.canAdvanceWithoutSaving ? (
@@ -343,7 +346,7 @@ export function ProfileStep({
               type="button"
               variant="ghost"
             >
-              Continue without saving
+              {t("onboarding.profile_step.continue_without_saving")}
             </Button>
           ) : null}
           <div className="flex-1" />
