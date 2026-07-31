@@ -1,6 +1,7 @@
 import * as React from "react";
 import { flushSync } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   profileQueryKey,
   useUpdateProfileMutation,
@@ -153,6 +154,7 @@ export function OnboardingFlow({
   identityLost = false,
   initialProfile,
 }: OnboardingFlowProps) {
+  const { t } = useTranslation();
   const { complete, skipForNow } = actions;
   const { activeCommunity } = useCommunities();
   const queryClient = useQueryClient();
@@ -263,7 +265,7 @@ export function OnboardingFlow({
         if (membershipStatus === "error") {
           setMembershipError({
             kind: "error",
-            message: "Server error — try again",
+            message: t("onboarding.flow.error_server"),
           });
           return;
         }
@@ -419,7 +421,7 @@ export function OnboardingFlow({
       setPersistError(
         error instanceof Error
           ? error.message
-          : "Failed to create a new identity. Please try again.",
+          : t("onboarding.flow.error_create_identity"),
       );
     }
   }, [queryClient]);
@@ -470,10 +472,10 @@ export function OnboardingFlow({
                 {membershipError.kind === "unreachable" ? (
                   <>
                     <p className="font-medium text-destructive">
-                      Can't reach this relay
+                      {t("onboarding.flow.relay_unreachable_title")}
                     </p>
                     <p className="mt-1 text-muted-foreground">
-                      Check your connection or change your community.
+                      {t("onboarding.flow.relay_unreachable_desc")}
                     </p>
                     <Button
                       className="mt-3"
@@ -481,16 +483,16 @@ export function OnboardingFlow({
                       size="sm"
                       variant="outline"
                     >
-                      Change community
+                      {t("onboarding.flow.change_community")}
                     </Button>
                   </>
                 ) : (
                   <>
                     <p className="font-medium text-destructive">
-                      {membershipError.message ?? "Something went wrong"}
+                      {membershipError.message ?? t("onboarding.flow.error_generic")}
                     </p>
                     <p className="mt-1 text-muted-foreground">
-                      The relay returned an error. Try again.
+                      {t("onboarding.flow.relay_error_desc")}
                     </p>
                   </>
                 )}
@@ -529,24 +531,19 @@ export function OnboardingFlow({
                   {identityLost ? (
                     <>
                       <h1 className="text-title font-normal text-foreground">
-                        Re-import your key
+                        {t("onboarding.flow.reimport_title")}
                       </h1>
                       <p className="mt-5 text-sm leading-6 text-muted-foreground">
-                        Your identity is no longer in the system keyring.
-                        Re-import your nsec to restore it — Buzz will restart to
-                        finish recovery. Or go back to start a new identity with
-                        a fresh key.
+                        {t("onboarding.flow.reimport_desc")}
                       </p>
                     </>
                   ) : (
                     <>
                       <h1 className="text-title font-normal text-foreground">
-                        Use your existing key
+                        {t("onboarding.flow.use_existing_title")}
                       </h1>
                       <p className="mt-5 text-sm leading-6 text-muted-foreground">
-                        Import your Nostr private key to use that identity with
-                        Buzz. If this key already has a profile on the relay,
-                        your name and avatar are restored automatically.
+                        {t("onboarding.flow.use_existing_desc")}
                       </p>
                     </>
                   )}
@@ -559,7 +556,7 @@ export function OnboardingFlow({
                 ) : null}
 
                 <NostrKeyImportForm
-                  backLabel={identityLost ? "Start new identity" : undefined}
+                  backLabel={identityLost ? t("onboarding.flow.start_new_identity") : undefined}
                   onBack={identityLost ? handleLostModeBack : showProfilePage}
                   onImport={importExistingKey}
                 />
