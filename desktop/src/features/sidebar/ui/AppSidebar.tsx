@@ -1,5 +1,6 @@
 // biome-ignore format: keep compact to stay within file size limit
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { FeatureGate } from "@/shared/features";
 import { SidebarDndContext } from "@/features/sidebar/ui/SidebarDnd";
 
@@ -239,6 +240,7 @@ export function AppSidebar({
   onUnstarChannel,
 }: AppSidebarProps) {
   const activeWorkingByChannelId = useActiveWorkingChannelsById();
+  const { t } = useTranslation();
   const { status: updateStatus } = useUpdaterContext();
   const canShowSidebarUpdateCard = shouldShowSidebarUpdateCard(updateStatus);
   const { open: sidebarOpen, openMobile } = useSidebar();
@@ -744,7 +746,7 @@ export function AppSidebar({
                       }
                       actionsTestId="section-actions-channels"
                       listTestId="stream-list"
-                      quickCreateLabel="Browse channels"
+                      quickCreateLabel={t("sidebar.browse_channels")}
                       onQuickCreateClick={() => onBrowseChannels?.()}
                       showQuickCreate
                       onMarkAllRead={onMarkAllChannelsRead}
@@ -753,7 +755,7 @@ export function AppSidebar({
                       onSelectChannel={onSelectChannel}
                       onToggleCollapsed={() => toggleCollapsedGroup("channels")}
                       selectedChannelId={selectedChannelId}
-                      title="Channels"
+                      title={t("sidebar.channels")}
                       unreadChannelCounts={unreadChannelCounts}
                       unreadChannelIds={unreadChannelIds}
                       sections={channelSections}
@@ -837,7 +839,7 @@ export function AppSidebar({
                     presenceByChannelId={dmPresenceByChannelId}
                     selectedChannelId={selectedChannelId}
                     testId="dm-list"
-                    title="Direct messages"
+                    title={t("sidebar.direct_messages")}
                     sectionActionsOpen={dmActionsMenuOpen}
                     unreadChannelCounts={unreadChannelCounts}
                     unreadChannelIds={unreadChannelIds}

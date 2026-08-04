@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Bot, Users } from "lucide-react";
 import type { TeamMentionMember } from "@/features/messages/lib/mentionCandidates";
 
@@ -42,6 +43,7 @@ export const MentionAutocomplete = React.memo(function MentionAutocomplete({
   onSelect,
   position = "above",
 }: MentionAutocompleteProps) {
+  const { t } = useTranslation();
   const listRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -184,17 +186,17 @@ export const MentionAutocomplete = React.memo(function MentionAutocomplete({
                         className="min-w-0 truncate"
                         title={
                           suggestion.ownerLabel && suggestion.notInChannel
-                            ? `managed by ${suggestion.ownerLabel} · not in channel`
+                            ? t("messages.managed_by_not_in_channel", { owner: suggestion.ownerLabel })
                             : suggestion.ownerLabel
-                              ? `managed by ${suggestion.ownerLabel}`
-                              : "not in channel"
+                              ? t("messages.managed_by_owner", { owner: suggestion.ownerLabel })
+                              : t("messages.not_in_channel")
                         }
                       >
                         {suggestion.ownerLabel && suggestion.notInChannel
-                          ? `managed by ${suggestion.ownerLabel} · not in channel`
+                          ? t("messages.managed_by_not_in_channel", { owner: suggestion.ownerLabel })
                           : suggestion.ownerLabel
-                            ? `managed by ${suggestion.ownerLabel}`
-                            : "not in channel"}
+                            ? t("messages.managed_by_owner", { owner: suggestion.ownerLabel })
+                            : t("messages.not_in_channel")}
                       </span>
                     ) : null}
                   </span>

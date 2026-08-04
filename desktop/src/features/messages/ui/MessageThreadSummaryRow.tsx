@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import type {
   TimelineThreadSummary,
@@ -84,6 +85,7 @@ export function MessageThreadSummaryRow({
   summaryIndentOffsetRem?: number;
   unreadCount?: number;
 }) {
+  const { t } = useTranslation();
   const indentRem = getThreadReplyIndentRem(depth);
   const hoverLeftRem =
     indentRem + THREAD_REPLY_ROW_MARGIN_INLINE_REM + summaryIndentOffsetRem;
@@ -94,10 +96,14 @@ export function MessageThreadSummaryRow({
   const surfaceInsetStart = `calc(${contentPaddingStart} - ${threadReplyLength(
     THREAD_SUMMARY_SURFACE_AVATAR_INSET_REM,
   )})`;
-  const replyLabel = summary.replyCount === 1 ? "reply" : "replies";
+  const replyLabel = t("messages.replies", { count: summary.replyCount });
   const summaryAriaLabel = summary.lastReplyAt
-    ? `View thread with ${summary.replyCount} ${replyLabel}, last reply ${formatThreadSummaryLastReplyTime(summary.lastReplyAt)}`
-    : `View thread with ${summary.replyCount} ${replyLabel}`;
+    ? t("messages.thread_summary_with_last_reply", {
+        count: summary.replyCount,
+        label: replyLabel,
+        time: formatThreadSummaryLastReplyTime(summary.lastReplyAt),
+      })
+    : t("messages.thread_summary", { count: summary.replyCount, label: replyLabel });
   const guideDepths = depthGuideDepths
     ? [...depthGuideDepths]
     : Array.from({ length: Math.max(0, depth - 1) }, (_, index) => index + 1);
@@ -247,7 +253,7 @@ export function MessageThreadSummaryRow({
             </span>
             {unreadCount != null && unreadCount > 0 ? (
               <span className="ml-1" data-testid="thread-unread-badge">
-                ({unreadCount} new)
+                ({unreadCount} {t("messages.new")})
               </span>
             ) : null}
             {summary.lastReplyAt ? (
@@ -260,14 +266,14 @@ export function MessageThreadSummaryRow({
                     className="col-start-1 row-start-1 transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0"
                     data-testid="message-thread-summary-last-reply"
                   >
-                    last reply{" "}
+                    {t("messages.last_reply")}{" "}
                     {formatThreadSummaryLastReplyTime(summary.lastReplyAt)}
                   </span>
                   <span
                     className="col-start-1 row-start-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                     data-testid="message-thread-summary-hover-action"
                   >
-                    View thread
+                    {t("messages.view_thread")}
                   </span>
                 </span>
               </>

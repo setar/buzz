@@ -822,10 +822,10 @@ export function MessageThreadPanel({
             // frame while a non-empty list streams in on the deferred commit.
             <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 px-4 py-6 text-center">
               <p className="text-sm font-medium text-foreground/80">
-                No replies in this branch yet
+                {t("messages.no_replies_yet")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Reply in the thread to continue this branch.
+                {t("messages.reply_to_continue")}
               </p>
             </div>
           ) : // "pending": deferred list is empty but the live list has content —
@@ -903,8 +903,8 @@ export function MessageThreadPanel({
               onSend={onSend}
               placeholder={
                 isHuddleTranscript
-                  ? "Message the huddle"
-                  : `Reply in thread to ${threadHead.author}`
+                  ? t("messages.message_the_huddle")
+                  : t("messages.reply_in_thread_to", { author: threadHead.author })
               }
               profiles={profiles}
               replyTarget={composerReplyTarget}

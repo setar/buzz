@@ -19,7 +19,7 @@ export function MessageAgentOwner({
       <span className="sr-only">
         {ownerLabel
           ? t("messages.agent_managed_by")
-          : "Agent; owner unavailable"}
+          : t("messages.agent_owner_unavailable")}
       </span>
       {ownerPubkey && ownerLabel ? (
         <>
@@ -28,7 +28,7 @@ export function MessageAgentOwner({
             className="inline-flex shrink-0 items-baseline gap-1 leading-4"
           >
             <Bot className="relative -top-px h-3.5 w-3.5 self-center" />
-            <span>managed by</span>
+            <span>{t("messages.managed_by")}</span>
           </span>
           <UserProfilePopover
             pubkey={ownerPubkey}
@@ -46,7 +46,7 @@ export function MessageAgentOwner({
           className="inline-flex min-w-0 items-center gap-1"
         >
           <Bot className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">owner unavailable</span>
+          <span className="truncate">{t("messages.owner_unavailable")}</span>
         </span>
       )}
     </span>
