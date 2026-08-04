@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import type { ComponentType } from "react";
 import { ExternalLink, RefreshCcw, RotateCw } from "lucide-react";
@@ -17,7 +18,7 @@ type IndicatorIcon = ComponentType<{
   className?: string;
 }>;
 
-const variants: Record<
+function buildVariants(t: (key: string) => string): Record<
   "available" | "downloading" | "installing" | "manual-required" | "ready",
   {
     Icon: IndicatorIcon;
@@ -25,38 +26,43 @@ const variants: Record<
     label: string;
     badgeColor: string;
   }
-> = {
-  available: {
-    Icon: RefreshCcw,
-    label: "Update available",
-    badgeColor: "bg-primary",
-  },
-  downloading: {
-    Icon: Spinner,
-    iconClassName: "h-4 w-4 border-2",
-    label: "Downloading update\u2026",
-    badgeColor: "bg-primary",
-  },
-  installing: {
-    Icon: Spinner,
-    iconClassName: "h-4 w-4 border-2",
-    label: "Installing update\u2026",
-    badgeColor: "bg-primary",
-  },
-  "manual-required": {
-    Icon: ExternalLink,
-    label:
-      "Update available — download from GitHub (use AppImage for auto-updates)",
-    badgeColor: "bg-primary",
-  },
-  ready: {
-    Icon: RotateCw,
-    label: "Update now",
-    badgeColor: "bg-emerald-500",
-  },
-};
+> {
+  return {
+    available: {
+      Icon: RefreshCcw,
+      label: t("settings.update_available"),
+      badgeColor: "bg-primary",
+    },
+    downloading: {
+      Icon: Spinner,
+      iconClassName: "h-4 w-4 border-2",
+      label: "Downloading update\u2026",
+      badgeColor: "bg-primary",
+    },
+    installing: {
+      Icon: Spinner,
+      iconClassName: "h-4 w-4 border-2",
+      label: "Installing update\u2026",
+      badgeColor: "bg-primary",
+    },
+    "manual-required": {
+      Icon: ExternalLink,
+      label:
+        "Update available — download from GitHub (use AppImage for auto-updates)",
+      badgeColor: "bg-primary",
+    },
+    ready: {
+      Icon: RotateCw,
+      label: t("settings.update_now"),
+      badgeColor: "bg-emerald-500",
+    },
+  };
+}
 
-function getVariant(state: UpdateStatus["state"]) {
+function getVariant(
+  state: UpdateStatus["state"],
+  variants: ReturnType<typeof buildVariants>,
+) {
   if (
     state === "available" ||
     state === "downloading" ||
@@ -70,8 +76,9 @@ function getVariant(state: UpdateStatus["state"]) {
 }
 
 export function UpdateIndicator({ className }: { className?: string }) {
+  const { t } = useTranslation();
   const { status, installAndRelaunch } = useUpdaterContext();
-  const variant = getVariant(status.state);
+  const variant = getVariant(status.state, buildVariants(t));
 
   if (!variant) {
     return null;

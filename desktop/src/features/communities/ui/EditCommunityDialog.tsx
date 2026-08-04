@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { CommunityIconSettingsCard } from "@/features/communities/ui/CommunityIconSettingsCard";
 import { useMyRelayMembershipLookupQuery } from "@/features/community-members/hooks";
@@ -42,6 +43,7 @@ export function EditCommunityDialog({
   canRemove,
   showIconEditor = false,
 }: EditCommunityDialogProps) {
+  const { t } = useTranslation();
   const [name, setName] = React.useState("");
   const [relayUrl, setRelayUrl] = React.useState("");
   const [token, setToken] = React.useState("");
@@ -168,7 +170,7 @@ export function EditCommunityDialog({
               autoFocus
               id="edit-ws-name"
               onChange={(e) => setName(e.target.value)}
-              placeholder="My Community"
+              placeholder={t("communities.my_community")}
               type="text"
               value={name}
             />

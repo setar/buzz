@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   resolveUserLabel,
@@ -35,22 +36,6 @@ function resolveFallbackName(channel: Channel | null, pubkey: string) {
   return channel.participants[participantIndex] ?? null;
 }
 
-function formatTypingLabel(names: string[]) {
-  if (names.length === 1) {
-    return `${names[0]} is typing...`;
-  }
-
-  if (names.length === 2) {
-    return `${names[0]} and ${names[1]} are typing...`;
-  }
-
-  if (names.length === 3) {
-    return `${names[0]}, ${names[1]}, and ${names[2]} are typing...`;
-  }
-
-  return `${names[0]}, ${names[1]}, and ${names.length - 2} others are typing...`;
-}
-
 export function TypingIndicatorRow({
   channel,
   className,
@@ -60,6 +45,7 @@ export function TypingIndicatorRow({
   variant = "default",
 }: TypingIndicatorRowProps) {
   const isActivityVariant = variant === "activity";
+  const { t } = useTranslation();
   const labels = React.useMemo(
     () =>
       typingPubkeys.map((pubkey) =>
@@ -73,6 +59,24 @@ export function TypingIndicatorRow({
       ),
     [channel, currentPubkey, profiles, typingPubkeys],
   );
+  const typingLabel = React.useMemo(() => {
+    if (labels.length === 0) return "";
+    if (labels.length === 1)
+      return t("messages.typing_one", { name: labels[0] });
+    if (labels.length === 2)
+      return t("messages.typing_two", { name1: labels[0], name2: labels[1] });
+    if (labels.length === 3)
+      return t("messages.typing_three", {
+        name1: labels[0],
+        name2: labels[1],
+        name3: labels[2],
+      });
+    return t("messages.typing_many", {
+      name1: labels[0],
+      name2: labels[1],
+      count: labels.length - 2,
+    });
+  }, [labels, t]);
 
   return (
     <div
@@ -132,7 +136,7 @@ export function TypingIndicatorRow({
             )}
             data-testid="message-typing-indicator-label"
           >
-            <Shimmer>{formatTypingLabel(labels)}</Shimmer>
+            <Shimmer>{typingLabel}</Shimmer>
           </p>
         </div>
       )}

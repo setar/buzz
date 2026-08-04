@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   ActivityRow,
@@ -11,6 +12,7 @@ import { PromptSectionList } from "../PromptSectionAccordion";
 import type { ActivityRenderClassItemProps } from "./types";
 
 export function RawRailActivity(props: ActivityRenderClassItemProps) {
+  const { t } = useTranslation();
   if (props.item.type === "tool") {
     return <ToolActivity {...props} />;
   }
@@ -44,7 +46,7 @@ export function RawRailActivity(props: ActivityRenderClassItemProps) {
                 <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 transition-transform group-open/section:rotate-180 group-open/section:text-foreground" />
               </summary>
               <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap wrap-break-word rounded-md bg-muted/50 px-3 py-2 font-mono text-xs leading-5 text-muted-foreground">
-                {section.body.trim() || "No metadata."}
+                {section.body.trim() || t("agents.no_metadata")}
               </pre>
             </details>
           ))

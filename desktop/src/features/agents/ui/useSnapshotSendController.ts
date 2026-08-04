@@ -13,6 +13,7 @@
  */
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import type { QueryClient } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -118,13 +119,14 @@ export function checkSendEligibility(
   queryClient: QueryClient,
   channelId: string,
   nowMs: number = Date.now(),
+  t: (key: string) => string = (key) => key,
 ): string | null {
   // ── Timeout check ─────────────────────────────────────────────────────────
   // Read the module-level snapshot from timeoutStore directly — this is the
   // same value `useTimeoutState` serves but without requiring a render cycle.
   const timeoutState = getTimeoutSnapshot();
   if (timeoutState.active && isTimeoutActive(timeoutState.expiresAtMs, nowMs)) {
-    return "You are currently timed out and cannot send messages.";
+    return t("agents.timed_out_cannot_send");
   }
 
   // ── Channel-cache check ───────────────────────────────────────────────────
@@ -132,10 +134,10 @@ export function checkSendEligibility(
   const channel = channels.find((ch) => ch.id === channelId);
 
   if (!channel) {
-    return "The selected destination is no longer available. Please pick another.";
+    return t("agents.destination_unavailable");
   }
   if (!isSendableDestination(channel)) {
-    return "The selected destination is no longer available. Please pick another.";
+    return t("agents.destination_unavailable");
   }
 
   // ── Moderation-DM check (fail-closed) ────────────────────────────────────
@@ -154,10 +156,10 @@ export function checkSendEligibility(
     // that means the relay advertises no self pubkey (a valid, known answer),
     // and we pass it to isModerationDm, which fails open by its own contract.
     if (identityState?.status !== "success") {
-      return "The selected destination is no longer available. Please pick another.";
+      return t("agents.destination_unavailable");
     }
     if (relaySelfState?.status !== "success") {
-      return "The selected destination is no longer available. Please pick another.";
+      return t("agents.destination_unavailable");
     }
 
     const identity = queryClient.getQueryData<Identity>(["identity"]);
@@ -166,7 +168,7 @@ export function checkSendEligibility(
     );
 
     if (isModerationDm(channel, identity?.pubkey, relaySelf ?? undefined)) {
-      return "The selected destination is no longer available. Please pick another.";
+      return t("agents.destination_unavailable");
     }
   }
 
@@ -197,6 +199,7 @@ export async function runSendPipeline(deps: {
   };
   checkEligibilityFn: () => string | null;
   channelId: string;
+  t: (key: string, opts?: Record<string, unknown>) => string;
 }): Promise<boolean> {
   const {
     encodeFn,
@@ -206,6 +209,7 @@ export async function runSendPipeline(deps: {
     buildMessageFn,
     checkEligibilityFn,
     channelId,
+    t,
   } = deps;
 
   // ── Eligibility checkpoint 1: before encode ───────────────────────────────
@@ -231,8 +235,8 @@ export async function runSendPipeline(deps: {
       phase: "error",
       error:
         err instanceof Error
-          ? `Encode failed: ${err.message}`
-          : "Encode failed.",
+          ? t("agents.encode_failed", { message: err.message })
+          : t("agents.encode_failed_plain"),
     });
     return false;
   }
@@ -257,8 +261,8 @@ export async function runSendPipeline(deps: {
       phase: "error",
       error:
         err instanceof Error
-          ? `Upload failed: ${err.message}`
-          : "Upload failed.",
+          ? t("agents.upload_failed", { message: err.message })
+          : t("agents.upload_failed_plain"),
     });
     return false;
   }
@@ -289,7 +293,9 @@ export async function runSendPipeline(deps: {
     setStateFn({
       phase: "error",
       error:
-        err instanceof Error ? `Send failed: ${err.message}` : "Send failed.",
+        err instanceof Error
+          ? t("agents.send_failed", { message: err.message })
+          : t("agents.send_failed_plain"),
     });
     return false;
   }
@@ -319,6 +325,7 @@ export function runGuardedSend(
     channelId: string,
   ) => Parameters<typeof runSendPipeline>[0],
   setStateFn: (state: SnapshotSendState) => void,
+  t: (key: string, opts?: Record<string, unknown>) => string,
 ): Promise<boolean> {
   return guard.runGuarded(async () => {
     // Mark the action pending before opening the DM so the active UI disables
@@ -334,8 +341,8 @@ export function runGuardedSend(
         phase: "error",
         error:
           error instanceof Error
-            ? `Couldn’t open the conversation: ${error.message}`
-            : "Couldn’t open the conversation.",
+            ? t("agents.couldnt_open_conversation", { message: error.message })
+            : t("agents.couldnt_open_conversation_plain"),
       });
       return false;
     }
@@ -379,6 +386,7 @@ export type UseSnapshotSendControllerResult = {
 export function useSnapshotSendController(
   enableDmSafety: boolean,
 ): UseSnapshotSendControllerResult {
+  const { t } = useTranslation();
   const identityQuery = useIdentityQuery();
   const queryClient = useQueryClient();
   // The people picker can create the first DM in a workspace, so relay-self
@@ -414,10 +422,12 @@ export function useSnapshotSendController(
         channelId,
         // Eligibility is checked from live query-cache and timeout sources,
         // not render-captured state.
-        checkEligibilityFn: () => checkSendEligibility(queryClient, channelId),
+        checkEligibilityFn: () =>
+          checkSendEligibility(queryClient, channelId, Date.now(), t),
         uploadFn: (bytes, filename) => uploadMediaBytes(bytes, filename),
         sendFn: (args) => sendMutation.mutateAsync(args),
         setStateFn: setState,
+        t,
         buildMessageFn: (descriptor) => {
           const message = buildOutgoingMessage("", [descriptor]);
           return attachmentLabel?.trim()
@@ -431,6 +441,7 @@ export function useSnapshotSendController(
         },
       }),
       setState,
+      t,
     );
   }
 

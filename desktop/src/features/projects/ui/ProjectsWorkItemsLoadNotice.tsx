@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AlertCircle } from "lucide-react";
 
 import type { ProjectWorkItemSection } from "@/features/projects/projectWorkItems";
@@ -25,6 +26,7 @@ export function ProjectsWorkItemsLoadNotice({
   onRetry,
   subject,
 }: ProjectsWorkItemsLoadNoticeProps) {
+  const { t } = useTranslation();
   if (!error && failedSections.length === 0) return null;
 
   const detailSubject =
@@ -39,7 +41,7 @@ export function ProjectsWorkItemsLoadNotice({
   const description = error
     ? error instanceof Error
       ? error.message
-      : "The relay request failed."
+      : t("projects.relay_request_failed")
     : `Missing ${failedSections
         .map((section) => SECTION_LABELS[section])
         .join(", ")}. The available results are shown below.`;

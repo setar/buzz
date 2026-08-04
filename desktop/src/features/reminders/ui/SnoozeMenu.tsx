@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Clock } from "lucide-react";
 import * as React from "react";
 
@@ -30,6 +31,7 @@ export function SnoozeMenu({
   disabled?: boolean;
   onSnooze: (notBefore: number) => void;
 }) {
+  const { t } = useTranslation();
   const [customOpen, setCustomOpen] = React.useState(false);
   const [customDate, setCustomDate] = React.useState(todayDateString);
   const [customTime, setCustomTime] = React.useState("09:00");
@@ -76,7 +78,7 @@ export function SnoozeMenu({
             <p className="text-sm font-medium">Snooze until</p>
             <div className="flex gap-2">
               <Input
-                aria-label="Snooze date"
+                aria-label={t("reminders.snooze_date")}
                 className="flex-1"
                 min={todayDateString()}
                 onChange={(event) => setCustomDate(event.target.value)}
@@ -84,7 +86,7 @@ export function SnoozeMenu({
                 value={customDate}
               />
               <Input
-                aria-label="Snooze time"
+                aria-label={t("reminders.snooze_time")}
                 className="w-[120px]"
                 onChange={(event) => setCustomTime(event.target.value)}
                 type="time"

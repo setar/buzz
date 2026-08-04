@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, Search, TriangleAlert } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -57,6 +58,7 @@ export function PullRequestReviewersRow({
   pullRequest: ProjectPullRequest;
   signAsManagedOwner: boolean;
 }) {
+  const { t } = useTranslation();
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [reviewerQuery, setReviewerQuery] = React.useState("");
   const requestInFlightRef = React.useRef(false);
@@ -113,16 +115,18 @@ export function PullRequestReviewersRow({
         });
         setPickerOpen(false);
         setReviewerQuery("");
-        toast.success("Review requested.");
+        toast.success(t("projects.review_requested"));
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to request review.",
+          error instanceof Error
+            ? error.message
+            : t("projects.failed_request_review"),
         );
       } finally {
         requestInFlightRef.current = false;
       }
     },
-    [pullRequest, requestReviewMutation, signAsManagedOwner],
+    [pullRequest, requestReviewMutation, signAsManagedOwner, t],
   );
 
   React.useEffect(() => {
@@ -189,7 +193,7 @@ export function PullRequestReviewersRow({
           </DialogTrigger>
           <DialogContent className="max-w-md gap-0 overflow-hidden p-0">
             <DialogHeader className="border-b border-border/60 px-6 py-5 pr-14">
-              <DialogTitle>Add reviewer</DialogTitle>
+              <DialogTitle>{t("projects.add_reviewer")}</DialogTitle>
               <DialogDescription>
                 Choose a person or agent to review this pull request.
               </DialogDescription>
@@ -201,7 +205,7 @@ export function PullRequestReviewersRow({
                 className="h-8 border-0 px-0 text-sm shadow-none focus-visible:ring-0"
                 data-testid="project-reviewer-search"
                 onChange={(event) => setReviewerQuery(event.target.value)}
-                placeholder="Search people and agents"
+                placeholder={t("projects.search_people_agents")}
                 value={reviewerQuery}
               />
             </div>

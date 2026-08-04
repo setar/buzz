@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 
@@ -17,6 +18,7 @@ export function SimpleImageLightbox({
   open: boolean;
   src: string;
 }) {
+  const { t } = useTranslation();
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
@@ -39,7 +41,7 @@ export function SimpleImageLightbox({
             close.
           </DialogPrimitive.Description>
           <DialogPrimitive.Close
-            aria-label="Close lightbox"
+            aria-label={t("shared.close_lightbox")}
             className="absolute inset-0 cursor-default"
           />
           {children ?? (

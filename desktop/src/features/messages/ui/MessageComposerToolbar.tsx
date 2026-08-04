@@ -2,6 +2,7 @@ import * as React from "react";
 import type { Editor } from "@tiptap/react";
 import { AnimatePresence, motion } from "motion/react";
 import { ALargeSmall, ArrowUp, AtSign, Paperclip, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
@@ -52,6 +53,7 @@ export const MessageComposerToolbar = React.memo(
     onPaperclip: () => void;
     sendDisabled: boolean;
   }) {
+    const { t } = useTranslation();
     return (
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <SelectionFormattingTray
@@ -91,7 +93,7 @@ export const MessageComposerToolbar = React.memo(
                   <Tooltip disableHoverableContent>
                     <TooltipTrigger asChild>
                       <Button
-                        aria-label="Toggle formatting"
+                        aria-label={t("messages.toggle_formatting")}
                         aria-pressed={isFormattingOpen}
                         disabled={composerDisabled}
                         onClick={() => onFormattingToggle(!isFormattingOpen)}
@@ -116,7 +118,7 @@ export const MessageComposerToolbar = React.memo(
                   <Tooltip disableHoverableContent>
                     <TooltipTrigger asChild>
                       <Button
-                        aria-label="Close formatting"
+                        aria-label={t("messages.close_formatting")}
                         disabled={composerDisabled}
                         onClick={() => onFormattingToggle(false)}
                         onMouseDown={onCaptureSelection}
@@ -128,7 +130,9 @@ export const MessageComposerToolbar = React.memo(
                         <X />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Close formatting</TooltipContent>
+                    <TooltipContent>
+                      {t("messages.close_formatting")}
+                    </TooltipContent>
                   </Tooltip>
                   <div className="mx-1 h-5 w-px shrink-0 bg-border/60" />
                 </motion.div>
@@ -162,7 +166,7 @@ export const MessageComposerToolbar = React.memo(
                 <Tooltip disableHoverableContent>
                   <TooltipTrigger asChild>
                     <Button
-                      aria-label="Mention someone"
+                      aria-label={t("messages.mention_someone")}
                       data-testid="message-insert-mention"
                       disabled={composerDisabled}
                       onClick={onOpenMentionPicker}
@@ -174,12 +178,14 @@ export const MessageComposerToolbar = React.memo(
                       <AtSign />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Mention someone</TooltipContent>
+                  <TooltipContent>
+                    {t("messages.mention_someone")}
+                  </TooltipContent>
                 </Tooltip>
                 <Tooltip disableHoverableContent>
                   <TooltipTrigger asChild>
                     <Button
-                      aria-label="Attach image"
+                      aria-label={t("messages.attach_image")}
                       disabled={composerDisabled || isUploading}
                       onClick={onPaperclip}
                       onMouseDown={onCaptureSelection}
@@ -190,7 +196,7 @@ export const MessageComposerToolbar = React.memo(
                       <Paperclip />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Attach image</TooltipContent>
+                  <TooltipContent>{t("messages.attach_image")}</TooltipContent>
                 </Tooltip>
                 <ComposerEmojiPicker
                   disabled={composerDisabled}
@@ -209,7 +215,7 @@ export const MessageComposerToolbar = React.memo(
                   <Tooltip disableHoverableContent>
                     <TooltipTrigger asChild>
                       <Button
-                        aria-label="Toggle formatting"
+                        aria-label={t("messages.toggle_formatting")}
                         aria-pressed={isFormattingOpen}
                         disabled={composerDisabled}
                         onClick={() => onFormattingToggle(!isFormattingOpen)}
@@ -232,7 +238,7 @@ export const MessageComposerToolbar = React.memo(
         <div className="flex items-center gap-2">
           {extraActions}
           <Button
-            aria-label={isSending ? "Sending" : "Send message"}
+            aria-label={isSending ? "Sending" : t("messages.send_message")}
             className="rounded-full"
             data-testid="send-message"
             disabled={sendDisabled || isSending}

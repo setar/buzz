@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Bug, ImageIcon, ThumbsUp, Wrench, X } from "lucide-react";
 import * as React from "react";
 
@@ -32,17 +33,24 @@ type FeedbackCategory = {
   positive?: boolean;
 };
 
-const FEEDBACK_CATEGORIES: readonly FeedbackCategory[] = [
-  { id: "bug", label: "Bug", icon: Bug },
-  { id: "praise", label: "Praise", icon: ThumbsUp, positive: true },
-  { id: "needs-work", label: "Needs work", icon: Wrench },
-];
+function buildFeedbackCategories(
+  t: (key: string) => string,
+): readonly FeedbackCategory[] {
+  return [
+    { id: "bug", label: "Bug", icon: Bug },
+    { id: "praise", label: "Praise", icon: ThumbsUp, positive: true },
+    { id: "needs-work", label: t("settings.needs_work"), icon: Wrench },
+  ];
+}
 
 /** Single source of truth for category id → user-facing label. */
-export const FEEDBACK_CATEGORY_LABELS: Record<FeedbackCategoryId, string> =
-  Object.fromEntries(
-    FEEDBACK_CATEGORIES.map((entry) => [entry.id, entry.label]),
+export function buildFeedbackCategoryLabels(
+  t: (key: string) => string,
+): Record<FeedbackCategoryId, string> {
+  return Object.fromEntries(
+    buildFeedbackCategories(t).map((entry) => [entry.id, entry.label]),
   ) as Record<FeedbackCategoryId, string>;
+}
 
 export type SendFeedbackInput = {
   category: FeedbackCategoryId | null;
@@ -51,7 +59,7 @@ export type SendFeedbackInput = {
 };
 
 /**
- * "Send feedback" modal.
+ * t("settings.send_feedback") modal.
  *
  * Layout mirrors {@link NewDirectMessageDialog}: a pill row (here, selectable
  * feedback categories in place of profile pills), a generic feedback box with an
@@ -83,6 +91,7 @@ export function SendFeedbackDialog({
   onSubmit: (input: SendFeedbackInput) => Promise<void>;
   open: boolean;
 }) {
+  const { t } = useTranslation();
   const { burstEmoji } = useEmojiBurst();
   useMediaProxyPort();
   const resolvedAttachedImageUrl = attachedImageUrl
@@ -127,7 +136,9 @@ export function SendFeedbackDialog({
       await onAttachImage();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to attach image.",
+        error instanceof Error
+          ? error.message
+          : t("settings.failed_attach_image"),
       );
     }
   }
@@ -142,7 +153,9 @@ export function SendFeedbackDialog({
       onOpenChange(false);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to send feedback.",
+        error instanceof Error
+          ? error.message
+          : t("settings.failed_send_feedback"),
       );
     }
   }
@@ -157,7 +170,7 @@ export function SendFeedbackDialog({
       >
         <DialogHeader className="space-y-0 pb-5">
           <div className="flex items-center justify-between gap-4">
-            <DialogTitle>Send feedback</DialogTitle>
+            <DialogTitle>{t("settings.send_feedback")}</DialogTitle>
             <DialogClose className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-accent-foreground focus:outline-hidden focus:ring-1 focus:ring-ring">
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
@@ -187,7 +200,7 @@ export function SendFeedbackDialog({
             that clicking deselects it.
           */}
           <div className="flex flex-wrap items-center gap-2 pb-4">
-            {FEEDBACK_CATEGORIES.map((entry) => {
+            {buildFeedbackCategories(t).map((entry) => {
               const Icon = entry.icon;
               const selected = category === entry.id;
               return (
@@ -239,14 +252,14 @@ export function SendFeedbackDialog({
                 setMessage(event.target.value);
                 setErrorMessage(null);
               }}
-              placeholder="Tell us what went wrong, or share general feedback."
+              placeholder={t("settings.feedback_desc")}
               value={message}
             />
 
             {resolvedAttachedImageUrl ? (
               <div className="group/attachment relative flex w-32 shrink-0 flex-col overflow-hidden rounded-lg border border-border/70 bg-muted/40">
                 <button
-                  aria-label="View attached image"
+                  aria-label={t("settings.view_attached_image")}
                   className="flex flex-1 flex-col text-left focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
                   data-testid="feedback-attachment-thumb"
                   onClick={() => setPreviewOpen(true)}
@@ -266,7 +279,7 @@ export function SendFeedbackDialog({
                   </span>
                 </button>
                 <button
-                  aria-label="Remove attachment"
+                  aria-label={t("settings.remove_attachment")}
                   className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-background/90 text-muted-foreground opacity-0 shadow transition-opacity duration-150 ease-out hover:text-foreground focus-visible:opacity-100 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring group-hover/attachment:opacity-100"
                   data-testid="feedback-attachment-remove"
                   disabled={isPending}
@@ -278,7 +291,7 @@ export function SendFeedbackDialog({
               </div>
             ) : (
               <button
-                aria-label="Attach image"
+                aria-label={t("settings.attach_image")}
                 className="flex w-32 shrink-0 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/70 bg-muted/20 p-3 text-center text-2xs font-medium text-muted-foreground transition-colors duration-150 ease-out hover:border-muted-foreground/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
                 data-testid="feedback-attach-image"
                 disabled={isPending || isAttaching}
@@ -286,7 +299,7 @@ export function SendFeedbackDialog({
                 type="button"
               >
                 <ImageIcon aria-hidden="true" className="h-5 w-5" />
-                {isAttaching ? "Attaching…" : "Attach image"}
+                {isAttaching ? "Attaching…" : t("settings.attach_image")}
               </button>
             )}
           </div>
@@ -338,7 +351,7 @@ export function SendFeedbackDialog({
                 }
                 type="submit"
               >
-                {isPending ? "Sending…" : "Send feedback"}
+                {isPending ? "Sending…" : t("settings.send_feedback")}
               </Button>
             </div>
           </div>

@@ -25,7 +25,7 @@ export type InboxDisplayMessage = InboxContextMessage & {
 type InboxMessageRowProps = {
   agentPubkeys?: ReadonlySet<string>;
   canReply: boolean;
-  /** Channel UUID for "Copy link" — passed straight through to MessageActionBar. */
+  /** Channel UUID for t("home.copy_link") — passed straight through to MessageActionBar. */
   channelId?: string | null;
   isContinuation?: boolean;
   isFirst?: boolean;
@@ -70,7 +70,7 @@ export function InboxMessageRow({
     errorMessage: reactionErrorMessage,
     select: handleReactionSelect,
   } = useReactionHandler(timelineMessage, onToggleReaction);
-  // "Is this pubkey an agent" = the community-scoped baseline every surface
+  // t("home.is_pubkey_agent") = the community-scoped baseline every surface
   // shares plus this surface's extras passed via `agentPubkeys` (HomeView
   // folds feed-profile `isAgent` flags in). Mirrors MessageRow's predicate.
   const knownAgentPubkeys = useKnownAgentPubkeys();

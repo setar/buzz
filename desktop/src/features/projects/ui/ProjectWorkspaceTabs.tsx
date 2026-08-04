@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   CircleDot,
   GitPullRequest,
@@ -180,6 +181,7 @@ export function WorkspaceTabs({
   terminalTitle?: string;
   viewerGitIdentity?: ViewerGitIdentity | null;
 }) {
+  const { t } = useTranslation();
   const localCheckoutSnapshot = localSnapshot?.snapshot ?? null;
   const displayedSnapshot =
     repoSource === "local" ? localCheckoutSnapshot : snapshot;
@@ -282,11 +284,11 @@ export function WorkspaceTabs({
         <ProjectTabsList prsActive={isPullRequestSelected} />
         {onOpenTerminal ? (
           <Button
-            aria-label="Open terminal"
+            aria-label={t("projects.open_terminal")}
             className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
             onClick={() => onOpenTerminal()}
             size="icon"
-            title={terminalTitle ?? "Open terminal"}
+            title={terminalTitle ?? t("projects.open_terminal")}
             variant="ghost"
           >
             <SquareTerminal className="h-[1.125rem] w-[1.125rem]" />
@@ -298,11 +300,13 @@ export function WorkspaceTabs({
             disabled={updatePullRequestAction.pending}
             onClick={updatePullRequestAction.onUpdate}
             size="sm"
-            title="Publish the pushed commit to this pull request"
+            title={t("projects.publish_pushed_commit")}
             variant="outline"
           >
             <RefreshCw className="h-4 w-4" />
-            {updatePullRequestAction.pending ? "Updating…" : "Update PR"}
+            {updatePullRequestAction.pending
+              ? "Updating…"
+              : t("projects.update_pr")}
           </Button>
         ) : null}
       </div>
@@ -422,11 +426,11 @@ export function WorkspaceTabs({
             !createPullRequestAction ||
             createPullRequestAction.projects.length === 0
           }
-          actionLabel="Pull Request"
-          actionTitle="Choose a repository and branches to compare."
+          actionLabel={t("projects.pull_request")}
+          actionTitle={t("projects.choose_repo_and_branches")}
           icon={GitPullRequest}
           onAction={() => setCreatePullRequestOpen(true)}
-          title="Pull Requests"
+          title={t("projects.pull_requests_title")}
         />
         <PullRequestsPanel
           error={pullRequestsError}

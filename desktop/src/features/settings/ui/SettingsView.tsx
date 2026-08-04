@@ -1,6 +1,7 @@
 import * as React from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { AlertCircle, ArrowLeft, LoaderCircle, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useMyRelayMembershipLookupQuery } from "@/features/community-members/hooks";
 import {
@@ -31,7 +32,7 @@ import {
 import { SidebarMenuLabel } from "@/shared/ui/sidebar-menu-label";
 import {
   renderSettingsSection,
-  settingsSections,
+  useSettingsSections,
   type SettingsPanelProps,
   type SettingsSection,
   type SettingsSectionDescriptor,
@@ -48,33 +49,6 @@ type SettingsViewProps = SettingsPanelProps & {
   section: SettingsSection;
 };
 
-const settingsNavGroups: Array<{
-  label: string;
-  sections: SettingsSection[];
-}> = [
-  {
-    label: "Personal",
-    sections: [
-      "profile",
-      "appearance",
-      "notifications",
-      "voice",
-      "shortcuts",
-      "custom-emoji",
-      "local-archive",
-      "channel-templates",
-    ],
-  },
-  {
-    label: "Communities",
-    sections: ["hosted-communities", "community-members"],
-  },
-  {
-    label: "App",
-    sections: ["agents", "compute", "experimental", "mobile", "updates"],
-  },
-];
-
 function SettingsSectionButton({
   active,
   onSelect,
@@ -82,7 +56,7 @@ function SettingsSectionButton({
 }: {
   active: boolean;
   onSelect: (section: SettingsSection) => void;
-  section: (typeof settingsSections)[number];
+  section: SettingsSectionDescriptor;
 }) {
   const Icon = section.icon;
 
@@ -128,10 +102,42 @@ export function SettingsView({
   section,
 }: SettingsViewProps) {
   const { isMobile, open: sidebarOpen, setOpen: setSidebarOpen } = useSidebar();
+  const { t } = useTranslation();
+  const allSections = useSettingsSections();
   const myMembershipQuery = useMyRelayMembershipLookupQuery();
   const featureState = useFeatureSnapshot();
+  const settingsNavGroups = React.useMemo(
+    () =>
+      [
+        {
+          label: t("sidebar.personal"),
+          sections: [
+            "profile",
+            "appearance",
+            "notifications",
+            "voice",
+            "shortcuts",
+            "custom-emoji",
+            "local-archive",
+          ],
+        },
+        {
+          label: t("sidebar.communities"),
+          sections: [
+            "hosted-communities",
+            "channel-templates",
+            "community-members",
+          ],
+        },
+        {
+          label: t("sidebar.app"),
+          sections: ["agents", "compute", "experimental", "mobile", "updates"],
+        },
+      ] satisfies Array<{ label: string; sections: SettingsSection[] }>,
+    [t],
+  );
   const visibleSections = React.useMemo(() => {
-    return settingsSections.filter((s) => {
+    return allSections.filter((s) => {
       // Feature gate check. Manifest is preview-only — if the gate id is in
       // the manifest, it's preview and needs an opt-in; if it's not, it's
       // stable and renders unconditionally (fail-open).
@@ -148,7 +154,7 @@ export function SettingsView({
       }
       return true;
     });
-  }, [myMembershipQuery.data, featureState]);
+  }, [allSections, myMembershipQuery.data, featureState]);
 
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [appVersion, setAppVersion] = React.useState<string | null>(null);
@@ -202,7 +208,7 @@ export function SettingsView({
             ),
         }))
         .filter((group) => group.sections.length > 0),
-    [visibleSectionByValue],
+    [settingsNavGroups, visibleSectionByValue],
   );
 
   return (
@@ -227,11 +233,11 @@ export function SettingsView({
               <SidebarMenuButton
                 data-testid="settings-back-to-app"
                 onClick={onClose}
-                tooltip="Back to app"
+                tooltip={t("sidebar.back_to_app")}
                 type="button"
               >
                 <ArrowLeft className="h-4 w-4" />
-                <span>Back to app</span>
+                <span>{t("sidebar.back_to_app")}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -244,7 +250,7 @@ export function SettingsView({
               data-testid="community-access-loading"
             >
               <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-              Checking invite permissions…
+              {t("sidebar.checking_permissions")}
             </div>
           ) : null}
           {myMembershipQuery.isError ? (
@@ -254,7 +260,7 @@ export function SettingsView({
             >
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-3.5 w-3.5 text-destructive" />
-                Invite settings could not be checked.
+                {t("sidebar.invite_check_failed")}
               </div>
               <button
                 className="flex items-center gap-1.5 font-medium text-sidebar-foreground underline-offset-2 hover:underline"
@@ -262,7 +268,7 @@ export function SettingsView({
                 type="button"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                Try again
+                {t("sidebar.try_again")}
               </button>
             </div>
           ) : null}
@@ -272,8 +278,7 @@ export function SettingsView({
               data-testid="community-access-snapshot-missing"
             >
               <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
-              Invite settings are unavailable. Relay recovery may still be in
-              progress.
+              {t("sidebar.invite_snapshot_missing")}
             </div>
           ) : null}
           {visibleNavGroups.map((group) => (

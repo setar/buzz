@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, Copy, GitMerge, SquareTerminal } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -41,6 +42,7 @@ export function MergePullRequestButton({
   project: Project;
   pullRequest: ProjectPullRequest;
 }) {
+  const { t } = useTranslation();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [isPreparingRecovery, setIsPreparingRecovery] = React.useState(false);
   const [conflictRecoveryState, setConflictRecoveryState] = React.useState<{
@@ -105,12 +107,10 @@ export function MergePullRequestButton({
         setConfirmOpen(false);
       }
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to merge pull request.",
+        error instanceof Error ? error.message : t("projects.failed_merge_pr"),
       );
     }
-  }, [mergeMutation, pullRequest]);
+  }, [mergeMutation, pullRequest, t]);
 
   const recoveryCommands =
     conflictRecovery && preparedRecovery
@@ -138,12 +138,12 @@ export function MergePullRequestButton({
         recoveryRef: result.recoveryRef,
         targetRef: result.targetRef,
       });
-      toast.success("Recovery commit fetched and terminal opened.");
+      toast.success(t("projects.recovery_commit_fetched"));
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to prepare merge recovery.",
+          : t("projects.failed_prepare_recovery"),
       );
     } finally {
       setIsPreparingRecovery(false);
@@ -155,6 +155,7 @@ export function MergePullRequestButton({
     pullRequest.cloneUrls,
     pullRequest.commit,
     pullRequest.id,
+    t,
   ]);
 
   const handlePublishMergedStatus = React.useCallback(async () => {
@@ -164,15 +165,15 @@ export function MergePullRequestButton({
         statusEvent: unpublishedStatusEvent,
       });
       setUnpublishedStatusState(null);
-      toast.success("Published merged pull request status.");
+      toast.success(t("projects.published_merged_status"));
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to publish merged pull request status.",
+          : t("projects.failed_publish_merged"),
       );
     }
-  }, [publishMergedMutation, unpublishedStatusEvent]);
+  }, [publishMergedMutation, unpublishedStatusEvent, t]);
 
   return (
     <div className="contents">
@@ -194,12 +195,14 @@ export function MergePullRequestButton({
           {publishMergedMutation.isPending
             ? "Publishing…"
             : unpublishedStatusEvent
-              ? "Publish merged status"
+              ? t("projects.publish_merged_status")
               : "Merge"}
         </Button>
         <AlertDialogContent data-testid="merge-pull-request-confirm">
           <AlertDialogHeader>
-            <AlertDialogTitle>Merge pull request?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("projects.merge_pr_confirm")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Merge {pullRequest.branchName} into {targetBranch} and push the
               result to the repository. The remote will reject the operation if
@@ -220,7 +223,7 @@ export function MergePullRequestButton({
                 }}
                 type="button"
               >
-                {mergeMutation.isPending ? "Merging…" : "Merge pull request"}
+                {mergeMutation.isPending ? "Merging…" : t("projects.merge_pr")}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -264,14 +267,16 @@ export function MergePullRequestButton({
               variant="outline"
             >
               <SquareTerminal className="h-3.5 w-3.5" />
-              {isPreparingRecovery ? "Preparing…" : "Resolve in Terminal"}
+              {isPreparingRecovery
+                ? "Preparing…"
+                : t("projects.resolve_in_terminal")}
             </Button>
             <Button
               disabled={!preparedRecovery}
               onClick={() =>
                 copyTextToClipboard(
                   recoveryCommands.join("\n"),
-                  "Recovery commands copied",
+                  t("projects.recovery_commands_copied"),
                 )
               }
               size="xs"

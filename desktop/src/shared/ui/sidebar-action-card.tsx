@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
@@ -192,7 +193,7 @@ export function SidebarCompactActionCard({
   className,
   description,
   dismissClassName,
-  dismissLabel = "Dismiss notification",
+  dismissLabel,
   icon,
   iconKey,
   onAction,
@@ -203,6 +204,7 @@ export function SidebarCompactActionCard({
   title,
   tone = "neutral",
 }: SidebarCompactActionCardProps) {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const isSuccess = tone === "success";
   const [isDismissing, setIsDismissing] = React.useState(false);
@@ -329,7 +331,7 @@ export function SidebarCompactActionCard({
         <SidebarActionDismissButton
           className={dismissClassName}
           isDismissing={isDismissing}
-          label={dismissLabel}
+          label={dismissLabel ?? t("shared.dismiss_notification")}
           onDismiss={onDismiss}
           onDismissStart={() => setIsDismissing(true)}
           testId={dismissTestId(testId)}

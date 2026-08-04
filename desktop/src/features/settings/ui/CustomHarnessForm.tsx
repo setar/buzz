@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Plus, X } from "lucide-react";
 
@@ -37,6 +38,7 @@ export const EMPTY_CUSTOM_FORM: CustomFormValues = {
 // ── Inline command validation ─────────────────────────────────────────────────
 
 function CommandAvailabilityBadge({ command }: { command: string }) {
+  const { t } = useTranslation();
   const trimmed = command.trim();
   const prereqs = useManagedAgentPrereqsQuery(trimmed, "", {
     enabled: trimmed.length > 0,
@@ -56,7 +58,9 @@ function CommandAvailabilityBadge({ command }: { command: string }) {
           : "bg-amber-500/15 text-amber-600 dark:text-amber-400",
       )}
     >
-      {available ? "Found on PATH" : "Not found on PATH"}
+      {available
+        ? t("settings.found_on_path")
+        : t("settings.not_found_on_path")}
     </span>
   );
 }
@@ -97,6 +101,7 @@ function ArgsEditor({
   args: string[];
   onChange: (next: string[]) => void;
 }) {
+  const { t } = useTranslation();
   function set(index: number, value: string) {
     const next = [...args];
     next[index] = value;
@@ -117,7 +122,7 @@ function ArgsEditor({
             />
           </FieldShell>
           <Button
-            aria-label="Remove argument"
+            aria-label={t("settings.remove_argument")}
             onClick={() => onChange(args.filter((_, idx) => idx !== i))}
             size="icon"
             type="button"
@@ -147,6 +152,7 @@ function EnvEditor({
   env: Array<{ key: string; value: string }>;
   onChange: (next: Array<{ key: string; value: string }>) => void;
 }) {
+  const { t } = useTranslation();
   function set(index: number, field: "key" | "value", value: string) {
     onChange(env.map((e, i) => (i === index ? { ...e, [field]: value } : e)));
   }
@@ -173,7 +179,7 @@ function EnvEditor({
             />
           </FieldShell>
           <Button
-            aria-label="Remove env var"
+            aria-label={t("settings.remove_env_var")}
             onClick={() => onChange(env.filter((_, idx) => idx !== i))}
             size="icon"
             type="button"
@@ -225,6 +231,7 @@ export function CustomHarnessForm({
    * (chromeless mode) so it scrolls with the fields. */
   header?: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = React.useState<CustomFormValues>({
     ...EMPTY_CUSTOM_FORM,
     ...initial,
@@ -295,7 +302,9 @@ export function CustomHarnessForm({
       {chromeless ? null : (
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium">
-            {originalId ? "Edit harness" : "Add custom harness"}
+            {originalId
+              ? t("settings.edit_harness")
+              : t("settings.add_custom_harness")}
           </p>
           <button
             aria-label="Cancel"
@@ -329,7 +338,7 @@ export function CustomHarnessForm({
                 className={FIELD_INPUT_CLASS}
                 id="ch-label"
                 onChange={field("label")}
-                placeholder="My Runtime"
+                placeholder={t("settings.my_runtime")}
                 required
                 value={form.label}
               />

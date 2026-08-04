@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Markdown } from "@/shared/ui/markdown";
 import {
   ActivityRow,
@@ -9,6 +10,7 @@ import { formatTranscriptTimestampTitle } from "../agentSessionUtils";
 import type { ActivityRenderClassItemProps } from "./types";
 
 export function PlanActivity(props: ActivityRenderClassItemProps) {
+  const { t } = useTranslation();
   if (props.item.type === "tool") {
     return <ToolActivity {...props} />;
   }
@@ -25,7 +27,7 @@ export function PlanActivity(props: ActivityRenderClassItemProps) {
         <ActivityRowLabel
           object={<PlanUpdateLabelObject text={props.item.text} />}
           openToneScope="none"
-          verb="Updated"
+          verb={t("agents.updated")}
         />
       </ActivityRow>
     );
@@ -36,11 +38,15 @@ export function PlanActivity(props: ActivityRenderClassItemProps) {
       testId="transcript-plan-item"
       title={formatTranscriptTimestampTitle(props.item.timestamp)}
     >
-      <ActivityRowLabel object="plan" openToneScope="tool" verb="Updated" />
+      <ActivityRowLabel
+        object="plan"
+        openToneScope="tool"
+        verb={t("agents.updated")}
+      />
       <ActivityRowContent className="pt-1 pb-1.5 text-sm leading-5 text-muted-foreground">
         <Markdown
           className="leading-5"
-          content={props.item.text.trim() || "No plan details."}
+          content={props.item.text.trim() || t("agents.no_plan_details")}
         />
       </ActivityRowContent>
     </ActivityRow>

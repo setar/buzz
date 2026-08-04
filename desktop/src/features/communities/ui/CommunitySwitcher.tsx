@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Check,
   ChevronDown,
@@ -36,14 +37,18 @@ import { writeTextToClipboard } from "@/shared/lib/clipboard";
 import { useActiveCommunityIcon } from "@/features/communities/useCommunityIcons";
 import { EditCommunityDialog } from "./EditCommunityDialog";
 
-const CONNECTION_STATE_LABEL: Record<ConnectionState, string> = {
-  idle: "Not connected",
-  connecting: "Connecting…",
-  connected: "Connected",
-  reconnecting: "Reconnecting to relay…",
-  stalled: "Connection lost — relay is not responding",
-  disconnected: "Disconnected from relay",
-};
+function buildConnectionStateLabel(
+  t: (key: string) => string,
+): Record<ConnectionState, string> {
+  return {
+    idle: t("communities.not_connected"),
+    connecting: t("communities.connecting"),
+    connected: t("communities.connected"),
+    reconnecting: t("communities.reconnecting"),
+    stalled: t("communities.connection_lost"),
+    disconnected: t("communities.disconnected"),
+  };
+}
 
 type CommunitySwitcherProps = {
   activeCommunity: Community | null;
@@ -100,13 +105,14 @@ export function CommunitySwitcher({
   onUpdateCommunity,
   onRemoveCommunity,
 }: CommunitySwitcherProps) {
+  const { t } = useTranslation();
   const [editingCommunity, setEditingCommunity] =
     React.useState<Community | null>(null);
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const profileMenuHoverTimer = React.useRef<number | null>(null);
   const connectionState = useRelayConnection();
   const degraded = isRelayConnectionDegraded(connectionState);
-  const connectionLabel = CONNECTION_STATE_LABEL[connectionState];
+  const connectionLabel = buildConnectionStateLabel(t)[connectionState];
   const activeIconQuery = useActiveCommunityIcon(activeCommunity?.relayUrl);
   const activeIcon = activeIconQuery.data ?? null;
   const isProfileVariant = variant === "profile";
@@ -186,7 +192,7 @@ export function CommunitySwitcher({
             : "min-w-0 flex-1 truncate font-medium"
         }
       >
-        {activeCommunity?.name ?? "No community"}
+        {activeCommunity?.name ?? t("sidebar.no_community")}
       </span>
       {variant === "profile-menu" ? (
         <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -212,7 +218,7 @@ export function CommunitySwitcher({
             aria-label={
               degraded
                 ? `${activeCommunity?.name ?? "Community"} — ${connectionLabel}`
-                : "Community actions"
+                : t("communities.actions")
             }
             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-popover-foreground outline-hidden transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none focus-visible:bg-muted/50 focus-visible:outline-none data-[state=open]:bg-muted/50 data-[state=open]:text-popover-foreground"
             data-testid="community-switcher"
@@ -234,7 +240,7 @@ export function CommunitySwitcher({
           sideOffset={0}
         >
           <div
-            aria-label="Community actions"
+            aria-label={t("communities.actions")}
             data-testid="profile-community-actions"
             role="menu"
           >
@@ -310,7 +316,7 @@ export function CommunitySwitcher({
             aria-label={
               degraded
                 ? `${activeCommunity?.name ?? "Community"} — ${connectionLabel}`
-                : "Switch community"
+                : t("communities.switch_community")
             }
             className="flex min-w-0 max-w-full items-center gap-1.5 rounded-md py-0.5 text-left text-xs text-sidebar-foreground/50 outline-hidden transition-colors hover:text-sidebar-foreground focus:outline-none focus-visible:outline-none data-[state=open]:text-sidebar-foreground"
             data-testid="community-switcher"

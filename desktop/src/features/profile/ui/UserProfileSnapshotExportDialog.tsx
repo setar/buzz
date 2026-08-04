@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useExportAgentSnapshotMutation } from "@/features/agents/hooks";
 import { AgentSnapshotExportDialog } from "@/features/agents/ui/AgentSnapshotExportDialog";
 import type { AgentPersona } from "@/shared/api/types";
@@ -12,6 +13,7 @@ export function UserProfileSnapshotExportDialog({
   linkedAgentPubkey: string | null;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const exportSnapshotMutation = useExportAgentSnapshotMutation();
 
   return (
@@ -41,7 +43,7 @@ export function UserProfileSnapshotExportDialog({
               toast.error(
                 error instanceof Error
                   ? error.message
-                  : "Failed to export agent snapshot.",
+                  : t("profile.failed_export_snapshot"),
               );
             },
           },

@@ -1,5 +1,6 @@
 import { FileText, Lock, Pencil, Send, Trash2 } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useAppNavigation } from "@/app/navigation/useAppNavigation";
 import { useChannelsQuery } from "@/features/channels/hooks";
@@ -42,7 +43,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
 const SENT_DRAFT_PREFIX = "sent:";
 const THREAD_DRAFT_PREFIX = "thread:";
-const UNKNOWN_CHANNEL_LABEL = "Unknown channel";
+
+function unknownChannelLabel(t: (key: string) => string): string {
+  return t("messages.unknown_channel");
+}
 
 export type DraftListEntry = {
   draft: DraftState;
@@ -60,10 +64,12 @@ export type DraftViewItem = {
   source: DraftSource;
 };
 
-const UNKNOWN_DRAFT_SOURCE: DraftSource = {
-  channel: null,
-  label: UNKNOWN_CHANNEL_LABEL,
-};
+function unknownDraftSource(t: (key: string) => string): DraftSource {
+  return {
+    channel: null,
+    label: unknownChannelLabel(t),
+  };
+}
 
 const draftTimeFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -77,10 +83,13 @@ function parseDraftTime(value: string): number {
   return Number.isFinite(time) ? time : 0;
 }
 
-export function formatDraftCreatedAt(draft: DraftState): string {
+export function formatDraftCreatedAt(
+  draft: DraftState,
+  t: (key: string) => string,
+): string {
   const time = parseDraftTime(draft.createdAt);
   return time === 0
-    ? "Unknown time"
+    ? t("messages.unknown_time")
     : draftTimeFormatter.format(new Date(time));
 }
 
@@ -112,7 +121,10 @@ function isVisibleDraft(entry: DraftListEntry): boolean {
   return content.length > 0 || attachmentCount > 0;
 }
 
-export function getDraftPreview(draft: DraftState): string {
+export function getDraftPreview(
+  draft: DraftState,
+  t: (key: string) => string,
+): string {
   const content = draft.content.trim();
   if (content.length > 0) {
     return content;
@@ -125,20 +137,23 @@ export function getDraftPreview(draft: DraftState): string {
   if (attachmentCount > 1) {
     return `${attachmentCount} attachments`;
   }
-  return "Empty draft";
+  return t("messages.empty_draft");
 }
 
-function resolveDraftSources({
-  channels,
-  currentPubkey,
-  drafts,
-  profiles,
-}: {
-  channels: Channel[] | undefined;
-  currentPubkey: string | undefined;
-  drafts: DraftListEntry[];
-  profiles: UserProfileLookup | undefined;
-}): Map<string, DraftSource> {
+function resolveDraftSources(
+  {
+    channels,
+    currentPubkey,
+    drafts,
+    profiles,
+  }: {
+    channels: Channel[] | undefined;
+    currentPubkey: string | undefined;
+    drafts: DraftListEntry[];
+    profiles: UserProfileLookup | undefined;
+  },
+  t: (key: string) => string,
+): Map<string, DraftSource> {
   const channelsById = new Map(
     (channels ?? []).map((channel) => [channel.id, channel]),
   );
@@ -150,7 +165,7 @@ function resolveDraftSources({
       channel: channel ?? null,
       label: channel
         ? resolveChannelDisplayLabel(channel, currentPubkey, profiles)
-        : UNKNOWN_CHANNEL_LABEL,
+        : unknownChannelLabel(t),
     });
   }
 
@@ -300,6 +315,7 @@ export function SendConfirmDialog({
   onConfirm,
   open,
 }: SendConfirmDialogProps) {
+  const { t } = useTranslation();
   const destination = isDm ? channelLabel : `#${channelLabel}`;
   return (
     <AlertDialog
@@ -312,7 +328,7 @@ export function SendConfirmDialog({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Send message</AlertDialogTitle>
+          <AlertDialogTitle>{t("messages.send_message")}</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to send this message to {destination}?
           </AlertDialogDescription>
@@ -351,6 +367,7 @@ function DraftRow({
   selected: boolean;
   source: DraftSource;
 }) {
+  const { t } = useTranslation();
   const isSent = entry.draft.status === "sent";
   const isOrphaned = rootStatus === "deleted";
   const canOpen = canOpenDraft(entry.draft, source) && !isOrphaned;
@@ -361,7 +378,7 @@ function DraftRow({
     ? isDm
       ? source.label
       : `#${source.label}`
-    : UNKNOWN_CHANNEL_LABEL;
+    : unknownChannelLabel(t);
 
   return (
     <div
@@ -391,7 +408,7 @@ function DraftRow({
               {channelLabel}
             </span>
             <span className="shrink-0 text-muted-foreground/70">
-              {formatDraftCreatedAt(entry.draft)}
+              {formatDraftCreatedAt(entry.draft, t)}
             </span>
             {isOrphaned ? (
               <span
@@ -405,7 +422,7 @@ function DraftRow({
           <div className="mt-1 max-h-10 overflow-hidden text-sm font-medium leading-5 text-foreground">
             <Markdown
               className="inbox-preview-markdown text-inherit leading-5"
-              content={getDraftPreview(entry.draft)}
+              content={getDraftPreview(entry.draft, t)}
               interactive={false}
             />
           </div>
@@ -420,10 +437,10 @@ function DraftRow({
               disabled={!canOpen}
               label={
                 canOpen
-                  ? "Open draft"
+                  ? t("messages.open_draft")
                   : isOrphaned
-                    ? "Thread deleted"
-                    : "No channel link"
+                    ? t("messages.thread_deleted")
+                    : t("messages.no_channel_link")
               }
               onClick={() => onOpen(entry)}
             >
@@ -433,10 +450,10 @@ function DraftRow({
               disabled={!canSend}
               label={
                 canSend
-                  ? "Send message"
+                  ? t("messages.send_message")
                   : isOrphaned
-                    ? "Thread deleted"
-                    : "No channel link"
+                    ? t("messages.thread_deleted")
+                    : t("messages.no_channel_link")
               }
               onClick={() => onSend(entry)}
             >
@@ -445,7 +462,7 @@ function DraftRow({
           </>
         )}
         <DraftRowActionButton
-          label="Delete draft"
+          label={t("messages.delete_draft")}
           onClick={() => onDelete(entry.key)}
         >
           <Trash2 className="h-4 w-4" />
@@ -512,6 +529,7 @@ export function useActiveDraftCount(
 // ── Shared draft view model ──────────────────────────────────────────────────
 
 export function useDraftViewItems(enabled: boolean): DraftViewItem[] {
+  const { t } = useTranslation();
   const identityQuery = useIdentityQuery();
   const currentPubkey = identityQuery.data?.pubkey;
   const channelsQuery = useChannelsQuery();
@@ -551,13 +569,16 @@ export function useDraftViewItems(enabled: boolean): DraftViewItem[] {
 
   const sources = React.useMemo(
     () =>
-      resolveDraftSources({
-        channels: channelsQuery.data,
-        currentPubkey,
-        drafts,
-        profiles,
-      }),
-    [channelsQuery.data, currentPubkey, drafts, profiles],
+      resolveDraftSources(
+        {
+          channels: channelsQuery.data,
+          currentPubkey,
+          drafts,
+          profiles,
+        },
+        t,
+      ),
+    [channelsQuery.data, currentPubkey, drafts, profiles, t],
   );
 
   return drafts.map((entry) => {
@@ -568,7 +589,7 @@ export function useDraftViewItems(enabled: boolean): DraftViewItem[] {
         threadRootId !== null
           ? (rootStatusMap.get(threadRootId) ?? "checking")
           : "available",
-      source: sources.get(entry.key) ?? UNKNOWN_DRAFT_SOURCE,
+      source: sources.get(entry.key) ?? unknownDraftSource(t),
     };
   });
 }
@@ -588,6 +609,7 @@ export function DraftsPanel({
   onSelectDraft,
   selectedDraftKey,
 }: DraftsPanelProps) {
+  const { t } = useTranslation();
   const { goChannel } = useAppNavigation();
 
   // Send confirmation dialog state.
@@ -626,11 +648,11 @@ export function DraftsPanel({
 
   const sendDialogSource =
     items.find((item) => item.entry.key === sendTarget?.key)?.source ??
-    UNKNOWN_DRAFT_SOURCE;
+    unknownDraftSource(t);
   const sendDialogIsDm = sendDialogSource.channel?.channelType === "dm";
   const sendDialogChannelLabel = sendDialogSource.channel
     ? sendDialogSource.label
-    : UNKNOWN_CHANNEL_LABEL;
+    : unknownChannelLabel(t);
 
   if (items.length === 0) {
     return (

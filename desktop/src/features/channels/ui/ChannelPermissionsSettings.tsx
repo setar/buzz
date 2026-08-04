@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ChevronDown, LoaderCircle } from "lucide-react";
 
 import type { ChannelVisibility } from "@/shared/api/types";
@@ -24,6 +25,7 @@ export function ChannelPermissionsSettings({
   testIdPrefix: string;
   visibility: ChannelVisibility;
 }) {
+  const { t } = useTranslation();
   const visibilityLabel = visibility === "private" ? "Private" : "Public";
 
   return (
@@ -41,7 +43,7 @@ export function ChannelPermissionsSettings({
             aria-busy={isPending}
             aria-label={
               isPending
-                ? "Updating visibility"
+                ? t("channel.updating_visibility")
                 : `Visibility: ${visibilityLabel}`
             }
             className="-mr-2.5 ml-auto h-9 w-fit justify-end px-2.5 text-right text-sm font-medium text-foreground hover:bg-muted/50"

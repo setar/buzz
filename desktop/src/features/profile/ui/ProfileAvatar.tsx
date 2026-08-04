@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { UserRound } from "lucide-react";
 
@@ -30,6 +31,7 @@ export function ProfileAvatar({
   plain = false,
   testId,
 }: ProfileAvatarProps) {
+  const { t } = useTranslation();
   const initials = getInitials(label);
   const presentation = useAvatarPresentation(avatarUrl);
   const presentedAvatarUrl = presentation?.displayUrl ?? avatarUrl;
@@ -107,7 +109,7 @@ export function ProfileAvatar({
       ) : null}
       {presentation?.state === "pending" ? (
         <span
-          aria-label="Avatar upload pending"
+          aria-label={t("profile.avatar_upload_pending")}
           className="pointer-events-none absolute inset-0 flex items-center justify-center text-white drop-shadow-sm"
           data-testid={testId ? `${testId}-upload-pending` : undefined}
           role="status"

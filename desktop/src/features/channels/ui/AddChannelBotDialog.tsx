@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AlertTriangle } from "lucide-react";
 import * as React from "react";
 
@@ -62,6 +63,7 @@ export function AddChannelBotDialog({
   onCreateAgent,
   onOpenChange,
 }: AddChannelBotDialogProps) {
+  const { t } = useTranslation();
   const personasQuery = usePersonasQuery();
   const teamsQuery = useTeamsQuery();
   const inChannelPersonaIds = useInChannelPersonaIds(
@@ -200,14 +202,14 @@ export function AddChannelBotDialog({
       : "Adding…"
     : selectedPersonas.length > 1
       ? `Add ${selectedPersonas.length} agents`
-      : "Add agent";
+      : t("channel.add_agent");
 
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
       <ChooserDialogContent
         className="max-w-xl"
         data-testid="add-channel-bot-dialog"
-        description="Choose from your agents, or create a new one."
+        description={t("channel.choose_or_create_agent")}
         footer={
           <>
             <Button
@@ -233,7 +235,7 @@ export function AddChannelBotDialog({
         headerTestId="add-channel-bot-dialog-header"
         scrollAreaClassName="space-y-5"
         scrollAreaTestId="add-channel-bot-dialog-scroll-area"
-        title="Add agents"
+        title={t("channel.add_agents")}
       >
         <AddChannelBotPersonasSection
           canToggleSelections={!createBotsMutation.isPending}

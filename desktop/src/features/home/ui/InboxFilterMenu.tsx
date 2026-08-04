@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
 
 import type { InboxFilter } from "@/features/home/lib/inbox";
@@ -11,19 +12,20 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 
-const INBOX_FILTER_OPTIONS: Array<{
-  label: string;
-  value: InboxFilter;
-}> = [
-  { value: "all", label: "All" },
-  { value: "project", label: "Projects" },
-  { value: "mention", label: "Mentions" },
-  { value: "thread", label: "Threads" },
-  { value: "needs_action", label: "Needs action" },
-  { value: "agent_activity", label: "Agents" },
-  { value: "reminders", label: "Reminders" },
-  { value: "drafts", label: "Drafts" },
-];
+function buildInboxFilterOptions(
+  t: (key: string) => string,
+): Array<{ label: string; value: InboxFilter }> {
+  return [
+    { value: "all", label: t("home.all") },
+    { value: "project", label: t("home.projects") },
+    { value: "mention", label: t("home.mentions") },
+    { value: "thread", label: t("home.threads") },
+    { value: "needs_action", label: t("home.needs_action") },
+    { value: "agent_activity", label: t("home.agents") },
+    { value: "reminders", label: t("home.reminders") },
+    { value: "drafts", label: t("home.drafts") },
+  ];
+}
 
 const TRIGGER_CLASS =
   "inline-flex h-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring data-[state=open]:bg-muted/70 data-[state=open]:text-foreground disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative -ml-2 w-auto gap-1 px-2 text-sm font-medium text-foreground";
@@ -43,7 +45,8 @@ export function InboxFilterMenu({
   onFilterChange,
   reminderCount,
 }: InboxFilterMenuProps) {
-  const activeFilter = INBOX_FILTER_OPTIONS.find(
+  const { t } = useTranslation();
+  const activeFilter = buildInboxFilterOptions(t).find(
     (option) => option.value === filter,
   );
   const statusLabel =
@@ -71,7 +74,7 @@ export function InboxFilterMenu({
           onValueChange={(value) => onFilterChange(value as InboxFilter)}
           value={filter}
         >
-          {INBOX_FILTER_OPTIONS.map((option) => (
+          {buildInboxFilterOptions(t).map((option) => (
             <div key={option.value}>
               {option.value === "reminders" ? (
                 <DropdownMenuSeparator className="my-2 bg-border/60" />

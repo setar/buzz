@@ -20,7 +20,9 @@ export function getUserProfilePanelHeaderContent({
   onBack,
   view,
   viewerIsOwner,
+  t,
 }: {
+  t: (key: string) => string;
   agentSettingsMenu: ReactNode;
   effectivePubkey: string | null;
   logCopyValue?: string | null;
@@ -35,7 +37,7 @@ export function getUserProfilePanelHeaderContent({
   const headerLeftContent = (
     <AuxiliaryPanelHeaderGroup
       align={shouldShowLogDetails ? "start" : "center"}
-      backButtonAriaLabel="Back to profile"
+      backButtonAriaLabel={t("profile.back_to_profile")}
       backButtonTestId="user-profile-panel-back"
       onBack={view !== "summary" ? onBack : undefined}
     >
@@ -60,7 +62,7 @@ export function getUserProfilePanelHeaderContent({
         <CopyButton
           className="text-muted-foreground hover:text-foreground"
           iconOnly
-          label="Copy log"
+          label={t("profile.copy_log")}
           size="icon"
           value={logCopyValue ?? ""}
           variant="ghost"

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   depthGuideActionsEqual,
@@ -145,6 +146,7 @@ export const MessageRow = React.memo(
     showDepthGuides?: boolean;
     videoReviewContext?: VideoReviewContext;
   }) {
+    const { t } = useTranslation();
     // Keep the transient send state with its timestamp rather than collapsing
     // it into a grouped message row with no header.
     const isDisplayedAsContinuation = isContinuation && !message.pending;
@@ -189,7 +191,7 @@ export const MessageRow = React.memo(
       () => resolveMentionProps(message.tags, profiles),
       [profiles, message.tags],
     );
-    // "Is this pubkey an agent" = the community-scoped baseline every surface
+    // t("messages.is_pubkey_agent") = the community-scoped baseline every surface
     // shares (managed ∪ relay) plus the pubkey's own profile `isAgent` flag from this surface's lookup. Both are per-pubkey
     // O(1) checks — no per-row rescan of `profiles` (that duplicated parent
     // work in every mounted row and re-ran on each profile-lookup change).
@@ -411,13 +413,13 @@ export const MessageRow = React.memo(
             role="img"
             aria-label={
               message.respondTo === "anyone"
-                ? "Anyone can send instructions to this agent"
-                : "Selected people can send instructions to this agent"
+                ? t("messages.anyone_can_send")
+                : t("messages.selected_can_send")
             }
             title={
               message.respondTo === "anyone"
-                ? "Anyone can send instructions to this agent"
-                : "Selected people can send instructions to this agent"
+                ? t("messages.anyone_can_send")
+                : t("messages.selected_can_send")
             }
           >
             {message.respondTo === "anyone" ? (
@@ -534,9 +536,11 @@ export const MessageRow = React.memo(
           {message.edited ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <p className="text-muted-foreground/70">(edited)</p>
+                <p className="text-muted-foreground/70">
+                  {t("messages.edited_label")}
+                </p>
               </TooltipTrigger>
-              <TooltipContent>This message has been edited</TooltipContent>
+              <TooltipContent>{t("messages.edited_tooltip")}</TooltipContent>
             </Tooltip>
           ) : null}
         </>
@@ -754,7 +758,7 @@ export const MessageRow = React.memo(
             {onCollapseDescendants ? (
               <button
                 aria-label={
-                  collapseDescendantsLabel ?? "Collapse replies to this message"
+                  collapseDescendantsLabel ?? t("messages.collapse_replies")
                 }
                 className="absolute bottom-0 z-20 w-5 -translate-x-1/2 cursor-pointer rounded-full p-0 focus-visible:outline-hidden"
                 data-thread-head-id={message.id}

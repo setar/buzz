@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { Workflow } from "@/shared/api/types";
 import {
   AlertDialog,
@@ -24,6 +25,7 @@ export function WorkflowDeleteDialog({
   onConfirm,
   onOpenChange,
 }: WorkflowDeleteDialogProps) {
+  const { t } = useTranslation();
   return (
     <AlertDialog onOpenChange={onOpenChange} open={open}>
       <AlertDialogContent>
@@ -32,7 +34,7 @@ export function WorkflowDeleteDialog({
           <AlertDialogDescription>
             {workflow
               ? `Delete "${workflow.name}". This will stop all future triggers and remove the workflow permanently.`
-              : "Delete this workflow."}
+              : t("workflows.delete_this")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Check, ChevronUp, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import * as React from "react";
@@ -103,6 +104,7 @@ export function MicControls({
   micGain,
   onGainChange,
 }: MicControlsProps) {
+  const { t } = useTranslation();
   const micUnavailable = !micConnected;
   const showMicMeter = micConnected && !isMuted;
   const isMac = isMacPlatform();
@@ -114,12 +116,12 @@ export function MicControls({
   const [leftBarHeight, centerBarHeight, rightBarHeight] = barHeights;
 
   const micButtonLabel = micUnavailable
-    ? "Microphone unavailable"
+    ? t("huddle.mic_unavailable")
     : isMuted
       ? "Unmute microphone"
       : isPttMode
-        ? "Force mute (overrides PTT)"
-        : "Mute microphone";
+        ? t("huddle.force_mute")
+        : t("huddle.mute_mic");
   const iconButtonClass = compact
     ? "h-8 w-8 shrink-0 rounded-l-md rounded-r-none px-0 py-0 text-sidebar-foreground/70 !shadow-none hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground/70"
     : splitIconButtonClass;
@@ -178,13 +180,13 @@ export function MicControls({
           </TooltipTrigger>
           <TooltipContent className="buzz-huddle-tooltip" side="top">
             {micUnavailable
-              ? "Microphone unavailable. Check app permissions or input device."
+              ? t("huddle.mic_unavailable_detail")
               : micButtonLabel}
           </TooltipContent>
         </Tooltip>
         <PopoverTrigger asChild>
           <Button
-            aria-label="Audio settings"
+            aria-label={t("huddle.audio_settings")}
             className={chevronButtonClass}
             size="icon"
             variant={compact ? "ghost" : "secondary"}
@@ -245,9 +247,7 @@ export function MicControls({
               </kbd>
             </button>
             <span className="sr-only" aria-live="polite">
-              {isPttMode
-                ? "Push to Talk is enabled."
-                : "Microphone is continuous."}
+              {isPttMode ? t("huddle.ptt_enabled") : t("huddle.mic_continuous")}
             </span>
           </div>
           <DeviceList
@@ -284,7 +284,7 @@ export function MicControls({
             </div>
             {micUnavailable && (
               <div className="mt-3 rounded-md border border-foreground/10 bg-foreground/8 px-2 py-2 text-xs text-foreground">
-                <p className="font-medium">Microphone unavailable</p>
+                <p className="font-medium">{t("huddle.mic_unavailable")}</p>
                 <p className="mt-1 leading-snug text-foreground/70">
                   Check app microphone permission or select another input
                   device.
@@ -337,6 +337,7 @@ export function SpeakerControls({
   selectedOutputDevice,
   onSelectOutputDevice,
 }: SpeakerControlsProps) {
+  const { t } = useTranslation();
   return (
     <Popover>
       <div className="relative flex items-center">
@@ -354,7 +355,7 @@ export function SpeakerControls({
           </PopoverAnchor>
           <PopoverContent
             align="center"
-            aria-label="Headphones recommended"
+            aria-label={t("huddle.headphones")}
             className="buzz-huddle-drawer buzz-huddle-popover buzz-huddle-headphones-hint w-64 p-3 text-foreground"
             onCloseAutoFocus={(event) => event.preventDefault()}
             onOpenAutoFocus={(event) => event.preventDefault()}
@@ -386,7 +387,9 @@ export function SpeakerControls({
           </PopoverContent>
         </Popover>
         <Button
-          aria-label={ttsEnabled ? "Mute agent speech" : "Unmute agent speech"}
+          aria-label={
+            ttsEnabled ? t("huddle.mute_agent_speech") : "Unmute agent speech"
+          }
           aria-pressed={!ttsEnabled}
           className={cn(
             splitIconButtonClass,

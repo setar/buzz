@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Bot, Download, Loader2, Users } from "lucide-react";
 
@@ -67,6 +68,7 @@ export function AgentSnapshotCard({
   thumb,
   onImport,
 }: AgentSnapshotCardProps) {
+  const { t } = useTranslation();
   const [importState, setImportState] = React.useState<ImportState>({
     phase: "idle",
   });
@@ -205,8 +207,8 @@ export function AgentSnapshotCard({
           {isFetching
             ? "Loading…"
             : snapshotKind === "team"
-              ? "Add team"
-              : "Add agent"}
+              ? t("shared.add_team")
+              : t("shared.add_agent")}
         </AttachmentAction>
       </AttachmentActions>
     </Attachment>

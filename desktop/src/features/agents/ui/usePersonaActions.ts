@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 import {
   managedAgentsQueryKey,
@@ -67,6 +68,7 @@ import {
 type PersonaFeedbackSurface = "catalog" | "library";
 
 export function usePersonaActions() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { activeCommunity } = useCommunities();
   const identityQuery = useIdentityQuery();
@@ -210,9 +212,7 @@ export function usePersonaActions() {
           (candidate) => candidate.id === input.runtime,
         );
         if (!runtime) {
-          setPersonaErrorMessage(
-            "Choose an available provider for this agent.",
-          );
+          setPersonaErrorMessage(t("agents.choose_available_provider"));
           return false;
         }
 
@@ -233,7 +233,9 @@ export function usePersonaActions() {
         });
 
         if (resolveCreateIntent(intent) === "definition") {
-          setPersonaNoticeMessage(`Created ${persona.displayName}.`);
+          setPersonaNoticeMessage(
+            t("agents.created_persona", { name: persona.displayName }),
+          );
           setPersonaDialogState(null);
           return true;
         }
@@ -252,23 +254,34 @@ export function usePersonaActions() {
           );
           if (created.spawnError) {
             setPersonaErrorMessage(
-              `${persona.displayName} was created, but it did not start: ${created.spawnError}`,
+              t("agents.created_not_started", {
+                name: persona.displayName,
+                error: created.spawnError,
+              }),
             );
           } else {
             setPersonaNoticeMessage(
-              `Created and started ${created.agent.name}.`,
+              t("agents.created_and_started", { name: created.agent.name }),
             );
           }
           if (created.profileSyncError) {
             setPersonaErrorMessage(
-              `${created.agent.name} was created, but profile sync failed: ${created.profileSyncError}`,
+              t("agents.created_profile_sync_failed", {
+                name: created.agent.name,
+                error: created.profileSyncError,
+              }),
             );
           }
         } catch (error) {
           setPersonaErrorMessage(
             error instanceof Error
-              ? `${persona.displayName} was created, but the agent instance could not be created: ${error.message}`
-              : `${persona.displayName} was created, but the agent instance could not be created.`,
+              ? t("agents.created_instance_failed_with_error", {
+                  name: persona.displayName,
+                  error: error.message,
+                })
+              : t("agents.created_instance_failed", {
+                  name: persona.displayName,
+                }),
           );
         }
       }
@@ -276,7 +289,7 @@ export function usePersonaActions() {
       return true;
     } catch (error) {
       setPersonaErrorMessage(
-        error instanceof Error ? error.message : "Failed to save agent.",
+        error instanceof Error ? error.message : t("agents.failed_save_agent"),
       );
       return false;
     } finally {
@@ -288,11 +301,15 @@ export function usePersonaActions() {
     clearFeedback("library");
     try {
       await deletePersonaMutation.mutateAsync(persona.id);
-      setPersonaNoticeMessage(`Deleted ${persona.displayName}.`);
+      setPersonaNoticeMessage(
+        t("agents.deleted_persona", { name: persona.displayName }),
+      );
       setPersonaToDelete(null);
     } catch (error) {
       setPersonaErrorMessage(
-        error instanceof Error ? error.message : "Failed to delete agent.",
+        error instanceof Error
+          ? error.message
+          : t("agents.failed_delete_agent"),
       );
     }
   }
@@ -346,16 +363,18 @@ export function usePersonaActions() {
       }
       setPersonaNoticeMessage(
         active
-          ? `Selected ${persona.displayName} for My Agents.`
-          : `Deselected ${persona.displayName} from My Agents.`,
+          ? t("agents.selected_for_my_agents", { name: persona.displayName })
+          : t("agents.deselected_from_my_agents", {
+              name: persona.displayName,
+            }),
       );
     } catch (error) {
       setPersonaErrorMessage(
         error instanceof Error
           ? error.message
           : active
-            ? "Failed to select agent for My Agents."
-            : "Failed to deselect agent from My Agents.",
+            ? t("agents.failed_select_agent")
+            : t("agents.failed_deselect_agent"),
       );
     }
   }
@@ -377,7 +396,7 @@ export function usePersonaActions() {
       setPersonaErrorMessage(
         err instanceof Error
           ? err.message
-          : "Failed to read agent snapshot file.",
+          : t("agents.failed_read_agent_snapshot"),
       );
     }
   }
@@ -400,14 +419,21 @@ export function usePersonaActions() {
       });
       if (result.memoryErrors.length > 0) {
         setPersonaErrorMessage(
-          `${result.displayName} imported, but ${result.memoryErrors.length} memory entr${result.memoryErrors.length === 1 ? "y" : "ies"} failed to restore.`,
+          t("agents.import_memory_errors", {
+            count: result.memoryErrors.length,
+            name: result.displayName,
+          }),
         );
       } else {
-        setPersonaNoticeMessage(`Imported ${result.displayName}.`);
+        setPersonaNoticeMessage(
+          t("agents.imported_persona", { name: result.displayName }),
+        );
       }
     } catch (err) {
       setSnapshotImportConfirmError(
-        err instanceof Error ? err.message : "Failed to import agent snapshot.",
+        err instanceof Error
+          ? err.message
+          : t("agents.failed_import_agent_snapshot"),
       );
     }
   }
@@ -426,13 +452,13 @@ export function usePersonaActions() {
   function openEdit(persona: AgentPersona) {
     clearFeedback("library");
     setShouldLoadAcpRuntimes(true);
-    setPersonaDialogState(editPersonaDialogState(persona));
+    setPersonaDialogState(editPersonaDialogState(persona, t));
   }
 
   function openDuplicate(persona: AgentPersona) {
     clearFeedback("library");
     setShouldLoadAcpRuntimes(true);
-    setPersonaDialogState(duplicatePersonaDialogState(persona));
+    setPersonaDialogState(duplicatePersonaDialogState(persona, t));
   }
 
   function openCatalog() {
@@ -479,14 +505,16 @@ export function usePersonaActions() {
       {
         onSuccess: (saved) => {
           if (saved) {
-            setPersonaNoticeMessage(`Exported ${persona.displayName}.`);
+            setPersonaNoticeMessage(
+              t("agents.exported_persona", { name: persona.displayName }),
+            );
           }
         },
         onError: (error) => {
           setPersonaErrorMessage(
             error instanceof Error
               ? error.message
-              : "Failed to export agent snapshot.",
+              : t("agents.failed_export_agent_snapshot"),
           );
         },
       },
@@ -520,11 +548,11 @@ export function usePersonaActions() {
       if (result.publicationStatus === "queued") {
         if (shared) {
           setPersonaNoticeMessage(
-            `Sharing ${persona.displayName} is queued. It will appear after the relay accepts the update.`,
+            t("agents.sharing_queued", { name: persona.displayName }),
           );
         } else {
           setPersonaNoticeMessage(
-            `Removing ${persona.displayName} is queued. It may remain discoverable until the relay accepts the update.`,
+            t("agents.removing_queued", { name: persona.displayName }),
           );
         }
         if (result.relayMessage) {
@@ -534,18 +562,18 @@ export function usePersonaActions() {
         }
       } else if (!shared) {
         setPersonaNoticeMessage(
-          `${persona.displayName} is no longer discoverable in the community catalog.`,
+          t("agents.no_longer_discoverable", { name: persona.displayName }),
         );
       } else {
         setPersonaNoticeMessage(
-          `Published ${persona.displayName} to the community catalog.`,
+          t("agents.published_to_catalog", { name: persona.displayName }),
         );
       }
     } catch (error) {
       setPersonaErrorMessage(
         error instanceof Error
           ? error.message
-          : "Failed to update catalog sharing.",
+          : t("agents.failed_update_catalog_sharing"),
       );
     }
   }

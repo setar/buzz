@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, Bell, Check, Clock, ExternalLink, X } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -29,8 +30,6 @@ import { normalizePubkey } from "@/shared/lib/pubkey";
 import { Button } from "@/shared/ui/button";
 import { UserAvatar } from "@/shared/ui/UserAvatar";
 
-const UNKNOWN_CHANNEL_LABEL = "Unknown channel";
-
 /** Author identity + source channel resolved for a reminder's target. */
 export type ReminderSource = {
   authorLabel: string;
@@ -40,6 +39,7 @@ export type ReminderSource = {
 };
 
 export function useReminderSources(reminders: readonly Reminder[]) {
+  const { t } = useTranslation();
   const identityQuery = useIdentityQuery();
   const currentPubkey = identityQuery.data?.pubkey;
   const channelsQuery = useChannelsQuery();
@@ -75,11 +75,11 @@ export function useReminderSources(reminders: readonly Reminder[]) {
         channel: channel ?? null,
         channelLabel: channel
           ? resolveChannelDisplayLabel(channel, currentPubkey, profiles)
-          : UNKNOWN_CHANNEL_LABEL,
+          : t("search.unknown_channel"),
       });
     }
     return map;
-  }, [channels, currentPubkey, profiles, reminders]);
+  }, [channels, currentPubkey, profiles, reminders, t]);
 }
 
 function formatRelativeTime(timestamp: number): string {
@@ -124,6 +124,7 @@ function ReminderRow({
   onNavigate: (reminder: Reminder) => void;
   onSelect?: (reminder: Reminder) => void;
 }) {
+  const { t } = useTranslation();
   const { complete, snooze, cancel } = useReminderMutations(pubkey);
   const isDone = reminder.content.status === "done";
   const isActing = complete.isPending || snooze.isPending || cancel.isPending;
@@ -131,8 +132,8 @@ function ReminderRow({
 
   const handleComplete = () => {
     complete.mutate(reminder, {
-      onSuccess: () => toast.success("Reminder completed"),
-      onError: () => toast.error("Failed to complete reminder"),
+      onSuccess: () => toast.success(t("reminders.completed")),
+      onError: () => toast.error(t("reminders.failed_complete")),
     });
   };
 
@@ -140,16 +141,16 @@ function ReminderRow({
     snooze.mutate(
       { reminder, notBefore },
       {
-        onSuccess: () => toast.success("Reminder snoozed"),
-        onError: () => toast.error("Failed to snooze reminder"),
+        onSuccess: () => toast.success(t("reminders.snoozed")),
+        onError: () => toast.error(t("reminders.failed_snooze")),
       },
     );
   };
 
   const handleCancel = () => {
     cancel.mutate(reminder, {
-      onSuccess: () => toast.success("Reminder cancelled"),
-      onError: () => toast.error("Failed to cancel reminder"),
+      onSuccess: () => toast.success(t("reminders.cancelled")),
+      onError: () => toast.error(t("reminders.failed_cancel")),
     });
   };
 
@@ -268,6 +269,7 @@ export function RemindersPanel({
   presentation?: "inbox-list" | "card";
   selectedReminderId?: string | null;
 }) {
+  const { t } = useTranslation();
   const remindersQuery = useRemindersQuery(pubkey);
   const reminders = remindersQuery.data;
   const { goChannel } = useAppNavigation();
@@ -312,7 +314,7 @@ export function RemindersPanel({
         <Bell className="h-8 w-8 text-muted-foreground/50" />
         <p className="text-sm text-muted-foreground">No reminders</p>
         <p className="text-xs text-muted-foreground/70">
-          Use "Remind me later" on any message to create one.
+          {t("reminders.use_remind_later")}
         </p>
       </div>
     );
@@ -368,6 +370,7 @@ export function ReminderDetailPane({
   pubkey: string;
   reminder: Reminder | null;
 }) {
+  const { t } = useTranslation();
   const { goChannel } = useAppNavigation();
   const reminderList = React.useMemo(
     () => (reminder ? [reminder] : []),
@@ -418,7 +421,7 @@ export function ReminderDetailPane({
         <div className="flex min-h-9 items-center gap-2 px-4 py-2">
           {onBack ? (
             <Button
-              aria-label="Back to reminders"
+              aria-label={t("reminders.back")}
               className="h-8 w-8 p-0"
               onClick={onBack}
               size="icon"
@@ -488,8 +491,9 @@ export function ReminderDetailPane({
                   disabled={isActing}
                   onClick={() =>
                     complete.mutate(reminder, {
-                      onSuccess: () => toast.success("Reminder completed"),
-                      onError: () => toast.error("Failed to complete reminder"),
+                      onSuccess: () => toast.success(t("reminders.completed")),
+                      onError: () =>
+                        toast.error(t("reminders.failed_complete")),
                     })
                   }
                   size="sm"
@@ -504,8 +508,9 @@ export function ReminderDetailPane({
                     snooze.mutate(
                       { reminder, notBefore },
                       {
-                        onSuccess: () => toast.success("Reminder snoozed"),
-                        onError: () => toast.error("Failed to snooze reminder"),
+                        onSuccess: () => toast.success(t("reminders.snoozed")),
+                        onError: () =>
+                          toast.error(t("reminders.failed_snooze")),
                       },
                     )
                   }
@@ -514,8 +519,8 @@ export function ReminderDetailPane({
                   disabled={isActing}
                   onClick={() =>
                     cancel.mutate(reminder, {
-                      onSuccess: () => toast.success("Reminder cancelled"),
-                      onError: () => toast.error("Failed to cancel reminder"),
+                      onSuccess: () => toast.success(t("reminders.cancelled")),
+                      onError: () => toast.error(t("reminders.failed_cancel")),
                     })
                   }
                   size="sm"

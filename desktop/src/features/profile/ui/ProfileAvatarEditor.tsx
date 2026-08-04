@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import emojiData from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { Link2, UploadCloud } from "lucide-react";
@@ -87,6 +88,7 @@ export function ProfileAvatarEditor({
   onAnimatedPreviewCaptionChange,
   presentation = "default",
 }: ProfileAvatarEditorProps) {
+  const { t } = useTranslation();
   const { burstEmoji } = useEmojiBurst();
   const shouldReduceMotion = useReducedMotion();
   const initialEmojiAvatar = React.useMemo(
@@ -656,9 +658,9 @@ export function ProfileAvatarEditor({
                       {isUploading ? (
                         "Uploading..."
                       ) : isImageDropActive ? (
-                        "Drop image here"
+                        t("profile.drop_image")
                       ) : isOnboardingModal ? (
-                        "Drag or browse"
+                        t("profile.drag_or_browse")
                       ) : (
                         <>
                           Drop or{" "}
@@ -714,8 +716,8 @@ export function ProfileAvatarEditor({
                       }}
                       placeholder={
                         isOnboardingModal
-                          ? "Paste a URL"
-                          : "Paste a URL (Slack profile, etc.)"
+                          ? t("profile.paste_url")
+                          : t("profile.paste_url_hint")
                       }
                       spellCheck={false}
                       type="url"
@@ -832,8 +834,8 @@ export function ProfileAvatarEditor({
                             aria-label={
                               isCustomSwatch
                                 ? selectedEmoji
-                                  ? "Choose custom avatar color"
-                                  : "Choose an emoji before custom avatar color"
+                                  ? t("profile.avatar_color")
+                                  : t("profile.emoji_before_color")
                                 : `Use ${swatch} background`
                             }
                             aria-pressed={isSelected}
@@ -948,7 +950,7 @@ export function ProfileAvatarEditor({
                           transition={DONE_BUTTON_CONTENT_TRANSITION}
                         >
                           <Spinner
-                            aria-label="Saving avatar"
+                            aria-label={t("profile.saving_avatar")}
                             className="h-4 w-4 border-2"
                           />
                           <span>Saving</span>

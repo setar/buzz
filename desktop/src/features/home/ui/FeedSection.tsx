@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, type LucideIcon } from "lucide-react";
 
 import {
@@ -57,56 +58,56 @@ function formatRelativeTime(unixSeconds: number) {
   }).format(new Date(unixSeconds * 1_000));
 }
 
-function feedHeadline(item: FeedItem) {
+function feedHeadline(item: FeedItem, t: (key: string) => string) {
   switch (item.kind) {
     case KIND_REMINDER:
-      return "Reminder";
+      return t("home.reminder");
     case KIND_JOB_REQUEST:
-      return "Job requested";
+      return t("home.job_requested");
     case KIND_JOB_ACCEPTED:
-      return "Job accepted";
+      return t("home.job_accepted");
     case KIND_JOB_PROGRESS:
-      return "Progress update";
+      return t("home.progress_update");
     case KIND_JOB_RESULT:
-      return "Job result";
+      return t("home.job_result");
     case KIND_JOB_CANCEL:
-      return "Job cancelled";
+      return t("home.job_cancelled");
     case KIND_JOB_ERROR:
-      return "Job failed";
+      return t("home.job_failed");
     case KIND_FORUM_POST:
-      return "Forum post";
+      return t("home.forum_post");
     case KIND_FORUM_COMMENT:
-      return "Forum reply";
+      return t("home.forum_reply");
     case KIND_APPROVAL_REQUEST:
-      return "Approval requested";
+      return t("home.approval_requested");
     default:
       if (item.category === "mention") {
-        return "Mention";
+        return t("home.mention");
       }
 
       if (item.category === "agent_activity") {
-        return "Agent update";
+        return t("home.agent_update");
       }
 
-      return "Channel update";
+      return t("home.channel_update");
   }
 }
 
-function feedContent(item: FeedItem) {
+function feedContent(item: FeedItem, t: (key: string) => string) {
   const content = item.content.trim();
   if (content.length > 0) {
     return content;
   }
 
   if (item.kind === KIND_APPROVAL_REQUEST) {
-    return "A workflow is waiting for approval.";
+    return t("home.workflow_waiting_approval");
   }
 
   if (item.kind === KIND_REMINDER) {
-    return "A reminder is waiting for you.";
+    return t("home.reminder_waiting");
   }
 
-  return "No additional details were attached to this event.";
+  return t("home.no_details");
 }
 
 type FeedSectionProps = {
@@ -140,6 +141,7 @@ export function FeedSection({
   onMarkDone,
   onUndoDone,
 }: FeedSectionProps) {
+  const { t } = useTranslation();
   return (
     <section>
       <div className="flex items-center gap-2 pb-2">
@@ -192,7 +194,7 @@ export function FeedSection({
                   <span
                     className={`text-sm font-medium ${isDone ? "line-through text-muted-foreground" : ""}`}
                   >
-                    {feedHeadline(item)}
+                    {feedHeadline(item, t)}
                   </span>
                   <span className="inline-flex items-center gap-1 text-2xs text-muted-foreground">
                     <UserAvatar
@@ -227,7 +229,7 @@ export function FeedSection({
                 <div className="pointer-events-none relative mt-0.5 line-clamp-2">
                   <Markdown
                     className="max-w-none text-sm leading-snug text-muted-foreground"
-                    content={feedContent(item)}
+                    content={feedContent(item, t)}
                     mentionNames={mentionNames}
                     mentionPubkeysByName={mentionPubkeysByName}
                   />
@@ -235,7 +237,7 @@ export function FeedSection({
 
                 {showDoneAction ? (
                   <Button
-                    aria-label={isDone ? "Undo done" : "Mark done"}
+                    aria-label={isDone ? "Undo done" : t("home.mark_done")}
                     onClick={() => {
                       if (isDone) {
                         onUndoDone(item.id);

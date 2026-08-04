@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, Copy } from "lucide-react";
 import * as React from "react";
 
@@ -80,6 +81,7 @@ export function PubKey({
   className,
   testId,
 }: PubKeyProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const hoverTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -123,7 +125,7 @@ export function PubKey({
         <Popover>
           <PopoverTrigger asChild>
             <Button
-              aria-label="Copy public key"
+              aria-label={t("shared.copy_public_key")}
               size="icon-xs"
               type="button"
               variant="ghost"
@@ -143,7 +145,7 @@ export function PubKey({
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <button
-          aria-label="Show full public key"
+          aria-label={t("shared.show_full_public_key")}
           className={cn(
             "cursor-pointer rounded font-mono hover:underline focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring",
             className,

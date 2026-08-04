@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type * as React from "react";
 
 import { AuxiliaryPanel } from "@/shared/layout/AuxiliaryPanel";
@@ -40,6 +41,7 @@ export function UserProfilePanelFrame({
   widthPx,
   transparentChrome = false,
 }: UserProfilePanelFrameProps) {
+  const { t } = useTranslation();
   return (
     <AuxiliaryPanel
       canResetWidth={canResetWidth}
@@ -48,7 +50,7 @@ export function UserProfilePanelFrame({
       onClose={onClose}
       onResetWidth={onResetWidth}
       onResizeStart={onResizeStart}
-      resizeHandleAriaLabel="Resize profile panel"
+      resizeHandleAriaLabel={t("profile.resize_profile_panel")}
       resizeHandleTestId="user-profile-resize-handle"
       siblings={
         <>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -31,6 +32,7 @@ export function CreatePullRequestDialog({
   projects: Project[];
   reposDir?: string | null;
 }) {
+  const { t } = useTranslation();
   const initialProject =
     projects.find((project) => project.id === initialProjectId) ?? projects[0];
   const [projectId, setProjectId] = React.useState(initialProject?.id ?? "");
@@ -107,28 +109,26 @@ export function CreatePullRequestDialog({
       (pullRequest.targetBranch ?? project?.defaultBranch) === targetBranch,
   );
   const selectionError = !project
-    ? "Choose a repository."
+    ? t("projects.choose_repository")
     : !targetBranch
-      ? "Choose a base branch."
+      ? t("projects.choose_base_branch")
       : !sourceBranch
-        ? "Choose a compare branch."
+        ? t("projects.choose_compare_branch")
         : sourceBranch === targetBranch
-          ? "The base and compare branches must be different."
+          ? t("projects.branches_must_differ")
           : hasOpenPullRequest
-            ? "An open pull request already compares these branches."
+            ? t("projects.pr_already_compares")
             : !sourceCommit
-              ? "The compare branch must be pushed before opening a pull request."
+              ? t("projects.compare_branch_must_be_pushed")
               : null;
   const description =
     project && sourceBranch && targetBranch
       ? `${project.name}: ${sourceBranch} → ${targetBranch}${sourceCommit ? ` at ${sourceCommit.slice(0, 7)}` : ""}`
-      : "Choose a repository and branches to compare.";
+      : t("projects.choose_repo_and_branches");
 
   async function handleCreate(input: CreatePullRequestDialogInput) {
     if (!project || !sourceCommit || selectionError) {
-      throw new Error(
-        selectionError ?? "Pull request branches are incomplete.",
-      );
+      throw new Error(selectionError ?? t("projects.pr_branches_incomplete"));
     }
     const pullRequestId = await createMutation.mutateAsync({
       ...input,
@@ -138,13 +138,13 @@ export function CreatePullRequestDialog({
       mergeBase: sourceSyncQuery.data?.mergeBase ?? null,
       reviewers: [],
     });
-    toast.success("Pull request created.");
+    toast.success(t("projects.pr_created"));
     await onCreated(project, pullRequestId);
   }
 
   return (
     <CreateProjectWorkItemDialog
-      bodyPlaceholder="Add context for reviewers"
+      bodyPlaceholder={t("projects.add_context_for_reviewers")}
       description={description}
       isCreating={createMutation.isPending}
       itemName="pull-request"
@@ -155,8 +155,8 @@ export function CreatePullRequestDialog({
       }}
       open={open}
       submitDisabled={Boolean(selectionError)}
-      title="Open a pull request"
-      titlePlaceholder="Describe the change"
+      title={t("projects.open_pr")}
+      titlePlaceholder={t("projects.describe_change")}
     >
       <div className="grid gap-3 rounded-xl border border-border/60 bg-muted/25 p-3 sm:grid-cols-2">
         <label className="space-y-1.5 text-sm font-medium sm:col-span-2">

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { isTauri } from "@tauri-apps/api/core";
 import { emit } from "@tauri-apps/api/event";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -58,6 +59,7 @@ import { CommunityApplyErrorScreen } from "@/features/communities/ui/CommunityAp
 import { CommunityChangeOverlay } from "@/features/communities/ui/CommunityChangeOverlay";
 import { setAvatarProfileSyncQueryClient } from "@/features/profile/avatarProfileSync";
 import { EncryptedBackupProvider } from "@/features/settings/EncryptedBackupProvider";
+import { fetchCommunityRelayInfo } from "@/shared/api/communityProfile";
 import { createBuzzQueryClient } from "@/shared/api/queryClient";
 import { isSharedIdentity as isSharedIdentityCmd } from "@/shared/api/tauri";
 import { getProfile } from "@/shared/api/tauriProfiles";
@@ -70,8 +72,6 @@ import { BuzzMark } from "@/shared/ui/buzz-logo/BuzzMark";
 import { FlappingBee } from "@/shared/ui/buzz-logo/FlappingBee";
 import { FuzzyLogo } from "@/shared/ui/buzz-logo/FuzzyLogo";
 import { StartupWindowDragRegion } from "@/shared/ui/StartupWindowDragRegion";
-
-const LOADING_TEXT = "Setting up your community...";
 
 // Minimum time the cold-boot splash stays on screen. A real boot resolves the
 // community in well under 100ms, and the native window setup plus first paint
@@ -163,8 +163,9 @@ function BeeLoader({
 // Cold boot gate: the theme-adaptive grainient background with a single
 // centered Buzz bee flying over it — the same static mark as before, now with
 // its wings flapping (ported from the Buzz website's wing-flap). Replaces the
-// old "Setting up your community" text, which stays as an sr-only caption.
+// old t("app.setting_up") text, which stays as an sr-only caption.
 function AppLoadingGate() {
+  const { t } = useTranslation();
   return (
     <div
       className="buzz-setup-loading-shell flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 py-10"
@@ -173,7 +174,7 @@ function AppLoadingGate() {
     >
       <StartupWindowDragRegion />
       <ThemeGrainientBackground />
-      <span className="sr-only">{LOADING_TEXT}</span>
+      <span className="sr-only">{t("app.setting_up_ellipsis")}</span>
       <FlappingBee className="relative z-10 h-auto w-28" />
     </div>
   );
@@ -331,7 +332,7 @@ function CommunityApp({
 
   // Latch once the community key deviates from its cold-boot value: from then
   // on, loading phases are in-app switches and get the quiet gate instead of
-  // the full "Setting up your community" splash.
+  // the full t("app.setting_up") splash.
   const initialCommunityKeyRef = useRef(communityKey);
   const hasSwitchedCommunityRef = useRef(false);
   if (communityKey !== initialCommunityKeyRef.current) {
@@ -385,9 +386,13 @@ function CommunityApp({
     const relayAlreadyExists = communities.some(
       (community) => community.relayUrl === transaction.relayUrl,
     );
+    const relayInfo = await fetchCommunityRelayInfo(transaction.relayUrl).catch(
+      () => null,
+    );
+    const communityName = relayInfo?.name || transaction.communityName;
     const id = addCommunity({
       id: crypto.randomUUID(),
-      name: transaction.communityName,
+      name: communityName,
       relayUrl: transaction.relayUrl,
       token: transaction.token,
       reposDir: transaction.reposDir,

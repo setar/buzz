@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { MessageCircle, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@/shared/ui/button";
@@ -28,11 +29,12 @@ export function WelcomeAgentCreateDialog({
   onCreateManually,
   onOpenChange,
 }: WelcomeAgentCreateDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Create an agent</DialogTitle>
+          <DialogTitle>{t("channel.create_an_agent")}</DialogTitle>
           <DialogDescription>
             Start with a conversation, or set everything up yourself.
           </DialogDescription>

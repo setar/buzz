@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +12,7 @@ import {
 import { Button } from "@/shared/ui/button";
 
 /**
- * The "Delete message?" confirmation. Single definition shared by every
+ * The t("messages.delete_message_confirm") confirmation. Single definition shared by every
  * surface that deletes a message — the message action menu (MessageActionBar)
  * and the empty-edit delete path (clearing an edit to empty and hitting accept
  * routes here, so it prompts exactly like the menu's Delete does). `onConfirm`
@@ -26,24 +27,28 @@ export function DeleteMessageConfirmDialog({
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <AlertDialog onOpenChange={onOpenChange} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete message?</AlertDialogTitle>
+          <AlertDialogTitle>
+            {t("messages.confirm_delete_title")}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete this message and cannot be undone.
+            {t("messages.confirm_delete_description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t("common.cancel")}
             </Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button onClick={onConfirm} type="button" variant="destructive">
-              Delete
+              {t("common.delete")}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 
@@ -103,6 +104,7 @@ export function ChannelDeleteConfirmationDialog({
   open,
   trigger,
 }: ChannelDeleteConfirmationDialogProps) {
+  const { t } = useTranslation();
   return (
     <AlertDialog onOpenChange={onOpenChange} open={open}>
       {trigger ? (
@@ -141,7 +143,7 @@ export function ChannelDeleteConfirmationDialog({
               type="button"
               variant="destructive"
             >
-              {isPending ? "Deleting..." : "Delete channel"}
+              {isPending ? "Deleting..." : t("channel.delete_channel")}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -163,6 +165,7 @@ export function ChannelManagementModerationActions({
   resolvedChannelName,
   unarchiveChannelMutation,
 }: ChannelManagementModerationActionsProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -177,8 +180,8 @@ export function ChannelManagementModerationActions({
         <Button
           aria-label={
             unarchiveChannelMutation.isPending
-              ? "Restoring channel"
-              : "Unarchive channel"
+              ? t("channel.restoring_channel")
+              : t("channel.unarchive_channel")
           }
           data-testid="channel-management-unarchive"
           disabled={!canManageChannel || unarchiveChannelMutation.isPending}
@@ -188,8 +191,8 @@ export function ChannelManagementModerationActions({
           size="icon"
           title={
             unarchiveChannelMutation.isPending
-              ? "Restoring channel"
-              : "Unarchive channel"
+              ? t("channel.restoring_channel")
+              : t("channel.unarchive_channel")
           }
           type="button"
           variant="ghost"
@@ -200,8 +203,8 @@ export function ChannelManagementModerationActions({
         <Button
           aria-label={
             archiveChannelMutation.isPending
-              ? "Archiving channel"
-              : "Archive channel"
+              ? t("channel.archiving_channel")
+              : t("channel.archive_channel")
           }
           data-testid="channel-management-archive"
           disabled={!canManageChannel || archiveChannelMutation.isPending}
@@ -211,8 +214,8 @@ export function ChannelManagementModerationActions({
           size="icon"
           title={
             archiveChannelMutation.isPending
-              ? "Archiving channel"
-              : "Archive channel"
+              ? t("channel.archiving_channel")
+              : t("channel.archive_channel")
           }
           type="button"
           variant="ghost"
@@ -232,11 +235,11 @@ export function ChannelManagementModerationActions({
           open={isDeleteDialogOpen}
           trigger={
             <Button
-              aria-label="Delete channel"
+              aria-label={t("channel.delete_channel")}
               data-testid="channel-management-delete"
               disabled={deleteChannelMutation.isPending}
               size="icon"
-              title="Delete channel"
+              title={t("channel.delete_channel")}
               type="button"
               variant="ghost"
             >

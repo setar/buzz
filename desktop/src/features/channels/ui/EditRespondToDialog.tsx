@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { useUpdateManagedAgentMutation } from "@/features/agents/hooks";
@@ -24,6 +25,7 @@ export function EditRespondToDialog({
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }) {
+  const { t } = useTranslation();
   const updateMutation = useUpdateManagedAgentMutation();
   const [respondTo, setRespondTo] = React.useState<RespondToMode>("owner-only");
   const [respondToAllowlist, setRespondToAllowlist] = React.useState<string[]>(
@@ -89,7 +91,7 @@ export function EditRespondToDialog({
             size="sm"
             type="button"
           >
-            {updateMutation.isPending ? "Saving..." : "Save access"}
+            {updateMutation.isPending ? "Saving..." : t("channel.save_access")}
           </Button>
         </div>
       </DialogContent>

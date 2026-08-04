@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Ban, CircleSlash, Clock, ShieldCheck, UserMinus } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -46,6 +47,7 @@ export function MessageModerationMenuItems({
   channelId?: string | null;
   message: TimelineMessage;
 }) {
+  const { t } = useTranslation();
   const relayMembershipQuery = useMyRelayMembershipQuery();
   const relayRole = relayMembershipQuery.data?.role;
   const canModerate = relayRole === "owner" || relayRole === "admin";
@@ -94,11 +96,13 @@ export function MessageModerationMenuItems({
         toast.success(success);
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Moderation action failed",
+          error instanceof Error
+            ? error.message
+            : t("moderation.action_failed"),
         );
       }
     },
-    [],
+    [t],
   );
 
   if (!enabled || targetPubkey == null) return null;
@@ -113,7 +117,7 @@ export function MessageModerationMenuItems({
           onClick={() =>
             void run(
               () => untimeoutMutation.mutateAsync(targetPubkey),
-              "Timeout lifted",
+              t("moderation.timeout_lifted"),
             )
           }
         >
@@ -143,7 +147,7 @@ export function MessageModerationMenuItems({
                         expiresAt:
                           Math.floor(Date.now() / 1000) + preset.seconds,
                       }),
-                    "Author timed out",
+                    t("moderation.author_timed_out"),
                   )
                 }
               >
@@ -162,7 +166,7 @@ export function MessageModerationMenuItems({
           onClick={() =>
             void run(
               () => removeMutation.mutateAsync(targetPubkey),
-              "Author removed from channel",
+              t("moderation.author_removed"),
             )
           }
         >
@@ -178,7 +182,7 @@ export function MessageModerationMenuItems({
           onClick={() =>
             void run(
               () => unbanMutation.mutateAsync(targetPubkey),
-              "Ban lifted",
+              t("moderation.ban_lifted"),
             )
           }
         >
@@ -193,7 +197,7 @@ export function MessageModerationMenuItems({
           onClick={() =>
             void run(
               () => banMutation.mutateAsync({ pubkey: targetPubkey }),
-              "Author banned",
+              t("moderation.author_banned"),
             )
           }
         >

@@ -1,9 +1,10 @@
 import { ChevronDown } from "lucide-react";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Spinner } from "@/shared/ui/spinner";
-import React from "react";
-import { useQueryClient } from "@tanstack/react-query";
 
 import type { AgentModelsResponse, ManagedAgent } from "@/shared/api/types";
 import { getAgentModels, updateManagedAgent } from "@/shared/api/tauri";
@@ -39,6 +40,7 @@ export function ModelPicker({
   const [needsRestart, setNeedsRestart] = React.useState(false);
   const [hasRequestedModels, setHasRequestedModels] = React.useState(false);
 
+  const { t } = useTranslation();
   const { data: configSurface } = useAgentConfigSurface(agent.pubkey);
   const queryClient = useQueryClient();
 
@@ -85,10 +87,10 @@ export function ModelPicker({
   const displayLabel =
     agent.model ??
     (modelsData?.agentDefaultModel
-      ? `${modelsData.agentDefaultModel} (default)`
+      ? `${modelsData.agentDefaultModel}${t("agents.suffix_default")}`
       : hasRequestedModels && loading
-        ? "Loading..."
-        : "Auto");
+        ? t("common.loading")
+        : t("agents.auto"));
 
   // Provenance label shown only for post-spawn agents where the model origin
   // is known from the config surface and the source is not a user-explicit
@@ -97,15 +99,15 @@ export function ModelPicker({
     const origin = configSurface?.normalized.model?.origin;
     if (!origin || origin === "buzzExplicit") return null;
     const labels: Record<string, string> = {
-      acpNativeRead: "from ACP",
-      acpConfigOption: "from ACP config",
-      envVar: "from env",
-      configFile: "from config file",
-      personaDefault: "template default",
-      runtimeOverride: "live override",
+      acpNativeRead: t("agents.origin_from_acp"),
+      acpConfigOption: t("agents.origin_from_acp_config"),
+      envVar: t("agents.origin_from_env"),
+      configFile: t("agents.origin_from_config_file"),
+      personaDefault: t("agents.origin_template_default"),
+      runtimeOverride: t("agents.origin_live_override"),
     };
     return labels[origin] ?? null;
-  }, [configSurface]);
+  }, [configSurface, t]);
 
   // Send a live `switch_model` frame to each channel the agent is working in
   // and wait for the harness to acknowledge. Any single `unsupported_model`
@@ -144,10 +146,10 @@ export function ModelPicker({
       if (isLiveSwitch) {
         const outcome = await sendLiveSwitch(modelId);
         if (outcome === "unsupported") {
-          toast.error("That model isn't available for this agent.");
+          toast.error(t("agents.model_not_available"));
           return;
         }
-        toast.success("Model switched for this session.");
+        toast.success(t("agents.model_switched_session"));
         onModelChanged?.();
         return;
       }
@@ -197,11 +199,13 @@ export function ModelPicker({
           {loading ? (
             <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
               <Spinner className="h-4 w-4 border-2" />
-              Loading models...
+              {t("agents.loading_models")}
             </div>
           ) : error ? (
             <div className="space-y-2 px-3 py-2 text-sm">
-              <p className="text-destructive">Failed to load models.</p>
+              <p className="text-destructive">
+                {t("agents.failed_to_load_models")}
+              </p>
               <button
                 className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
                 onClick={() => {
@@ -210,12 +214,12 @@ export function ModelPicker({
                 }}
                 type="button"
               >
-                Retry
+                {t("community.retry")}
               </button>
             </div>
           ) : !modelsData ? (
             <div className="px-3 py-2 text-sm text-muted-foreground">
-              Open to load available models.
+              {t("agents.open_to_load_models")}
             </div>
           ) : !modelsData.supportsSwitching ? (
             <div className="px-3 py-2 text-sm text-muted-foreground">
@@ -223,11 +227,11 @@ export function ModelPicker({
                 <>
                   <p className="font-medium text-foreground">{agent.model}</p>
                   <p className="mt-0.5 text-xs">
-                    This runtime does not support switching models.
+                    {t("agents.runtime_no_model_switching")}
                   </p>
                 </>
               ) : (
-                "This agent uses the runtime's default model."
+                t("agents.uses_runtime_default_model")
               )}
             </div>
           ) : (
@@ -245,7 +249,9 @@ export function ModelPicker({
         </DropdownMenuContent>
       </DropdownMenu>
       {needsRestart ? (
-        <span className="text-2xs text-warning">restart to apply</span>
+        <span className="text-2xs text-warning">
+          {t("agents.restart_to_apply")}
+        </span>
       ) : null}
     </span>
   );

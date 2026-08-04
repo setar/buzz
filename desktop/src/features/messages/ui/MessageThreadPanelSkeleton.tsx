@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import type { ThreadPanelLayoutProps } from "@/features/channels/lib/threadPanelLayout";
 import {
   THREAD_PANEL_COLUMN_CLASS,
@@ -104,13 +106,14 @@ export function MessageThreadPanelSkeleton({
   widthPx,
   transparentChrome = false,
 }: MessageThreadPanelSkeletonProps) {
+  const { t } = useTranslation();
   const isOverlay = useIsThreadPanelOverlay();
   const hasConstrainedColumn = columnMaxWidthPx != null;
   useEscapeKey(onClose, isOverlay || isSinglePanelView || isFocusMode);
 
   const threadHeaderContent = (
     <AuxiliaryPanelHeaderGroup
-      backButtonAriaLabel="Back to conversation"
+      backButtonAriaLabel={t("messages.back_to_conversation")}
       // Matches the loaded panel's header so it doesn't shift on resolve.
       leading={headerLeading}
       onBack={isSinglePanelView && !isFocusMode ? onClose : undefined}

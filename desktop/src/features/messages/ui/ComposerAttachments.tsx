@@ -11,6 +11,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { BlobDescriptor } from "@/shared/api/tauri";
 import type { ImetaMedia } from "@/features/messages/lib/imetaMediaMarkdown";
@@ -230,6 +231,7 @@ const MediaAttachmentItem = React.forwardRef<
   },
   ref,
 ) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const [mode, setMode] = React.useState<"view" | "edit">("view");
 
@@ -361,7 +363,7 @@ const MediaAttachmentItem = React.forwardRef<
               {mode === "view" ? (
                 <DialogPrimitive.Close
                   className="absolute inset-0 cursor-default"
-                  aria-label="Close lightbox"
+                  aria-label={t("messages.close_lightbox")}
                 />
               ) : null}
               {mode === "edit" && !isVideo ? (
@@ -430,7 +432,9 @@ const MediaAttachmentItem = React.forwardRef<
                       <TooltipTrigger asChild>
                         <Toggle
                           aria-label={
-                            isSpoilered ? "Remove spoiler" : "Mark as spoiler"
+                            isSpoilered
+                              ? t("messages.remove_spoiler")
+                              : t("messages.mark_spoiler")
                           }
                           className={cn(
                             LIGHTBOX_BUTTON_CLASS,
@@ -454,7 +458,9 @@ const MediaAttachmentItem = React.forwardRef<
                         </Toggle>
                       </TooltipTrigger>
                       <TooltipContent>
-                        {isSpoilered ? "Remove spoiler" : "Mark as spoiler"}
+                        {isSpoilered
+                          ? t("messages.remove_spoiler")
+                          : t("messages.mark_spoiler")}
                       </TooltipContent>
                     </Tooltip>
                   ) : null}
@@ -518,6 +524,7 @@ export const ComposerAttachments = React.memo(function ComposerAttachments({
   onToggleSpoiler,
   spoileredUrls,
 }: ComposerAttachmentsProps) {
+  const { t } = useTranslation();
   if (attachments.length === 0 && !isUploading) return null;
 
   const uploadPlaceholders: UploadingAttachmentPreview[] =
@@ -653,14 +660,16 @@ export const ComposerAttachments = React.memo(function ComposerAttachments({
                       <TooltipTrigger asChild>
                         <button
                           type="button"
-                          aria-label="Cancel upload"
+                          aria-label={t("messages.cancel_upload")}
                           onClick={() => onCancelUpload(preview.id)}
                           className="absolute -right-1 -top-1 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-background"
                         >
                           <X className="h-2.5 w-2.5" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent>Cancel upload</TooltipContent>
+                      <TooltipContent>
+                        {t("messages.cancel_upload")}
+                      </TooltipContent>
                     </Tooltip>
                   ) : null}
                 </div>

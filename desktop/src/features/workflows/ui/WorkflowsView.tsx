@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Plus, RefreshCw, Zap } from "lucide-react";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -70,6 +71,7 @@ export function WorkflowsView({
   onSelectWorkflow,
   selectedWorkflowId,
 }: WorkflowsViewProps) {
+  const { t } = useTranslation();
   const [dialogState, setDialogState] = React.useState<DialogState>({
     mode: "closed",
   });
@@ -177,9 +179,11 @@ export function WorkflowsView({
       >
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">Workflows</h2>
+            <h2 className="text-lg font-semibold">
+              {t("workflows.workflows_title")}
+            </h2>
             <Button
-              aria-label="Refresh workflows"
+              aria-label={t("workflows.refresh_workflows")}
               disabled={allWorkflowsQuery.isFetching}
               onClick={() => void allWorkflowsQuery.refetch()}
               size="icon"
@@ -212,7 +216,7 @@ export function WorkflowsView({
         ) : allWorkflows.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
             <Zap className="h-10 w-10 opacity-30" />
-            <p className="text-sm">No workflows yet</p>
+            <p className="text-sm">{t("workflows.no_workflows_yet")}</p>
             <Button
               onClick={() => setDialogState({ mode: "create" })}
               size="sm"

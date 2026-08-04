@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Headphones, MessageSquareText } from "lucide-react";
 import * as React from "react";
@@ -118,6 +119,7 @@ export function HuddleAttachment({
   className,
   message,
 }: HuddleAttachmentProps) {
+  const { t } = useTranslation();
   const ephemeralChannelId = React.useMemo(
     () => parseEphemeralChannelId(message.body),
     [message.body],
@@ -270,7 +272,7 @@ export function HuddleAttachment({
         <AttachmentTitle>
           Huddle
           <span aria-hidden="true"> · </span>
-          {displayEnded ? "Ended" : "In progress"}
+          {displayEnded ? "Ended" : t("huddle.in_progress")}
         </AttachmentTitle>
         <AttachmentDescription>
           {participantLabel(participantCount)}

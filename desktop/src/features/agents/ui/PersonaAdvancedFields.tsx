@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Input } from "@/shared/ui/input";
 import { cn } from "@/shared/lib/cn";
@@ -8,10 +9,7 @@ import {
   isBuzzAgentRuntime,
   BUZZ_AGENT_THINKING_EFFORT,
 } from "./buzzAgentConfig";
-import {
-  AGENT_PARALLELISM_HELP,
-  AGENT_PARALLELISM_PLACEHOLDER,
-} from "../lib/agentParallelism";
+import { AGENT_PARALLELISM_PLACEHOLDER } from "../lib/agentParallelism";
 import {
   BuzzAgentModelTuningFields,
   NumericTuningFields,
@@ -82,6 +80,8 @@ export function PersonaAdvancedFields({
    */
   selectedRuntime?: AcpRuntimeCatalogEntry;
 }) {
+  const { t } = useTranslation();
+
   // Numeric tuning descriptors — gate on catalog status so that loading/error
   // never collapses to "no controls": keys stay visible as generic rows.
   const numericDescriptors = React.useMemo(
@@ -126,8 +126,10 @@ export function PersonaAdvancedFields({
             className="text-sm font-medium text-foreground"
             htmlFor="persona-parallelism"
           >
-            Parallelism
-            <span className={PERSONA_LABEL_OPTIONAL_CLASS}>Optional</span>
+            {t("agents.parallelism")}
+            <span className={PERSONA_LABEL_OPTIONAL_CLASS}>
+              {t("common.optional")}
+            </span>
           </label>
           <div
             className={cn(
@@ -157,7 +159,7 @@ export function PersonaAdvancedFields({
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            {AGENT_PARALLELISM_HELP}
+            {t("agents.parallelism_help")}
           </p>
         </div>
       </div>
@@ -167,8 +169,10 @@ export function PersonaAdvancedFields({
           className="text-sm font-medium text-foreground"
           htmlFor="persona-name-pool"
         >
-          Instance name pool
-          <span className={PERSONA_LABEL_OPTIONAL_CLASS}>Optional</span>
+          {t("agents.instance_name_pool")}
+          <span className={PERSONA_LABEL_OPTIONAL_CLASS}>
+            {t("common.optional")}
+          </span>
         </label>
         <div
           className={cn(

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Pencil, Save, X } from "lucide-react";
 import * as React from "react";
 
@@ -25,6 +26,7 @@ export function ChannelCanvas({
   canEdit,
   isArchived,
 }: ChannelCanvasProps) {
+  const { t } = useTranslation();
   const canvasQuery = useCanvasQuery(channelId, channelId !== null);
   const setCanvasMutation = useSetCanvasMutation(channelId);
   const { channels } = useChannelNavigation();
@@ -73,12 +75,12 @@ export function ChannelCanvas({
     return (
       <div className="space-y-3">
         <Textarea
-          aria-label="Canvas content"
+          aria-label={t("channel.canvas_content")}
           className="min-h-48 font-mono text-sm"
           data-testid="channel-canvas-editor"
           disabled={setCanvasMutation.isPending}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="Write your canvas content in Markdown..."
+          placeholder={t("channel.canvas_markdown_placeholder")}
           value={draft}
         />
         <div className="flex gap-2">
@@ -94,7 +96,9 @@ export function ChannelCanvas({
             type="button"
           >
             <Save className="h-4 w-4" />
-            {setCanvasMutation.isPending ? "Saving..." : "Save canvas"}
+            {setCanvasMutation.isPending
+              ? "Saving..."
+              : t("channel.save_canvas")}
           </Button>
           <Button
             data-testid="channel-canvas-cancel"
@@ -143,7 +147,9 @@ export function ChannelCanvas({
           variant="outline"
         >
           <Pencil className="h-4 w-4" />
-          {canvasContent ? "Edit canvas" : "Create canvas"}
+          {canvasContent
+            ? t("channel.edit_canvas")
+            : t("channel.create_canvas")}
         </Button>
       ) : null}
     </div>

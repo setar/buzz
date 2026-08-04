@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
@@ -44,6 +45,7 @@ export function NotificationSettingsCard({
   onSetNotifyWhileViewing: (enabled: boolean) => void;
   onSetSoundForSlot: (slot: SoundSlot, name: SoundName) => void;
 }) {
+  const { t } = useTranslation();
   const permissionBlocked =
     notificationPermission === "denied" ||
     notificationPermission === "unsupported";
@@ -63,7 +65,7 @@ export function NotificationSettingsCard({
     <section className="min-w-0" data-testid="settings-notifications">
       <SettingsSectionHeader
         title="Notifications"
-        description="Desktop alerts are on by default. Fine-tune what gets through below."
+        description={t("settings.alerts_default_desc")}
       />
 
       <span className="sr-only" data-testid="notifications-desktop-state">
@@ -86,12 +88,12 @@ export function NotificationSettingsCard({
               >
                 {isUpdatingDesktopNotifications
                   ? "Requesting..."
-                  : "Desktop alerts"}
+                  : t("settings.desktop_alerts")}
               </label>
               <p className="text-sm font-normal text-muted-foreground">
                 {notificationSettings.desktopEnabled
-                  ? "Native desktop alerts are enabled for the categories you have armed below."
-                  : "Request OS permission and surface new mentions or needs-action items outside the app."}
+                  ? t("settings.native_alerts_desc")
+                  : t("settings.request_os_permission_desc")}
               </p>
             </div>
             <Switch
@@ -271,8 +273,8 @@ export function NotificationSettingsCard({
       {permissionBlocked && (
         <p className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {notificationPermission === "unsupported"
-            ? "Desktop notifications are not supported in this environment."
-            : "Desktop notifications are blocked. Enable them in your system settings."}
+            ? t("settings.notifications_unsupported")
+            : t("settings.notifications_blocked")}
         </p>
       )}
 

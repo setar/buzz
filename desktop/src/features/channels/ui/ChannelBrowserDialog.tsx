@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import {
   ArrowLeft,
@@ -55,11 +56,13 @@ import {
 type BrowserTab = "all" | "joined" | "archived";
 type ChannelSort = ChannelSortMode | "members";
 
-const CHANNEL_SORT_OPTIONS: { label: string; value: ChannelSort }[] = [
-  { label: "Alphabetical", value: "alpha" },
-  { label: "Recent", value: "recent" },
-  { label: "Most members", value: "members" },
-];
+function buildChannelSortOptions(t: (key: string) => string) {
+  return [
+    { label: t("channel.sort_alpha"), value: "alpha" },
+    { label: t("channel.sort_recent"), value: "recent" },
+    { label: t("channel.most_members"), value: "members" },
+  ] as const;
+}
 
 function BrowseState({
   icon: Icon,
@@ -109,6 +112,7 @@ export function ChannelBrowserDialog({
   onCreateChannel,
   isCreatingChannel = false,
 }: ChannelBrowserDialogProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = React.useState("");
   const [activeTab, setActiveTab] = React.useState<BrowserTab>("all");
   const [sort, setSort] = React.useState<ChannelSort>("alpha");
@@ -142,14 +146,16 @@ export function ChannelBrowserDialog({
   const isForumMode = channelTypeFilter === "forum";
   const canCreate = Boolean(onCreateChannel);
   const createKind = isForumMode ? "forum" : "stream";
-  const browseTitle = isForumMode ? "Add a forum" : "Browse channels";
+  const browseTitle = isForumMode
+    ? t("channel.add_forum")
+    : t("channel.browse_channels");
   const searchPlaceholder = canCreate
     ? isForumMode
-      ? "Search or create a forum"
-      : "Search or create a channel"
+      ? t("channel.search_or_create_forum")
+      : t("channel.search_or_create_channel")
     : isForumMode
-      ? "Search forums by name or description"
-      : "Search channels by name or description";
+      ? t("channel.search_forums_hint")
+      : t("channel.search_channels_hint");
   const entityLabel = isForumMode ? "forum" : "channel";
 
   const noopCreate = React.useCallback(async () => {}, []);
@@ -237,10 +243,12 @@ export function ChannelBrowserDialog({
   }, [isSearching, matchScoreById, sort, visibleChannels]);
 
   const selectedSortLabel =
-    CHANNEL_SORT_OPTIONS.find((option) => option.value === sort)?.label ??
+    buildChannelSortOptions(t).find((option) => option.value === sort)?.label ??
     "Alphabetical";
 
-  const allTabLabel = isForumMode ? "All forums" : "All channels";
+  const allTabLabel = isForumMode
+    ? t("channel.all_forums")
+    : t("channel.all_channels");
 
   // Whether an exact name match already exists — if so we don't offer to
   // create a duplicate, mirroring how you'd never make two "#general"s.
@@ -404,7 +412,7 @@ export function ChannelBrowserDialog({
     deferredQuery.length > 0
       ? canCreate
         ? `No ${entityLabel} by that name yet — create it to get started.`
-        : "Try a different name or keyword."
+        : t("channel.try_different_name")
       : activeTab === "archived"
         ? `Archived ${entityLabel}s you have joined will appear here.`
         : activeTab === "joined"
@@ -535,7 +543,7 @@ export function ChannelBrowserDialog({
                       }}
                       value={sort}
                     >
-                      {CHANNEL_SORT_OPTIONS.map((option) => (
+                      {buildChannelSortOptions(t).map((option) => (
                         <DropdownMenuRadioItem
                           data-testid={`channel-browser-sort-${option.value}`}
                           key={option.value}
@@ -707,13 +715,14 @@ function ChannelCreateView({
   onBack: () => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex h-[min(72vh,38rem)] flex-col">
       <DialogHeader className="space-y-0 pb-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-2">
             <button
-              aria-label="Back to search"
+              aria-label={t("channel.back_to_search")}
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-accent-foreground focus:outline-hidden focus:ring-1 focus:ring-ring"
               data-testid="channel-browser-create-back"
               onClick={onBack}

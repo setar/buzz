@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   CircleDot,
   FolderGit2,
@@ -326,6 +327,7 @@ function ProjectActionsMenu({
   onDelete: (project: Project) => Promise<void> | void;
   onOpenTerminal: (project: Project) => Promise<void> | void;
 }) {
+  const { t } = useTranslation();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   return (
@@ -360,7 +362,9 @@ function ProjectActionsMenu({
         data-testid={`project-delete-confirm-${project.dtag}`}
       >
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete project?</AlertDialogTitle>
+          <AlertDialogTitle>
+            {t("projects.delete_project_confirm")}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             Delete {project.name} from Projects for everyone. This can only be
             done for projects you own and cannot be undone.
@@ -385,7 +389,7 @@ function ProjectActionsMenu({
               type="button"
               variant="destructive"
             >
-              {disabled ? "Deleting..." : "Delete project"}
+              {disabled ? "Deleting..." : t("projects.delete_project")}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

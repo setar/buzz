@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Archive,
   BookOpenText,
@@ -108,6 +109,7 @@ export function ChannelManagementSheet({
   open,
   transparentChrome = false,
 }: ChannelManagementSheetProps) {
+  const { t } = useTranslation();
   const { isDark } = useTheme();
   const isSplitLayout = layout === "split";
   const auxiliaryPanelMode = getAuxiliaryPanelMode(
@@ -558,7 +560,9 @@ export function ChannelManagementSheet({
                   size="sm"
                   type="button"
                 >
-                  {isSavingChannelEdits ? "Saving..." : "Save changes"}
+                  {isSavingChannelEdits
+                    ? "Saving..."
+                    : t("channel.save_changes")}
                 </Button>
               </div>
             </div>
@@ -638,6 +642,7 @@ function ChannelManagementPanelContent({
   setIsEditDialogOpen,
   unarchiveChannelMutation,
 }: ChannelManagementPanelContentProps) {
+  const { t } = useTranslation();
   const scrollRef = React.useRef<HTMLDivElement>(null);
   useScrollBoundaryLock(scrollRef);
 
@@ -666,7 +671,7 @@ function ChannelManagementPanelContent({
         transparent={transparentChrome}
       >
         <AuxiliaryPanelHeaderGroup
-          backButtonAriaLabel="Back to channel"
+          backButtonAriaLabel={t("channel.back_to_channel")}
           backButtonTestId="channel-management-back"
           mode={mode}
           onBack={
@@ -712,10 +717,10 @@ function ChannelManagementPanelContent({
             <div className="flex flex-wrap items-start justify-center gap-6">
               <ChannelQuickAction
                 icon={Copy}
-                label="Copy ID"
+                label={t("channel.copy_id")}
                 onClick={() => {
                   void writeTextToClipboard(resolvedChannel.id).then(() =>
-                    toast.success("Copied channel ID"),
+                    toast.success(t("channel.copied_channel_id")),
                   );
                 }}
                 testId="channel-management-copy-id-action"
@@ -813,7 +818,7 @@ function ChannelManagementPanelContent({
             <FieldGroup>
               <CopyFieldRow
                 icon={Fingerprint}
-                label="Channel ID"
+                label={t("channel.channel_id")}
                 testId="channel-management-channel-id"
                 value={resolvedChannel.id}
               />

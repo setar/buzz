@@ -64,6 +64,14 @@ export type PersonaDropdownOption = {
   value: string;
 };
 
+/** Optional translator threaded into pure label builders by components.
+ *  Components pass the `t` from `useTranslation()`; tests and non-component
+ *  callers omit it and get the English default. */
+export type TranslateFn = (
+  key: string,
+  options?: Record<string, unknown>,
+) => string;
+
 /**
  * Per-provider credential configuration.
  *
@@ -142,15 +150,26 @@ const DEFAULT_MODEL_OPTION: PersonaModelOption = {
   label: "Default model",
 };
 
-export const PERSONA_LLM_PROVIDER_OPTIONS: readonly PersonaModelOption[] = [
-  { id: "anthropic", label: "Anthropic" },
-  { id: "openai", label: "OpenAI" },
-  { id: "openai-compat", label: "OpenAI-compatible" },
-  { id: "openrouter", label: "OpenRouter" },
-  { id: "relay-mesh", label: "Buzz shared compute" },
-  { id: "databricks", label: "Databricks" },
-  { id: "databricks_v2", label: "Databricks v2" },
-];
+function defaultModelOptionLabel(t?: TranslateFn): string {
+  return t ? t("agents.default_model") : "Default model";
+}
+
+export function buildPersonaLlmProviderOptions(
+  t?: TranslateFn,
+): readonly PersonaModelOption[] {
+  return [
+    { id: "anthropic", label: "Anthropic" },
+    { id: "openai", label: "OpenAI" },
+    { id: "openai-compat", label: "OpenAI-compatible" },
+    { id: "openrouter", label: "OpenRouter" },
+    {
+      id: "relay-mesh",
+      label: t ? t("agents.buzz_shared_compute") : "Buzz shared compute",
+    },
+    { id: "databricks", label: "Databricks" },
+    { id: "databricks_v2", label: "Databricks v2" },
+  ];
+}
 
 const PERSONA_MODEL_OPTIONS_BY_RUNTIME: Record<
   string,
@@ -164,8 +183,17 @@ const PERSONA_MODEL_OPTIONS_BY_RUNTIME: Record<
 
 export function getRuntimePersonaModelOptions(
   runtimeId: string,
+  t?: TranslateFn,
 ): readonly PersonaModelOption[] {
-  return PERSONA_MODEL_OPTIONS_BY_RUNTIME[runtimeId] ?? [DEFAULT_MODEL_OPTION];
+  const base = PERSONA_MODEL_OPTIONS_BY_RUNTIME[runtimeId] ?? [
+    DEFAULT_MODEL_OPTION,
+  ];
+  if (!t) return base;
+  return base.map((option) =>
+    option.id === ""
+      ? { ...option, label: defaultModelOptionLabel(t) }
+      : option,
+  );
 }
 
 function isKnownLlmProvider(
@@ -242,8 +270,9 @@ function effectiveModelProviderForOptions(
 export function getPersonaModelOptions(
   runtimeId: string,
   providerId: string | null | undefined,
+  t?: TranslateFn,
 ): readonly PersonaModelOption[] {
-  const options = getRuntimePersonaModelOptions(runtimeId);
+  const options = getRuntimePersonaModelOptions(runtimeId, t);
   const trimmedProvider = effectiveModelProviderForOptions(
     runtimeId,
     providerId,
@@ -311,34 +340,44 @@ export function providerRequiresExplicitModel(
   );
 }
 
-export function providerDisplayLabel(providerId: string) {
+export function providerDisplayLabel(providerId: string, t?: TranslateFn) {
   const trimmedProvider = providerId.trim();
   return trimmedProvider === "relay-mesh"
-    ? "Buzz shared compute"
+    ? t
+      ? t("agents.provider_relay_mesh")
+      : "Buzz shared compute"
     : trimmedProvider;
 }
 
 export function getDefaultLlmProviderLabel(
   _runtimeId: string,
   globalProvider?: string,
+  t?: TranslateFn,
 ) {
   const trimmedGlobal = (globalProvider ?? "").trim();
-  return trimmedGlobal
-    ? `Use agent defaults (${providerDisplayLabel(trimmedGlobal)})`
-    : "Select a provider\u2026";
+  if (!trimmedGlobal) {
+    return t ? t("agents.select_provider") : "Select a provider\u2026";
+  }
+  const label = providerDisplayLabel(trimmedGlobal, t);
+  return t
+    ? t("agents.use_agent_defaults", { label })
+    : `Use agent defaults (${label})`;
 }
 
 /** Returns the zero-value model option label.
  *
  * When a global model is configured, the empty-model option reads
  * `Use agent defaults (<model>)` so users can see which model will run.
- * Otherwise falls back to the generic `"Default model"` placeholder.
+ * Otherwise falls back to the generic `t("agents.default_model")` placeholder.
  */
-export function getDefaultLlmModelLabel(globalModel?: string) {
+export function getDefaultLlmModelLabel(globalModel?: string, t?: TranslateFn) {
   const trimmedGlobal = (globalModel ?? "").trim();
-  return trimmedGlobal
-    ? `Use agent defaults (${trimmedGlobal})`
-    : "Default model";
+  if (!trimmedGlobal) {
+    return t ? t("agents.default_model") : "Default model";
+  }
+  return t
+    ? t("agents.use_agent_defaults", { label: trimmedGlobal })
+    : `Use agent defaults (${trimmedGlobal})`;
 }
 
 /**
@@ -358,16 +397,19 @@ export function getDefaultLlmModelLabel(globalModel?: string) {
 export function buildTemplateModelDropdownOptions(
   modelOptions: readonly PersonaModelOption[],
   inheritedModel: string,
-  inheritedModelLabel = getDefaultLlmModelLabel(inheritedModel),
+  inheritedModelLabel?: string,
+  t?: TranslateFn,
 ): PersonaDropdownOption[] {
   const trimmedInheritedModel = inheritedModel.trim();
+  const resolvedInheritedLabel =
+    inheritedModelLabel ?? getDefaultLlmModelLabel(inheritedModel, t);
   const hasZeroValue = modelOptions.some((o) => o.id === "");
   const base: readonly PersonaModelOption[] =
     !hasZeroValue && trimmedInheritedModel.length > 0
-      ? [{ id: "", label: inheritedModelLabel }, ...modelOptions]
+      ? [{ id: "", label: resolvedInheritedLabel }, ...modelOptions]
       : modelOptions;
   return base.map((option) => ({
-    label: option.id === "" ? inheritedModelLabel : option.label,
+    label: option.id === "" ? resolvedInheritedLabel : option.label,
     value: option.id || AUTO_MODEL_DROPDOWN_VALUE,
   }));
 }
@@ -390,14 +432,19 @@ export function getPersonaProviderOptions(
   runtimeId: string,
   globalProvider?: string,
   hideProviderIds?: ReadonlySet<string>,
+  t?: TranslateFn,
 ): readonly PersonaModelOption[] {
   const trimmedProvider = currentProvider.trim();
   const defaultProviderOptions = [
-    { id: "", label: getDefaultLlmProviderLabel(runtimeId, globalProvider) },
+    {
+      id: "",
+      label: getDefaultLlmProviderLabel(runtimeId, globalProvider, t),
+    },
   ];
+  const providerOptions = buildPersonaLlmProviderOptions(t);
   const filteredOptions = hideProviderIds?.size
-    ? PERSONA_LLM_PROVIDER_OPTIONS.filter((o) => !hideProviderIds.has(o.id))
-    : PERSONA_LLM_PROVIDER_OPTIONS;
+    ? providerOptions.filter((o) => !hideProviderIds.has(o.id))
+    : providerOptions;
   const options = [...defaultProviderOptions, ...filteredOptions];
   if (
     trimmedProvider.length === 0 ||
@@ -408,7 +455,10 @@ export function getPersonaProviderOptions(
 
   return [
     ...options,
-    { id: trimmedProvider, label: `${trimmedProvider} (current)` },
+    {
+      id: trimmedProvider,
+      label: `${trimmedProvider}${t ? t("agents.suffix_current") : " (current)"}`,
+    },
   ];
 }
 
@@ -465,41 +515,61 @@ export function shouldClearKnownModelForSelectionScope({
   );
 }
 
-export function formatRuntimeOptionLabel(runtime: AcpRuntimeCatalogEntry) {
+export function formatRuntimeOptionLabel(
+  runtime: AcpRuntimeCatalogEntry,
+  t?: TranslateFn,
+) {
   const suffix =
     runtime.availability === "adapter_missing"
-      ? " (adapter missing)"
+      ? t
+        ? t("agents.suffix_adapter_missing")
+        : " (adapter missing)"
       : runtime.availability === "adapter_outdated"
-        ? " (adapter outdated)"
+        ? t
+          ? t("agents.suffix_adapter_outdated")
+          : " (adapter outdated)"
         : runtime.availability === "cli_missing"
-          ? " (CLI missing)"
+          ? t
+            ? t("agents.suffix_cli_missing")
+            : " (CLI missing)"
           : runtime.availability === "not_installed"
-            ? " (not installed)"
+            ? t
+              ? t("agents.suffix_not_installed")
+              : " (not installed)"
             : "";
   return `${runtime.label}${suffix}`;
 }
 
-export function buildPersonaRuntimeDropdownOptions({
-  defaultRuntimeId,
-  isCreateMode,
-  runtime,
-  runtimes,
-  runtimesLoading,
-}: {
-  defaultRuntimeId?: string;
-  isCreateMode: boolean;
-  runtime: string;
-  runtimes: AcpRuntimeCatalogEntry[];
-  runtimesLoading: boolean;
-}): {
+export function buildPersonaRuntimeDropdownOptions(
+  {
+    defaultRuntimeId,
+    isCreateMode,
+    runtime,
+    runtimes,
+    runtimesLoading,
+  }: {
+    defaultRuntimeId?: string;
+    isCreateMode: boolean;
+    runtime: string;
+    runtimes: AcpRuntimeCatalogEntry[];
+    runtimesLoading: boolean;
+  },
+  t?: TranslateFn,
+): {
   blankRuntimeOptionLabel: string;
   runtimeDropdownOptions: PersonaDropdownOption[];
 } {
   const blankRuntimeOptionLabel = runtimesLoading
-    ? "Loading harnesses..."
+    ? t
+      ? t("agents.loading_harnesses")
+      : "Loading harnesses..."
     : isCreateMode
-      ? "Choose a harness"
-      : "No preference (use app default)";
+      ? t
+        ? t("agents.choose_harness")
+        : "Choose a harness"
+      : t
+        ? t("agents.no_preference_default")
+        : "No preference (use app default)";
   const runtimeDropdownOptions: PersonaDropdownOption[] = [
     ...(!isCreateMode
       ? [
@@ -514,8 +584,12 @@ export function buildPersonaRuntimeDropdownOptions({
         isCreateMode &&
         defaultRuntimeId !== undefined &&
         candidate.availability !== "available",
-      label: `${formatRuntimeOptionLabel(candidate)}${
-        isCreateMode && candidate.id === defaultRuntimeId ? " (default)" : ""
+      label: `${formatRuntimeOptionLabel(candidate, t)}${
+        isCreateMode && candidate.id === defaultRuntimeId
+          ? t
+            ? t("agents.suffix_default")
+            : " (default)"
+          : ""
       }`,
       value: candidate.id,
     })),
@@ -526,7 +600,7 @@ export function buildPersonaRuntimeDropdownOptions({
     !runtimeDropdownOptions.some((option) => option.value === currentRuntime)
   ) {
     runtimeDropdownOptions.push({
-      label: `${currentRuntime} (current)`,
+      label: `${currentRuntime}${t ? t("agents.suffix_current") : " (current)"}`,
       value: currentRuntime,
     });
   }
@@ -618,8 +692,8 @@ export function isGloballySatisfiedCredentialKey(
  * OSS behavior is unchanged.
  *
  * **UX asymmetry:** baked-satisfied keys are FULLY silenced — no amber Required
- * row, no "Set in config" info row. This differs from file-satisfied keys, which
- * render an info row ("Set in goose config"). Baked env is invisible
+ * row, no t("agents.set_in_config") info row. This differs from file-satisfied keys, which
+ * render an info row (t("agents.set_in_goose_config")). Baked env is invisible
  * infrastructure; surfacing it would be noise for users.
  *
  * **Precedence:** agent-local > baked > global > file for satisfaction. An
@@ -709,7 +783,7 @@ export function computeLocalModeGate({
    */
   requiredEnvKeys: string[];
   /** Env keys that are not set in Buzz but are satisfied in the runtime's
-   *  config file (e.g. "Set in goose config"). */
+   *  config file (e.g. t("agents.set_in_goose_config")). */
   fileSatisfiedEnvKeys: string[];
   /** True when the create button may be enabled (from this gate's perspective). */
   satisfied: boolean;

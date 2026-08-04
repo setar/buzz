@@ -35,6 +35,7 @@ function OnboardingRelayConnectionErrorCard({
   isSaving: boolean;
   message: string;
 }) {
+  const { t } = useTranslation();
   const {
     isPending: isReconnectPending,
     isWaitingOnReconnectHook,
@@ -131,10 +132,8 @@ function OnboardingRelayConnectionErrorCard({
           setIsReconnectActionPending(false);
         });
     },
-    [markSuccess],
+    [markSuccess, t],
   );
-
-  const { t } = useTranslation();
 
   const handleReconnectRelay = React.useCallback(() => {
     runConnectivityAction(reconnect);
@@ -236,7 +235,9 @@ export function ProfileStep({
         className="mt-12 flex w-full cursor-text flex-col items-center"
         htmlFor="onboarding-display-name"
       >
-        <span className="sr-only">{t("onboarding.profile_step.name_label")}</span>
+        <span className="sr-only">
+          {t("onboarding.profile_step.name_label")}
+        </span>
         <div className="relative h-20 w-full max-w-[576px]">
           {!hasDisplayNameDraft ? (
             <div
@@ -291,7 +292,10 @@ export function ProfileStep({
           type="button"
         >
           {isSaving ? (
-            <Spinner aria-label={t("onboarding.profile_step.saving")} className="h-4 w-4 border-2" />
+            <Spinner
+              aria-label={t("onboarding.profile_step.saving")}
+              className="h-4 w-4 border-2"
+            />
           ) : usesExistingIdentity ? (
             t("common.continue")
           ) : (

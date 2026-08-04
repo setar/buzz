@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Flag } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -17,15 +18,19 @@ import { Textarea } from "@/shared/ui/textarea";
 
 /** NIP-56 report categories, in the order shown to the reporter. `other` is
  *  last so it reads as the fallback rather than a first-class choice. */
-const REPORT_CATEGORIES: { value: ReportType; label: string }[] = [
-  { value: "spam", label: "Spam" },
-  { value: "profanity", label: "Profanity or hate speech" },
-  { value: "nudity", label: "Nudity or sexual content" },
-  { value: "impersonation", label: "Impersonation" },
-  { value: "malware", label: "Malware or scam" },
-  { value: "illegal", label: "Illegal content" },
-  { value: "other", label: "Other" },
-];
+function buildReportCategories(
+  t: (key: string) => string,
+): Array<{ value: ReportType; label: string }> {
+  return [
+    { value: "spam", label: t("moderation.spam") },
+    { value: "profanity", label: t("moderation.hate") },
+    { value: "nudity", label: t("moderation.nudity") },
+    { value: "impersonation", label: t("moderation.impersonation") },
+    { value: "malware", label: t("moderation.malware") },
+    { value: "illegal", label: t("moderation.illegal") },
+    { value: "other", label: t("moderation.other") },
+  ];
+}
 
 export function ReportMessageDialog({
   open,
@@ -40,6 +45,7 @@ export function ReportMessageDialog({
   /** Reported message event id (the `e` tag target). */
   eventId: string;
 }) {
+  const { t } = useTranslation();
   const submitReport = useSubmitReportMutation();
   const [category, setCategory] = React.useState<ReportType | null>(null);
   const [note, setNote] = React.useState("");
@@ -64,10 +70,10 @@ export function ReportMessageDialog({
       },
       {
         onSuccess: () => {
-          toast.success("Report submitted to community moderators");
+          toast.success(t("moderation.report_submitted"));
           onOpenChange(false);
         },
-        onError: () => toast.error("Failed to submit report"),
+        onError: () => toast.error(t("moderation.failed_report")),
       },
     );
   };
@@ -87,7 +93,7 @@ export function ReportMessageDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
-          {REPORT_CATEGORIES.map((item) => (
+          {buildReportCategories(t).map((item) => (
             <Button
               key={item.value}
               variant={category === item.value ? "default" : "outline"}
@@ -109,7 +115,7 @@ export function ReportMessageDialog({
           </label>
           <Textarea
             id="report-note"
-            placeholder="Add anything that helps moderators..."
+            placeholder={t("moderation.add_help")}
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}

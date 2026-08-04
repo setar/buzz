@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
+
 import { CustomHarnessForm } from "@/features/settings/ui/CustomHarnessForm";
 import { ChooserDialogContent } from "@/shared/ui/chooser-dialog-content";
 import { Dialog } from "@/shared/ui/dialog";
 
 /**
- * Registers a custom ACP harness from inside an agent dialog, so "New agent"
+ * Registers a custom ACP harness from inside an agent dialog, so t("agents.new_agent")
  * is a complete entry point and not a dead end that sends the user to
  * Settings. Hosts the same `CustomHarnessForm` the harness catalog uses.
  */
@@ -17,6 +19,7 @@ export function AddCustomHarnessDialog({
   onSaved: (id: string) => void;
   open: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
       <ChooserDialogContent
@@ -24,13 +27,13 @@ export function AddCustomHarnessDialog({
         contentClassName="flex min-h-0 flex-1 p-0"
         data-testid="add-custom-harness-dialog"
         scrollAreaClassName="flex min-h-0 overflow-hidden px-0"
-        title="Add custom harness"
+        title={t("agents.add_custom_harness")}
       >
         <CustomHarnessForm
           chromeless
           header={
             <p className="text-sm text-muted-foreground">
-              Register any ACP-speaking agent tool as a selectable harness.
+              {t("agents.register_harness_help")}
             </p>
           }
           onCancel={() => onOpenChange(false)}

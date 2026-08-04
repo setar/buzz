@@ -17,6 +17,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { CheckCheck, Link2, Plus, Settings2, Ticket } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import type { Community } from "@/features/communities/types";
 import { EditCommunityDialog } from "@/features/communities/ui/EditCommunityDialog";
@@ -308,6 +309,7 @@ export function CommunityRail({
   onRemoveCommunity,
   onReorderCommunities,
 }: CommunityRailProps) {
+  const { t } = useTranslation();
   const { unreadByCommunity, markCommunityRead } = useCommunityUnread(
     communities,
     activeCommunityId,
@@ -411,7 +413,7 @@ export function CommunityRail({
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            aria-label="Add community"
+            aria-label={t("sidebar.add_community")}
             className="flex h-9 w-9 items-center justify-center rounded-2xl bg-sidebar-accent/60 text-sidebar-foreground/70 outline-hidden transition-all hover:rounded-xl hover:bg-primary/80 hover:text-primary-foreground focus:outline-none focus-visible:outline-none"
             data-testid="community-rail-add"
             onClick={onAddCommunity}
@@ -420,7 +422,9 @@ export function CommunityRail({
             <Plus className="h-4 w-4" />
           </button>
         </TooltipTrigger>
-        <TooltipContent side="right">Add community</TooltipContent>
+        <TooltipContent side="right">
+          {t("sidebar.add_community")}
+        </TooltipContent>
       </Tooltip>
       <EditCommunityDialog
         canRemove={communities.length > 1}

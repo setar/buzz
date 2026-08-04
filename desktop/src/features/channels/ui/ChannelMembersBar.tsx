@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { EllipsisVertical, Settings2, Users } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -51,6 +52,7 @@ export function ChannelMembersBar({
   onToggleMembers,
   variant = "inline",
 }: ChannelMembersBarProps) {
+  const { t } = useTranslation();
   const [uncontrolledAddBotOpen, setUncontrolledAddBotOpen] =
     React.useState(false);
   const isAddBotOpen = isAddBotOpenProp ?? uncontrolledAddBotOpen;
@@ -169,7 +171,7 @@ export function ChannelMembersBar({
           // available immediately if the huddle returns to the in-app drawer.
           void queryClient.invalidateQueries({ queryKey: ["channels"] });
         } catch (e) {
-          console.error("Failed to start huddle:", e);
+          console.error(t("channel.failed_start_huddle"), e);
           toast.error(formatHuddleActionError(e, "start"));
         }
       }}
@@ -185,7 +187,7 @@ export function ChannelMembersBar({
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
-            aria-label="Channel actions"
+            aria-label={t("channel.channel_actions")}
             data-testid="channel-actions-menu-trigger"
             size="icon"
             type="button"
@@ -211,7 +213,7 @@ export function ChannelMembersBar({
             onSelect={onManageChannel}
           >
             <Settings2 />
-            <span>Manage channel</span>
+            <span>{t("channel.manage_channel")}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -241,7 +243,7 @@ export function ChannelMembersBar({
         <Tooltip disableHoverableContent>
           <TooltipTrigger asChild>
             <Button
-              aria-label="Manage channel"
+              aria-label={t("channel.manage_channel")}
               data-testid="channel-management-trigger"
               onClick={onManageChannel}
               size="icon"

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Archive, Trash2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -43,15 +44,16 @@ import {
 function scopeLabel(
   sub: SaveSubscription,
   channelNameById: Map<string, string>,
+  t: (key: string) => string,
 ): string {
   if (sub.scopeType === "channel_h") {
     return channelNameById.get(sub.scopeValue) ?? sub.scopeValue;
   }
   if (sub.scopeType === "owner_p") {
     if (sub.kinds.includes(KIND_AGENT_TURN_METRIC)) {
-      return "My agents' turn metrics";
+      return t("local_archive.my_metrics");
     }
-    return "My agent session frames";
+    return t("local_archive.my_frames");
   }
   return sub.scopeValue;
 }
@@ -275,6 +277,7 @@ type AddFormProps = {
 };
 
 function AddSubscriptionForm({ channels, onSaved, onCancel }: AddFormProps) {
+  const { t } = useTranslation();
   const [selectedChannelId, setSelectedChannelId] = React.useState("");
   const [checkedKinds, setCheckedKinds] = React.useState<Set<number>>(
     new Set(),
@@ -302,15 +305,15 @@ function AddSubscriptionForm({ channels, onSaved, onCancel }: AddFormProps) {
         request.kinds,
       );
       onSaved();
-      toast.success("Archive subscription created.");
+      toast.success(t("local_archive.subscription_created"));
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to create subscription.",
+        err instanceof Error ? err.message : t("local_archive.failed_create"),
       );
     } finally {
       setIsAdding(false);
     }
-  }, [request, onSaved]);
+  }, [request, onSaved, t]);
 
   const handleCancel = () => {
     setSelectedChannelId("");
@@ -384,6 +387,7 @@ function AddSubscriptionForm({ channels, onSaved, onCancel }: AddFormProps) {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function LocalArchiveSettingsCard() {
+  const { t } = useTranslation();
   const identityQuery = useIdentityQuery();
   const channelsQuery = useChannelsQuery();
   const [subs, setSubs] = React.useState<SaveSubscription[]>([]);
@@ -441,16 +445,16 @@ export function LocalArchiveSettingsCard() {
       try {
         await deleteSaveSubscription(scopeType, scopeValue);
         await reload();
-        toast.success("Archive subscription removed.");
+        toast.success(t("local_archive.subscription_removed"));
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Failed to remove subscription.",
+          err instanceof Error ? err.message : t("local_archive.failed_remove"),
         );
       } finally {
         setDeletingKey(null);
       }
     },
-    [reload],
+    [reload, t],
   );
 
   const observerEnabled = subs.some(
@@ -475,21 +479,21 @@ export function LocalArchiveSettingsCard() {
         }
         toast.success(
           checked
-            ? "Observer feed archive enabled."
-            : "Observer feed archive disabled.",
+            ? t("local_archive.observer_enabled")
+            : t("local_archive.observer_disabled"),
         );
         await reload();
       } catch (err) {
         toast.error(
           err instanceof Error
             ? err.message
-            : "Failed to update observer archive.",
+            : t("local_archive.failed_observer"),
         );
       } finally {
         setObserverToggling(false);
       }
     },
-    [pubkey, observerPolicy, reload],
+    [pubkey, observerPolicy, reload, t],
   );
 
   const handleMetricToggle = React.useCallback(
@@ -505,21 +509,21 @@ export function LocalArchiveSettingsCard() {
         setExplicitAgentMetricArchiveChoice(pubkey, checked);
         toast.success(
           checked
-            ? "Agent turn metric archive enabled."
-            : "Agent turn metric archive disabled.",
+            ? t("local_archive.metrics_enabled")
+            : t("local_archive.metrics_disabled"),
         );
         await reload();
       } catch (err) {
         toast.error(
           err instanceof Error
             ? err.message
-            : "Failed to update agent metric archive.",
+            : t("local_archive.failed_metrics"),
         );
       } finally {
         setMetricToggling(false);
       }
     },
-    [pubkey, reload],
+    [pubkey, reload, t],
   );
 
   // Non-owner_p subscriptions shown in the active-subscriptions list.
@@ -530,8 +534,8 @@ export function LocalArchiveSettingsCard() {
   return (
     <section className="min-w-0" data-testid="settings-local-archive">
       <SettingsSectionHeader
-        title="Local archive"
-        description="Save copies of relay messages to a local SQLite database in your Buzz nest. Events are re-verified against the relay at archive time."
+        title={t("local_archive.title")}
+        description={t("local_archive.desc")}
       />
 
       <div className="space-y-6">
@@ -581,14 +585,14 @@ export function LocalArchiveSettingsCard() {
                     <Archive className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">
-                        {scopeLabel(sub, channelNameById)}
+                        {scopeLabel(sub, channelNameById, t)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {sub.scopeType} · kinds: {kindSummary(sub.kinds)}
                       </p>
                     </div>
                     <Button
-                      aria-label={`Remove archive subscription for ${scopeLabel(sub, channelNameById)}`}
+                      aria-label={`Remove archive subscription for ${scopeLabel(sub, channelNameById, t)}`}
                       disabled={deletingKey === key}
                       onClick={() =>
                         void handleDelete(sub.scopeType, sub.scopeValue)

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { FileDiff, Maximize2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { getDiffTitleBadge } from "@/features/messages/lib/parseDiff";
 import { isSafeUrl } from "@/shared/lib/url";
@@ -35,6 +36,7 @@ export default function DiffMessage({
   truncated,
   onExpand,
 }: DiffMessageProps) {
+  const { t } = useTranslation();
   const diffCardRef = React.useRef<HTMLDivElement | null>(null);
   useSmoothCorners(diffCardRef);
 
@@ -98,7 +100,7 @@ export default function DiffMessage({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  aria-label="Expand diff"
+                  aria-label={t("messages.expand_diff")}
                   className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
                   onClick={onExpand}
                   size="sm"
@@ -108,7 +110,7 @@ export default function DiffMessage({
                   <Maximize2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Expand diff</TooltipContent>
+              <TooltipContent>{t("messages.expand_diff")}</TooltipContent>
             </Tooltip>
           )}
         </div>
@@ -144,7 +146,7 @@ export default function DiffMessage({
               View full diff on {getHostname(safeRepoUrl)}
             </a>
           ) : (
-            "View the full diff at the source repository."
+            t("messages.full_diff_hint")
           )}
         </div>
       )}

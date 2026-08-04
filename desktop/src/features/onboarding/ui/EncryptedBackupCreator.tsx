@@ -282,6 +282,7 @@ function PassphraseGeneratorPopover({
   onGenerated: (value: string) => void;
   securityTheme?: boolean;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const [words, setWords] = React.useState(DEFAULT_GENERATED_WORDS);
   const [separator, setSeparator] = React.useState<string>(DEFAULT_SEPARATOR);
@@ -305,21 +306,26 @@ function PassphraseGeneratorPopover({
     };
   }, []);
 
-  const generate = React.useCallback(async (wordCount: number, sep: string) => {
-    setError(null);
-    try {
-      const passphrase = await generateBackupPassphrase({
-        words: wordCount,
-        separator: sep,
-      });
-      if (mountedRef.current) onGeneratedRef.current(passphrase);
-    } catch (err) {
-      if (!mountedRef.current) return;
-      setError(
-        err instanceof Error ? err.message : "Failed to generate a password.",
-      );
-    }
-  }, []);
+  const generate = React.useCallback(
+    async (wordCount: number, sep: string) => {
+      setError(null);
+      try {
+        const passphrase = await generateBackupPassphrase({
+          words: wordCount,
+          separator: sep,
+        });
+        if (mountedRef.current) onGeneratedRef.current(passphrase);
+      } catch (err) {
+        if (!mountedRef.current) return;
+        setError(
+          err instanceof Error
+            ? err.message
+            : t("onboarding.failed_generate_password"),
+        );
+      }
+    },
+    [t],
+  );
 
   // Fill the password field on every open and whenever a control changes.
   React.useEffect(() => {
@@ -333,7 +339,7 @@ function PassphraseGeneratorPopover({
           open. Only click-outside or Esc closes it. */}
       <PopoverAnchor asChild>
         <Button
-          aria-label="Generate a password"
+          aria-label={t("onboarding.generate_password")}
           className={cn(
             "absolute right-9 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground",
             securityTheme &&
@@ -504,7 +510,7 @@ export function EncryptedBackupCreator({
             message:
               err instanceof Error
                 ? err.message
-                : "Failed to encrypt your key.",
+                : t("onboarding.failed_encrypt"),
           }),
         );
     };
@@ -516,13 +522,13 @@ export function EncryptedBackupCreator({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [dispatch, pendingPassphrase, skipDebounce, state.nextRequestId]);
+  }, [dispatch, pendingPassphrase, skipDebounce, state.nextRequestId, t]);
 
   // Download commit: fires once per committed blob, whether the commit was
   // instant (encryption already done) or resolved a queued download. The flow
   // only advances to the test view once the file is actually on disk — a
   // canceled save dialog or a save failure rolls the commit back to the
-  // password form so "Download backup" can be clicked again.
+  // password form so t("onboarding.download_backup") can be clicked again.
   React.useEffect(() => {
     const ncryptsec = state.ncryptsec;
     if (!ncryptsec || savedForRef.current === ncryptsec) return;
@@ -548,7 +554,9 @@ export function EncryptedBackupCreator({
         rollBack();
         if (mountedRef.current)
           setSaveError(
-            err instanceof Error ? err.message : "Failed to save your key.",
+            err instanceof Error
+              ? err.message
+              : t("onboarding.failed_save_key"),
           );
       })
       .finally(() => {
@@ -561,6 +569,7 @@ export function EncryptedBackupCreator({
     savedForRef,
     setSavedPath,
     state.ncryptsec,
+    t,
   ]);
 
   const handleSaveCopy = React.useCallback(async () => {
@@ -576,12 +585,12 @@ export function EncryptedBackupCreator({
     } catch (err) {
       if (mountedRef.current)
         setSaveError(
-          err instanceof Error ? err.message : "Failed to save your key.",
+          err instanceof Error ? err.message : t("onboarding.failed_save_key"),
         );
     } finally {
       if (mountedRef.current) setIsSaving(false);
     }
-  }, [isSaving, onSaved, setSavedPath, state.ncryptsec]);
+  }, [isSaving, onSaved, setSavedPath, state.ncryptsec, t]);
 
   const { setVerified, test, setTest } = session;
   const handleVerified = React.useCallback(() => {
@@ -633,7 +642,7 @@ export function EncryptedBackupCreator({
         {showBackupTimeline ? <BackupPasswordTimeline /> : null}
         <div className="relative z-10">
           <Input
-            aria-label="Encryption password"
+            aria-label={t("onboarding.encryption_password")}
             autoComplete="new-password"
             autoFocus={variant === "spotlight"}
             className={cn(
@@ -679,7 +688,9 @@ export function EncryptedBackupCreator({
             placeholder={
               state.savedPassword
                 ? ""
-                : t("onboarding.encrypted_backup.password_placeholder", { min: MIN_PASSPHRASE_LEN })
+                : t("onboarding.encrypted_backup.password_placeholder", {
+                    min: MIN_PASSPHRASE_LEN,
+                  })
             }
             type={isRevealed ? "text" : "password"}
             value={state.passphrase}
@@ -846,7 +857,9 @@ export function EncryptedBackupCreator({
           textureTone={variant === "spotlight" ? "dark" : "light"}
         >
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("onboarding.encrypted_backup.dialog_title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("onboarding.encrypted_backup.dialog_title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("onboarding.encrypted_backup.dialog_description")}
             </AlertDialogDescription>

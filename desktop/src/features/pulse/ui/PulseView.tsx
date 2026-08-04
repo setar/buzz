@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   useManagedAgentsQuery,
@@ -73,6 +74,7 @@ function TimelineSkeleton() {
 }
 
 export function PulseView({ currentPubkey }: PulseViewProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = React.useState<PulseTab>("everyone");
   const [searchQuery, setSearchQuery] = React.useState("");
   const scrollRef = React.useRef<HTMLDivElement>(null);
@@ -254,15 +256,15 @@ export function PulseView({ currentPubkey }: PulseViewProps) {
   const isLoading = activeQuery.isLoading;
 
   const emptyMessages: Record<PulseTab, string> = {
-    search: "Search Pulse notes by author or text.",
-    everyone: "No public notes yet.",
-    people: "No notes yet. Follow people to see their updates here.",
+    search: t("pulse.search_hint"),
+    everyone: t("pulse.no_public_notes"),
+    people: t("pulse.no_notes"),
     liked: "No likes yet — tap the heart on a note to save it here.",
     agents:
       agentPubkeys.length === 0
-        ? "No agents registered yet."
-        : "No agent notes yet. Agents post here when they publish.",
-    mine: "You haven't posted any notes yet.",
+        ? t("pulse.no_agents")
+        : t("pulse.no_agent_notes"),
+    mine: t("pulse.no_my_notes"),
   };
 
   function renderTimeline() {
@@ -358,12 +360,12 @@ export function PulseView({ currentPubkey }: PulseViewProps) {
                       autoFocus
                       className="h-9 rounded-full border-0 bg-transparent pl-10 pr-12 text-sm shadow-none placeholder:text-muted-foreground/80 focus-visible:ring-0 dark:text-white dark:placeholder:text-white/60"
                       onChange={(event) => setSearchQuery(event.target.value)}
-                      placeholder="What would you like to know?"
+                      placeholder={t("pulse.what_to_know")}
                       type="search"
                       value={searchQuery}
                     />
                     <button
-                      aria-label="Search Pulse"
+                      aria-label={t("pulse.search")}
                       className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-foreground/10 text-foreground transition-colors hover:bg-foreground/15 dark:bg-white/85 dark:text-black dark:hover:bg-white"
                       type="button"
                     >
@@ -383,7 +385,7 @@ export function PulseView({ currentPubkey }: PulseViewProps) {
                 <div className="mb-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
                   {publishMutation.error instanceof Error
                     ? publishMutation.error.message
-                    : "Failed to publish note"}
+                    : t("pulse.failed_publish")}
                 </div>
               )}
               <ForumComposer

@@ -11,7 +11,7 @@ type StageCharacter = {
   animationUrl: string;
 };
 
-/** Same animated APNGs the "Meet your starter team" onboarding step uses. */
+/** Same animated APNGs the t("onboarding.meet_starter_team") onboarding step uses. */
 const STAGE_CHARACTERS: readonly StageCharacter[] = [
   { name: "Fizz", animationUrl: "/onboarding/starter-team/fizz.png" },
   { name: "Honey", animationUrl: "/onboarding/starter-team/honey.png" },

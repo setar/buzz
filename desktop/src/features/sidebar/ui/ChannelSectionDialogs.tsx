@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { X } from "lucide-react";
 
@@ -60,6 +61,7 @@ function SectionNameDialog({
   isConfirmDisabled,
   onConfirm,
 }: SectionNameDialogProps) {
+  const { t } = useTranslation();
   const [name, setName] = React.useState(initialValue);
   const [icon, setIcon] = React.useState(initialIcon);
   const [pickerOpen, setPickerOpen] = React.useState(false);
@@ -108,7 +110,7 @@ function SectionNameDialog({
               <div className="relative shrink-0">
                 <PopoverTrigger asChild>
                   <button
-                    aria-label="Choose section icon"
+                    aria-label={t("sidebar.choose_section_icon")}
                     className="flex h-9 w-9 items-center justify-center rounded-md border border-input text-lg transition-colors hover:bg-accent"
                     type="button"
                   >
@@ -121,7 +123,7 @@ function SectionNameDialog({
                 </PopoverTrigger>
                 {icon ? (
                   <button
-                    aria-label="Clear section icon"
+                    aria-label={t("sidebar.clear_section_icon")}
                     className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border border-background bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
                     onClick={(event) => {
                       event.stopPropagation();
@@ -147,7 +149,7 @@ function SectionNameDialog({
               autoCorrect="off"
               className="flex-1"
               onChange={(event) => setName(event.target.value)}
-              placeholder="Section name"
+              placeholder={t("sidebar.section_name")}
               ref={inputRef}
               spellCheck={false}
               value={name}
@@ -183,12 +185,13 @@ export function CreateSectionDialog({
   onOpenChange,
   onConfirm,
 }: CreateSectionDialogProps) {
+  const { t } = useTranslation();
   return (
     <SectionNameDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Create section"
-      description="Sections let you group related channels in the sidebar."
+      title={t("sidebar.create_section")}
+      description={t("sidebar.sections_desc")}
       initialValue=""
       confirmLabel="Create"
       isConfirmDisabled={(trimmed) => trimmed.length === 0}
@@ -212,12 +215,13 @@ export function RenameSectionDialog({
   sectionIcon,
   onConfirm,
 }: RenameSectionDialogProps) {
+  const { t } = useTranslation();
   return (
     <SectionNameDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Rename section"
-      description="Enter a new name for this section."
+      title={t("sidebar.rename_section")}
+      description={t("sidebar.section_name_prompt")}
       initialValue={sectionName}
       initialIcon={sectionIcon}
       confirmLabel="Save"

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   ChevronDown,
   Cloud,
@@ -280,6 +281,7 @@ export function RepoSyncActionButton({
 }: {
   controls: RepoSourceHeaderControls;
 }) {
+  const { t } = useTranslation();
   const pull = controls.canPull && controls.onPull;
   const push = controls.canPush && controls.onPush;
 
@@ -291,7 +293,7 @@ export function RepoSyncActionButton({
         disabled={controls.pullDisabled}
         onClick={controls.onPull}
         size="sm"
-        title={controls.pullTitle ?? "Pull remote commits"}
+        title={controls.pullTitle ?? t("projects.pull_remote_commits")}
         variant="ghost"
       >
         {controls.pullPending ? (
@@ -311,7 +313,7 @@ export function RepoSyncActionButton({
         disabled={controls.pushDisabled}
         onClick={controls.onPush}
         size="sm"
-        title={controls.pushTitle ?? "Push local commits"}
+        title={controls.pushTitle ?? t("projects.push_local_commits")}
         variant="ghost"
       >
         {controls.pushPending ? (
@@ -331,7 +333,7 @@ export function RepoSyncActionButton({
       disabled={controls.fetchPending}
       onClick={controls.onFetch}
       size="sm"
-      title={controls.fetchTitle ?? "Check for remote changes"}
+      title={controls.fetchTitle ?? t("projects.check_remote_changes")}
       variant="ghost"
     >
       {controls.fetchPending ? (

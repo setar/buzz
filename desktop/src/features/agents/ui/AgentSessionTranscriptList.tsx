@@ -585,12 +585,13 @@ function SameKindSummaryItem({
 }
 
 function getGroupedFileEditDiffs(items: TranscriptItem[]): FileEditDiff[] {
+  const noopT = (key: string) => key;
   return items.flatMap((item) => {
     if (item.type !== "tool" || item.isError) {
       return [];
     }
 
-    const diff = buildCompactToolSummary(item).fileEditDiff;
+    const diff = buildCompactToolSummary(item, noopT).fileEditDiff;
     return diff && hasFileEditLineDiff(diff) ? [diff] : [];
   });
 }

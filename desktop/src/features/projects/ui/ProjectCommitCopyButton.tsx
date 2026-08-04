@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, Copy } from "lucide-react";
 import * as React from "react";
 
@@ -49,9 +50,10 @@ export function CopyCommitHashButton({
   className?: string;
   hash: string;
 }) {
+  const { t } = useTranslation();
   return (
     <CopyTextButton
-      ariaLabel="Copy commit hash"
+      ariaLabel={t("projects.copy_commit_hash")}
       className={className}
       text={hash}
     />

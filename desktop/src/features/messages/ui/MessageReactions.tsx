@@ -1,5 +1,6 @@
 import { SmilePlus } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { EmojiPicker } from "@/features/custom-emoji/ui/EmojiPicker";
 import type { TimelineReaction } from "@/features/messages/types";
@@ -99,11 +100,14 @@ function EmojiGlyph({
   );
 }
 
-function formatReactionUsers(reaction: TimelineReaction): string {
+function formatReactionUsers(
+  reaction: TimelineReaction,
+  t: (key: string) => string,
+): string {
   const names = reaction.users.map((user) => user.displayName).filter(Boolean);
   if (reaction.reactedByCurrentUser) {
     const others = names.filter((name) => name !== "You");
-    names.splice(0, names.length, "You (click to remove)", ...others);
+    names.splice(0, names.length, t("messages.you_click_to_remove"), ...others);
   }
   if (names.length === 0) return `${reaction.count} people`;
   if (names.length === 1) return names[0];
@@ -112,8 +116,9 @@ function formatReactionUsers(reaction: TimelineReaction): string {
 }
 
 function ReactionPopoverContent({ reaction }: { reaction: TimelineReaction }) {
+  const { t } = useTranslation();
   const displayName = emojiDisplayName(reaction.emoji);
-  const userText = formatReactionUsers(reaction);
+  const userText = formatReactionUsers(reaction, t);
 
   return (
     <div className="flex flex-col items-center text-center">
@@ -290,6 +295,7 @@ function InlineReactionPicker({
   reactions: TimelineReaction[];
   requestBadgeBurst: (emoji: string) => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const wouldAddReaction = (emoji: string) =>
     !reactions.some(
@@ -302,7 +308,7 @@ function InlineReactionPicker({
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
             <button
-              aria-label="Add reaction"
+              aria-label={t("messages.add_reaction")}
               className={cn(
                 REACTION_PILL_BASE_CLASSES,
                 "pointer-events-none w-10 min-w-10 justify-center p-0 text-muted-foreground opacity-0",

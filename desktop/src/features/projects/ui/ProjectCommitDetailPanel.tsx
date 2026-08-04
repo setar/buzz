@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { GitCommitHorizontal } from "lucide-react";
 
 import {
@@ -47,12 +48,15 @@ export function ProjectCommitDetailPanel({
   profiles?: UserProfileLookup;
   viewerGitIdentity?: ViewerGitIdentity | null;
 }) {
+  const { t } = useTranslation();
   const matchedProfile = commit
     ? profileForCommit(commit, profiles, commitAuthorPubkeys, viewerGitIdentity)
     : null;
   const authorLabel = matchedProfile
     ? resolveUserLabel({ pubkey: matchedProfile.pubkey, profiles })
-    : (commit?.authorName ?? commit?.authorEmail ?? "Unknown author");
+    : (commit?.authorName ??
+      commit?.authorEmail ??
+      t("projects.unknown_author"));
   const shortHash = commit?.shortHash ?? commitHash.slice(0, 7);
 
   return (

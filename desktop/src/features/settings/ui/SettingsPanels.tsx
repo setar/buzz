@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   Archive,
@@ -155,91 +156,97 @@ export type SettingsPanelProps = {
   onSetSoundForSlot: (slot: SoundSlot, name: SoundName) => void;
 };
 
-export const settingsSections: SettingsSectionDescriptor[] = [
-  {
-    value: "appearance",
-    label: "Appearance",
-    icon: MonitorCog,
-  },
-  {
-    value: "profile",
-    label: "Profile",
-    icon: UserRound,
-  },
-  {
-    value: "notifications",
-    label: "Notifications",
-    icon: BellRing,
-  },
-  {
-    value: "voice",
-    label: "Voice",
-    icon: Volume2,
-  },
-  {
-    value: "experimental",
-    label: "Experiments",
-    icon: FlaskConical,
-  },
-  {
-    value: "agents",
-    label: "Agents",
-    icon: Bot,
-    featureGate: "managed-agents",
-  },
-  {
-    value: "channel-templates",
-    label: "Channel templates",
-    icon: LayoutTemplate,
-    featureGate: "channel-templates",
-  },
-  {
-    value: "compute",
-    label: "Compute",
-    icon: Cpu,
-  },
-  {
-    value: "shortcuts",
-    label: "Shortcuts",
-    icon: Keyboard,
-  },
-  {
-    value: "hosted-communities",
-    label: "Hosted communities",
-    icon: MessagesSquare,
-  },
-  {
-    value: "community-members",
-    label: "Invites",
-    icon: Ticket,
-  },
-  {
-    value: "moderation",
-    label: "Moderation",
-    icon: ShieldAlert,
-  },
-  {
-    value: "custom-emoji",
-    label: "Custom emoji",
-    icon: Smile,
-    featureGate: "custom-emoji",
-  },
-  {
-    value: "local-archive",
-    label: "Local archive",
-    icon: Archive,
-  },
-  {
-    value: "mobile",
-    label: "Mobile",
-    icon: Smartphone,
-  },
-  {
-    value: "updates",
-    label: "Updates",
-    icon: Download,
-  },
-];
+export function useSettingsSections(): SettingsSectionDescriptor[] {
+  const { t } = useTranslation();
+  return useMemo(
+    () => [
+      {
+        value: "appearance",
+        label: t("settings.appearance"),
+        icon: MonitorCog,
+      },
+      {
+        value: "profile",
+        label: t("settings.profile_section"),
+        icon: UserRound,
+      },
+      {
+        value: "notifications",
+        label: t("settings.notifications_section"),
+        icon: BellRing,
+      },
+      {
+        value: "voice",
+        label: t("settings.voice"),
+        icon: Volume2,
+      },
+      {
+        value: "experimental",
+        label: t("settings.experiments"),
+        icon: FlaskConical,
+      },
+      {
+        value: "agents",
+        label: t("settings.agents"),
+        icon: Bot,
+        featureGate: "managed-agents",
+      },
+      {
+        value: "channel-templates",
+        label: t("settings.templates"),
+        icon: LayoutTemplate,
+        featureGate: "channel-templates",
+      },
+      {
+        value: "compute",
+        label: t("settings.compute"),
+        icon: Cpu,
+      },
+      {
+        value: "shortcuts",
+        label: t("settings.shortcuts"),
+        icon: Keyboard,
+      },
+      {
+        value: "hosted-communities",
+        label: t("settings.hosted_communities"),
+        icon: MessagesSquare,
+      },
+      {
+        value: "community-members",
+        label: t("settings.invites"),
+        icon: Ticket,
+      },
+      {
+        value: "moderation",
+        label: t("settings.moderation"),
+        icon: ShieldAlert,
+      },
+      {
+        value: "custom-emoji",
+        label: t("settings.custom_emoji"),
+        icon: Smile,
+        featureGate: "custom-emoji",
+      },
+      {
+        value: "local-archive",
+        label: t("settings.local_archive"),
+        icon: Archive,
+      },
+      {
+        value: "mobile",
+        label: t("settings.mobile"),
+        icon: Smartphone,
+      },
+      {
+        value: "updates",
+        label: t("settings.updates_section"),
+        icon: Download,
+      },
+    ],
+    [t],
+  );
+}
 
 function formatThemeLabel(name: string): string {
   return name
@@ -428,6 +435,7 @@ function ThemeSettingsCard() {
     followSystem,
     setFollowSystem,
   } = useTheme();
+  const { t } = useTranslation();
 
   // Buzz themes pin a neutral accent (GitHub black in light, white in dark),
   // so the accent picker is hidden while a Buzz theme is active. `themeName` is
@@ -525,17 +533,29 @@ function ThemeSettingsCard() {
       data-testid="settings-theme"
     >
       <SettingsSectionHeader
-        title="Appearance"
-        description="Choose a theme for Buzz."
+        title={t("settings.appearance")}
+        description={t("settings.appearance_description")}
       />
 
       {/* Mode selector: System / Light / Dark */}
       <div className="mb-4 flex gap-2">
         {(
           [
-            { mode: "system" as const, label: "System", Icon: SunMoon },
-            { mode: "light" as const, label: "Light", Icon: Sun },
-            { mode: "dark" as const, label: "Dark", Icon: Moon },
+            {
+              mode: "system" as const,
+              label: t("settings.theme_system"),
+              Icon: SunMoon,
+            },
+            {
+              mode: "light" as const,
+              label: t("settings.theme_light"),
+              Icon: Sun,
+            },
+            {
+              mode: "dark" as const,
+              label: t("settings.theme_dark"),
+              Icon: Moon,
+            },
           ] as const
         ).map(({ mode, label, Icon }) => (
           <button
@@ -660,23 +680,6 @@ function ThemeSettingsCard() {
   );
 }
 
-const THREAD_VIEW_MODE_OPTIONS: {
-  value: ThreadViewMode;
-  label: string;
-  description: string;
-}[] = [
-  {
-    value: "focus",
-    label: "Focus",
-    description: "Threads open over the channel, full width",
-  },
-  {
-    value: "split",
-    label: "Split",
-    description: "Threads open in a side panel next to the channel",
-  },
-];
-
 /**
  * Thread layout picker. Uses the same dropdown radio group vocabulary as the
  * other enumerated Settings rows (e.g. {@link SoundPicker}) so each option can
@@ -684,16 +687,36 @@ const THREAD_VIEW_MODE_OPTIONS: {
  */
 function ThreadLayoutSetting() {
   const threadViewMode = useThreadViewMode();
+  const { t } = useTranslation();
+  const threadViewModeOptions = useMemo(
+    () =>
+      [
+        {
+          value: "focus",
+          label: t("settings.thread_focus_label"),
+          description: t("settings.thread_focus_desc"),
+        },
+        {
+          value: "split",
+          label: t("settings.thread_split_label"),
+          description: t("settings.thread_split_desc"),
+        },
+      ] satisfies {
+        value: ThreadViewMode;
+        label: string;
+        description: string;
+      }[],
+    [t],
+  );
   const activeOption =
-    THREAD_VIEW_MODE_OPTIONS.find(
-      (option) => option.value === threadViewMode,
-    ) ?? THREAD_VIEW_MODE_OPTIONS[0];
+    threadViewModeOptions.find((option) => option.value === threadViewMode) ??
+    threadViewModeOptions[0];
 
   return (
     <SettingsOptionGroup className="mt-8">
       <SettingsOptionRow>
         <div className="min-w-0">
-          <p className="text-sm font-medium">Thread layout</p>
+          <p className="text-sm font-medium">{t("settings.thread_layout")}</p>
           <p className="text-sm font-normal text-muted-foreground">
             {activeOption.description}
           </p>
@@ -718,7 +741,7 @@ function ThreadLayoutSetting() {
               }
               value={threadViewMode}
             >
-              {THREAD_VIEW_MODE_OPTIONS.map((option) => (
+              {threadViewModeOptions.map((option) => (
                 <DropdownMenuRadioItem
                   data-testid={`thread-layout-${option.value}`}
                   key={option.value}

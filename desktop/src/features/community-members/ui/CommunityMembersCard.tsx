@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { MoreHorizontal, Plus, Shield, ShieldCheck, User } from "lucide-react";
 import { toast } from "sonner";
@@ -169,6 +170,7 @@ export function CommunityMembersCard({
 }: {
   currentPubkey?: string;
 }) {
+  const { t } = useTranslation();
   const membersQuery = useRelayMembersQuery();
   const myMembershipQuery = useMyRelayMembershipQuery();
   const changeRoleMutation = useChangeRelayMemberRoleMutation();
@@ -205,7 +207,9 @@ export function CommunityMembersCard({
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Failed to change role",
+            error instanceof Error
+              ? error.message
+              : t("community_members.failed_change_role"),
           );
         },
       },

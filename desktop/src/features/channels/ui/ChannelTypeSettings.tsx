@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
@@ -53,6 +54,7 @@ export function ChannelTypeSettings({
   testIdPrefix: string;
   ttlSeconds: number;
 }) {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const channelTypeResizeTransition = shouldReduceMotion
     ? { duration: 0 }
@@ -114,7 +116,7 @@ export function ChannelTypeSettings({
               <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    aria-label="Expires after"
+                    aria-label={t("channel.expires_after")}
                     className="-mr-2.5 ml-auto h-9 w-fit justify-end px-2.5 text-right text-sm font-medium text-foreground hover:bg-muted/50"
                     data-testid={`${testIdPrefix}-ttl`}
                     disabled={disabled}

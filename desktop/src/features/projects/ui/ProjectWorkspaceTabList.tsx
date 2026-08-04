@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { BookOpen } from "lucide-react";
 
 import type { ProjectPullRequest } from "@/features/projects/hooks";
@@ -27,24 +28,25 @@ function ProjectTabLabel({ children }: { children: string }) {
 }
 
 export function ProjectTabsList({ prsActive }: { prsActive?: boolean }) {
+  const { t } = useTranslation();
   return (
     <TabsList className="h-full min-w-0 max-w-full flex-none justify-start gap-1 overflow-x-auto bg-transparent p-0 scrollbar-none">
       <TabsTrigger
-        aria-label="Overview"
+        aria-label={t("projects.tab_overview")}
         className={PROJECT_OVERVIEW_TAB_CLASS}
-        title="README"
+        title={t("projects.tab_readme")}
         value="overview"
       >
         <BookOpen className="h-full w-full" strokeWidth={2} />
       </TabsTrigger>
       <TabsTrigger className={PROJECT_TAB_TRIGGER_CLASS} value="files">
-        <ProjectTabLabel>Files</ProjectTabLabel>
+        <ProjectTabLabel>{t("projects.files")}</ProjectTabLabel>
       </TabsTrigger>
       <TabsTrigger className={PROJECT_TAB_TRIGGER_CLASS} value="activity">
-        <ProjectTabLabel>Commits</ProjectTabLabel>
+        <ProjectTabLabel>{t("projects.commits")}</ProjectTabLabel>
       </TabsTrigger>
       <TabsTrigger className={PROJECT_TAB_TRIGGER_CLASS} value="issues">
-        <ProjectTabLabel>Issues</ProjectTabLabel>
+        <ProjectTabLabel>{t("projects.issues")}</ProjectTabLabel>
       </TabsTrigger>
       <TabsTrigger
         aria-current={prsActive ? "page" : undefined}
@@ -54,10 +56,10 @@ export function ProjectTabsList({ prsActive }: { prsActive?: boolean }) {
         )}
         value="prs"
       >
-        <ProjectTabLabel>Pull Request</ProjectTabLabel>
+        <ProjectTabLabel>{t("projects.pull_request")}</ProjectTabLabel>
       </TabsTrigger>
       <TabsTrigger className={PROJECT_TAB_TRIGGER_CLASS} value="contributors">
-        <ProjectTabLabel>Contributors</ProjectTabLabel>
+        <ProjectTabLabel>{t("projects.contributors")}</ProjectTabLabel>
       </TabsTrigger>
     </TabsList>
   );

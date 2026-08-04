@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, Users } from "lucide-react";
 import type * as React from "react";
 
@@ -65,6 +66,7 @@ export function AddChannelBotTeamsSection({
   selectedPersonaIds,
   teams,
 }: AddChannelBotTeamsSectionProps) {
+  const { t } = useTranslation();
   if (isLoading || teams.length === 0) {
     return null;
   }
@@ -132,7 +134,7 @@ export function AddChannelBotTeamsSection({
                         >
                           <Check className="h-4 w-4" />
                           {allInChannel
-                            ? "All in channel"
+                            ? t("channel.all_in_channel")
                             : `${inChannelCount} in channel`}
                         </span>
                       ) : null}

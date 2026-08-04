@@ -152,7 +152,9 @@ function RuntimeStatus({
     return (
       <div className="flex flex-col items-center gap-1.5">
         <Button
-          aria-label={t("onboarding.setup.sign_in_aria", { label: runtime.label })}
+          aria-label={t("onboarding.setup.sign_in_aria", {
+            label: runtime.label,
+          })}
           className="buzz-onboarding-runtime-setup h-5 rounded-full bg-[var(--buzz-welcome-chartreuse)]/30 px-2.5 font-mono !text-badge font-normal uppercase text-foreground hover:bg-[var(--buzz-welcome-chartreuse)]/40"
           data-testid={`onboarding-runtime-instructions-${runtime.id}`}
           onClick={() => {
@@ -206,7 +208,9 @@ function RuntimeStatus({
   if (isInstalling) {
     return (
       <div
-        aria-label={t("onboarding.setup.installing_aria", { label: runtime.label })}
+        aria-label={t("onboarding.setup.installing_aria", {
+          label: runtime.label,
+        })}
         className="flex h-5 items-center gap-2 rounded-full bg-white/60 px-2.5 font-mono text-badge font-normal uppercase text-foreground"
         role="status"
       >
@@ -243,14 +247,18 @@ function RuntimeStatus({
   ) {
     return (
       <Button
-        aria-label={t("onboarding.setup.check_again_aria", { label: runtime.label })}
+        aria-label={t("onboarding.setup.check_again_aria", {
+          label: runtime.label,
+        })}
         className="buzz-onboarding-runtime-setup h-5 rounded-full bg-[var(--buzz-welcome-chartreuse)]/30 px-2.5 font-mono !text-badge font-normal uppercase text-foreground hover:bg-[var(--buzz-welcome-chartreuse)]/40"
         disabled={runtimesQuery.isFetching}
         onClick={() => void runtimesQuery.refetch()}
         type="button"
         variant="ghost"
       >
-        {runtimesQuery.isFetching ? t("onboarding.setup.checking") : t("onboarding.setup.check_again")}
+        {runtimesQuery.isFetching
+          ? t("onboarding.setup.checking")
+          : t("onboarding.setup.check_again")}
       </Button>
     );
   }
@@ -258,23 +266,29 @@ function RuntimeStatus({
   if (runtime.canAutoInstall) {
     return (
       <Button
-        aria-label={installError
-          ? t("onboarding.setup.retry_install_aria", { label: runtime.label })
-          : t("onboarding.setup.install_aria", { label: runtime.label })}
+        aria-label={
+          installError
+            ? t("onboarding.setup.retry_install_aria", { label: runtime.label })
+            : t("onboarding.setup.install_aria", { label: runtime.label })
+        }
         className="buzz-onboarding-runtime-setup h-5 rounded-full bg-[var(--buzz-welcome-chartreuse)]/30 px-2.5 font-mono !text-badge font-normal uppercase text-foreground hover:bg-[var(--buzz-welcome-chartreuse)]/40"
         data-testid={`onboarding-runtime-install-${runtime.id}`}
         onClick={onInstall}
         type="button"
         variant="ghost"
       >
-        {installError ? t("onboarding.setup.retry_install") : t("onboarding.setup.install")}
+        {installError
+          ? t("onboarding.setup.retry_install")
+          : t("onboarding.setup.install")}
       </Button>
     );
   }
 
   return (
     <Button
-      aria-label={t("onboarding.setup.instructions_aria", { label: runtime.label })}
+      aria-label={t("onboarding.setup.instructions_aria", {
+        label: runtime.label,
+      })}
       className="buzz-onboarding-runtime-setup h-5 rounded-full bg-[var(--buzz-welcome-chartreuse)]/30 px-2.5 font-mono !text-badge font-normal uppercase text-foreground hover:bg-[var(--buzz-welcome-chartreuse)]/40"
       data-testid={`onboarding-runtime-instructions-${runtime.id}`}
       onClick={() => void openUrl(runtime.installInstructionsUrl)}
@@ -365,7 +379,9 @@ function RuntimeDetails({ runtime }: { runtime: AcpRuntimeCatalogEntry }) {
 
   return (
     <>
-      <p className="text-xs leading-4 text-white">{t("onboarding.setup.detail_not_installed")}</p>
+      <p className="text-xs leading-4 text-white">
+        {t("onboarding.setup.detail_not_installed")}
+      </p>
       <p className="mt-1 text-xs leading-4 text-white">{runtime.installHint}</p>
     </>
   );
@@ -519,7 +535,10 @@ function RuntimeCard({
         onInstallResultsChange((current) => ({
           ...current,
           [runtime.id]: {
-            error: error instanceof Error ? error.message : t("onboarding.setup.error_install_fallback"),
+            error:
+              error instanceof Error
+                ? error.message
+                : t("onboarding.setup.error_install_fallback"),
             success: false,
           },
         }));
@@ -753,7 +772,9 @@ function SetupStepContent({
               {t("onboarding.setup.settings_agents")}
             </button>
           ) : (
-            <span className="text-foreground/70">{t("onboarding.setup.settings_agents")}</span>
+            <span className="text-foreground/70">
+              {t("onboarding.setup.settings_agents")}
+            </span>
           )}{" "}
           {t("onboarding.setup.after_setup")}
         </p>

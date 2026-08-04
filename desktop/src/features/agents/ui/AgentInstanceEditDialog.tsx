@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { toast } from "sonner";
@@ -90,7 +91,7 @@ import { AdvancedRequiredBadge } from "./AdvancedRequiredBadge";
 import { showAgentProfileSyncWarning } from "./agentProfileSyncWarning";
 import { AddCustomHarnessDialog } from "./AddCustomHarnessDialog";
 import {
-  ADD_CUSTOM_HARNESS_OPTION,
+  makeAddCustomHarnessOption,
   runtimeDropdownAction,
   usePendingHarnessSelection,
 } from "./addCustomHarness";
@@ -112,6 +113,7 @@ export function AgentInstanceEditDialog({
   onOpenChange: (open: boolean) => void;
   onUpdated?: (agent: ManagedAgent) => void;
 }) {
+  const { t } = useTranslation();
   const updateMutation = useUpdateManagedAgentMutation();
   const startMutation = useStartManagedAgentMutation();
   const runtimesQuery = useAcpRuntimesQuery({ enabled: open });
@@ -252,7 +254,7 @@ export function AgentInstanceEditDialog({
         value: selectedRuntimeId,
       });
     }
-    options.push(ADD_CUSTOM_HARNESS_OPTION);
+    options.push(makeAddCustomHarnessOption(t));
     return options;
   }, [sortedRuntimes, selectedRuntimeId]);
 
@@ -783,6 +785,7 @@ export function AgentInstanceEditDialog({
     selectValue: modelSelectValue,
     showCustomInput: showCustomModelInput,
   } = relayMeshModelPickerState({
+    t,
     discoveredOptions: discoveredModelOptions,
     fallbackOptions: [{ id: "", label: inheritedModelLabel }],
     isCustomEditing: isCustomModelEditing,

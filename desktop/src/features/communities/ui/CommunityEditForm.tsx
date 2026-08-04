@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { inviteErrorMessage } from "@/shared/api/inviteHelpers";
@@ -36,6 +37,7 @@ export function CommunityEditForm({
   onSubmit,
   submitLabel,
 }: CommunityEditFormProps) {
+  const { t } = useTranslation();
   const [name, setName] = React.useState(initialName);
   const [relayUrl, setRelayUrl] = React.useState(initialRelayUrl);
   const [error, setError] = React.useState<string | null>(null);
@@ -94,7 +96,7 @@ export function CommunityEditForm({
       event.preventDefault();
       const trimmedName = name.trim();
       if (!trimmedName) {
-        setError("Please enter a community name.");
+        setError(t("communities.enter_name"));
         return;
       }
       const normalizedUrl = normalizeRelayUrl(relayUrl);
@@ -129,7 +131,7 @@ export function CommunityEditForm({
             (policy.termsMarkdown || policy.privacyMarkdown) &&
             !agreementConfirmed
           ) {
-            setError("Agree to the Terms of Service and Privacy Policy.");
+            setError(t("communities.agree_terms"));
             return;
           }
         } catch (policyError) {
@@ -175,6 +177,7 @@ export function CommunityEditForm({
       policyRelayUrl,
       relayUrl,
       useAnywayOverride,
+      t,
     ],
   );
 
@@ -213,7 +216,7 @@ export function CommunityEditForm({
             setName(event.target.value);
             setError(null);
           }}
-          placeholder="Design team"
+          placeholder={t("communities.design_team")}
           type="text"
           value={name}
         />
@@ -318,7 +321,10 @@ export function CommunityEditForm({
           type="submit"
         >
           {isProbing ? (
-            <Spinner aria-label="Checking relay" className="h-4 w-4 border-2" />
+            <Spinner
+              aria-label={t("communities.checking_relay")}
+              className="h-4 w-4 border-2"
+            />
           ) : isSubmitting ? (
             <Spinner aria-label="Saving" className="h-4 w-4 border-2" />
           ) : (

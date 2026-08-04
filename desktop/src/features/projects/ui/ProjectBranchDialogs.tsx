@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import * as React from "react";
 
@@ -43,6 +44,7 @@ export function CreateProjectBranchDialog({
   sourceBranch: string;
   sourceCommit: string | null;
 }) {
+  const { t } = useTranslation();
   const [branchName, setBranchName] = React.useState("");
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const validationError = projectBranchNameError(branchName, existingBranches);
@@ -63,7 +65,7 @@ export function CreateProjectBranchDialog({
       onOpenChange(false);
     } catch (error) {
       setSubmitError(
-        projectBranchErrorMessage(error, "Failed to create branch."),
+        projectBranchErrorMessage(error, t("projects.failed_create_branch")),
       );
     }
   }
@@ -78,7 +80,7 @@ export function CreateProjectBranchDialog({
       <DialogContent data-testid="project-create-branch-dialog">
         <form className="space-y-5" onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Create branch</DialogTitle>
+            <DialogTitle>{t("projects.create_branch")}</DialogTitle>
             <DialogDescription>
               Create a remote branch from{" "}
               <span className="font-mono text-foreground">{sourceBranch}</span>
@@ -89,7 +91,7 @@ export function CreateProjectBranchDialog({
             className="block space-y-2 text-sm font-medium"
             htmlFor="project-create-branch-name"
           >
-            <span>Branch name</span>
+            <span>{t("projects.branch_name")}</span>
             <Input
               autoFocus
               data-testid="project-create-branch-name"
@@ -126,7 +128,7 @@ export function CreateProjectBranchDialog({
               type="submit"
             >
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {pending ? "Creating…" : "Create branch"}
+              {pending ? "Creating…" : t("projects.create_branch")}
             </Button>
           </DialogFooter>
         </form>
@@ -148,6 +150,7 @@ export function DeleteProjectBranchDialog({
   open: boolean;
   pending: boolean;
 }) {
+  const { t } = useTranslation();
   const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -161,7 +164,7 @@ export function DeleteProjectBranchDialog({
       onOpenChange(false);
     } catch (error) {
       setSubmitError(
-        projectBranchErrorMessage(error, "Failed to delete branch."),
+        projectBranchErrorMessage(error, t("projects.failed_delete_branch")),
       );
     }
   }
@@ -175,7 +178,9 @@ export function DeleteProjectBranchDialog({
     >
       <AlertDialogContent data-testid="project-delete-branch-dialog">
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete branch?</AlertDialogTitle>
+          <AlertDialogTitle>
+            {t("projects.delete_branch_confirm")}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             Delete the remote branch{" "}
             <span className="font-mono text-foreground">{branch}</span>. This
@@ -199,7 +204,7 @@ export function DeleteProjectBranchDialog({
             variant="destructive"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            {pending ? "Deleting…" : "Delete branch"}
+            {pending ? "Deleting…" : t("projects.delete_branch")}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

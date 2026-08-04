@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Code, Plus } from "lucide-react";
 import * as React from "react";
 
@@ -129,6 +130,7 @@ export function WorkflowFormBuilder({
   onChange,
   yaml,
 }: WorkflowFormBuilderProps) {
+  const { t } = useTranslation();
   // Parse once on mount instead of calling yamlToFormState three times
   const initialParseRef = React.useRef(yaml ? yamlToFormState(yaml) : null);
   const [mode, setMode] = React.useState<"form" | "yaml">(
@@ -212,7 +214,9 @@ export function WorkflowFormBuilder({
           variant="ghost"
         >
           <Code className="h-4 w-4" />
-          {mode === "form" ? "Edit as YAML" : "Back to form"}
+          {mode === "form"
+            ? t("workflows.edit_as_yaml")
+            : t("workflows.back_to_form")}
         </Button>
       </div>
 
@@ -267,7 +271,7 @@ export function WorkflowFormBuilder({
                   description: event.target.value,
                 })
               }
-              placeholder="What does this workflow do?"
+              placeholder={t("workflows.what_does_it_do")}
               value={formState.description}
             />
           </div>
@@ -318,7 +322,7 @@ export function WorkflowFormBuilder({
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <FieldLabel>Steps</FieldLabel>
+              <FieldLabel>{t("workflows.steps")}</FieldLabel>
               <Button
                 className="h-7 gap-1.5 text-xs"
                 disabled={disabled}

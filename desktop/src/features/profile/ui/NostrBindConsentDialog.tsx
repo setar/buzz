@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { ChevronDown } from "lucide-react";
@@ -18,16 +19,8 @@ import { Button } from "@/shared/ui/button";
 import { StartupWindowDragRegion } from "@/shared/ui/StartupWindowDragRegion";
 import { writeTextToClipboard } from "@/shared/lib/clipboard";
 
-const COPY_SUCCESS_MESSAGE =
-  "Signed response copied. Paste it into the Buzz admin console.";
-const PREVIEW_COPY_SUCCESS_MESSAGE = "Preview response copied.";
-const COPY_FAILURE_MESSAGE = "Buzz couldn't access the clipboard. Try again.";
-const EXPIRED_LINK_MESSAGE =
-  "This binding link has expired. Request a new one from the requesting app.";
 const VERIFICATION_CODE_LENGTH = 6;
 const VERIFICATION_CODE_DIGIT_KEYS = ["1", "2", "3", "4", "5", "6"] as const;
-const VERIFICATION_CODE_MISMATCH_MESSAGE =
-  "That code doesn't match. Check the code and try again.";
 const COPY_BUTTON_LABEL_CLASS =
   "col-start-1 row-start-1 transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:translate-y-0 motion-reduce:duration-0";
 const NOSTR_BIND_PREVIEW_PAYLOAD: NostrBindDeepLinkPayload = {
@@ -132,13 +125,14 @@ async function notifySignedResponseReady(callbackUrl: string | undefined) {
 async function returnSignedResponseToBrowser(
   callbackUrl: string,
   signedResponse: string,
+  t: (key: string) => string,
 ): Promise<string | null> {
   try {
     await openUrl(buildNostrBindCallbackUrl(callbackUrl, signedResponse));
     return null;
   } catch (error) {
     console.warn("return signed nostr binding response failed:", error);
-    return "Could not open the browser. Copy the response below to finish manually.";
+    return t("profile.could_not_open_browser");
   }
 }
 
@@ -153,6 +147,7 @@ function SignedResponseControls({
   onCopy: () => void;
   signedResponse: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4" data-testid="nostr-bind-manual-fallback-content">
       <pre
@@ -166,7 +161,7 @@ function SignedResponseControls({
 
       {copyFailed ? (
         <p className="w-full rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-left text-sm text-destructive">
-          {COPY_FAILURE_MESSAGE}
+          {t("profile.clipboard_unavailable")}
         </p>
       ) : null}
 
@@ -187,22 +182,22 @@ function SignedResponseControls({
           <span
             className={cn(
               COPY_BUTTON_LABEL_CLASS,
-              copyLabel === "Copy response"
+              copyLabel === t("profile.copy_response")
                 ? "translate-y-0 opacity-100"
                 : "-translate-y-0.5 opacity-0",
             )}
           >
-            Copy response
+            {t("profile.copy_response")}
           </span>
           <span
             className={cn(
               COPY_BUTTON_LABEL_CLASS,
-              copyLabel === "Copied"
+              copyLabel === t("profile.copied")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-0.5 opacity-0",
             )}
           >
-            Copied
+            {t("profile.copied")}
           </span>
         </span>
       </Button>
@@ -211,6 +206,7 @@ function SignedResponseControls({
 }
 
 export function NostrBindConsentDialog() {
+  const { t } = useTranslation();
   const isPreview = isNostrBindPreviewEnabled();
   const [payload, setPayload] = React.useState<NostrBindDeepLinkPayload | null>(
     isPreview ? NOSTR_BIND_PREVIEW_PAYLOAD : null,
@@ -245,8 +241,12 @@ export function NostrBindConsentDialog() {
     enteredVerificationCode.length === VERIFICATION_CODE_LENGTH;
   const isVerificationCodeValid =
     payload !== null && enteredVerificationCode === payload.verificationCode;
-  const copyButtonLabel = isSigning ? "Signing…" : "Continue";
-  const finishCopyButtonLabel = isCopied ? "Copied" : "Copy response";
+  const copyButtonLabel = isSigning
+    ? t("profile.signing")
+    : t("profile.continue");
+  const finishCopyButtonLabel = isCopied
+    ? "Copied"
+    : t("profile.copy_response");
 
   const clearCopiedState = React.useCallback(() => {
     if (copiedTimerRef.current) {
@@ -298,14 +298,14 @@ export function NostrBindConsentDialog() {
         .catch((error) => {
           console.warn("get_identity for nostr bind failed:", error);
           setIdentity(null);
-          setError("Could not load the current Buzz identity.");
+          setError(t("profile.could_not_load_identity"));
         });
     });
 
     return () => {
       void unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [clearCopiedState, isPreview]);
+  }, [clearCopiedState, isPreview, t]);
 
   const isExpired = payload !== null && isNostrBindRequestExpired(payload);
 
@@ -515,7 +515,7 @@ export function NostrBindConsentDialog() {
       return;
     }
     if (isNostrBindRequestExpired(payload)) {
-      setError(EXPIRED_LINK_MESSAGE);
+      setError(t("profile.binding_expired"));
       return;
     }
     if (!isVerificationCodeValid) {
@@ -554,6 +554,7 @@ export function NostrBindConsentDialog() {
         const callbackError = await returnSignedResponseToBrowser(
           payload.callbackUrl,
           signed,
+          t,
         );
         if (activeSignAttemptRef.current !== attempt) {
           return;
@@ -563,7 +564,7 @@ export function NostrBindConsentDialog() {
       }
     } catch (error) {
       if (activeSignAttemptRef.current === attempt) {
-        setError(formatError(error) || "Failed to sign binding response.");
+        setError(formatError(error) || t("profile.failed_sign_binding"));
       }
     } finally {
       if (activeSignAttemptRef.current === attempt) {
@@ -580,6 +581,7 @@ export function NostrBindConsentDialog() {
     payload,
     showVerificationCodeMismatch,
     verificationCode,
+    t,
   ]);
 
   React.useEffect(() => {
@@ -623,10 +625,10 @@ export function NostrBindConsentDialog() {
         await notifySignedResponseReady(payload.callbackUrl);
       }
       toast.success(
-        isPreview ? PREVIEW_COPY_SUCCESS_MESSAGE : COPY_SUCCESS_MESSAGE,
+        isPreview ? t("profile.preview_copied") : t("profile.signed_copied"),
       );
     } else {
-      toast.warning(COPY_FAILURE_MESSAGE);
+      toast.warning(t("profile.clipboard_unavailable"));
     }
   }, [
     isPreview,
@@ -634,6 +636,7 @@ export function NostrBindConsentDialog() {
     payload?.returnMode,
     showCopiedState,
     signedResponse,
+    t,
   ]);
 
   return (
@@ -667,16 +670,16 @@ export function NostrBindConsentDialog() {
                 >
                   <DialogPrimitive.Title className="mt-6 text-3xl font-semibold tracking-tight">
                     {payload.returnMode === "browser_fragment_v1"
-                      ? "Continue in your browser"
-                      : "Finish on the Buzz website"}
+                      ? t("profile.continue_in_browser")
+                      : t("profile.finish_on_website")}
                   </DialogPrimitive.Title>
                   <DialogPrimitive.Description
                     className="mt-3 max-w-[440px] text-sm leading-6 text-muted-foreground"
                     id="nostr-bind-description"
                   >
                     {payload.returnMode === "browser_fragment_v1"
-                      ? "Buzz opened your browser to finish verification."
-                      : "Copy the response below, then paste it into the Buzz website to finish verification."}
+                      ? t("profile.browser_opened")
+                      : t("profile.copy_response_hint")}
                   </DialogPrimitive.Description>
 
                   {error ? (
@@ -851,14 +854,14 @@ export function NostrBindConsentDialog() {
                         role={hasCodeMismatch ? "alert" : undefined}
                       >
                         {hasCodeMismatch
-                          ? VERIFICATION_CODE_MISMATCH_MESSAGE
+                          ? t("profile.code_mismatch")
                           : "\u00a0"}
                       </p>
                     </fieldset>
 
                     {isExpired ? (
                       <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-left text-destructive">
-                        {EXPIRED_LINK_MESSAGE}
+                        {t("profile.binding_expired")}
                       </p>
                     ) : null}
 

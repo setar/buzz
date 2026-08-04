@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Clock } from "lucide-react";
 
 import {
@@ -20,12 +21,12 @@ import {
  * timeout resolution can share it and stay on one preset list.
  */
 export function TimeoutDurationSubmenu({
-  label = "Time out",
+  label,
   disabled = false,
   testIdPrefix,
   onSelect,
 }: {
-  /** Sub-trigger label; defaults to "Time out". */
+  /** Sub-trigger label; defaults to t("moderation.time_out"). */
   label?: string;
   disabled?: boolean;
   /** Prefix for each preset item's `data-testid` (e.g. `moderation-timeout`). */
@@ -33,11 +34,12 @@ export function TimeoutDurationSubmenu({
   /** Called with the absolute expiry in epoch seconds for the chosen preset. */
   onSelect: (expiresAt: number) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger disabled={disabled}>
         <Clock className="h-4 w-4" />
-        {label}
+        {label ?? t("moderation.time_out")}
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent>
         {TIMEOUT_PRESETS.map((preset) => (

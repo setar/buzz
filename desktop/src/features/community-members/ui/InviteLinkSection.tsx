@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, ChevronDown, Link2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -15,23 +16,31 @@ import {
 import { Separator } from "@/shared/ui/separator";
 import { Spinner } from "@/shared/ui/spinner";
 
-const TTL_OPTIONS: { label: string; value: number }[] = [
-  { label: "1 day", value: 24 * 60 * 60 },
-  { label: "3 days", value: 3 * 24 * 60 * 60 },
-  { label: "7 days", value: 7 * 24 * 60 * 60 },
-  { label: "30 days", value: 30 * 24 * 60 * 60 },
-];
+function buildTtlOptions(
+  t: (key: string) => string,
+): { label: string; value: number }[] {
+  return [
+    { label: t("community_members.one_day"), value: 24 * 60 * 60 },
+    { label: t("community_members.three_days"), value: 3 * 24 * 60 * 60 },
+    { label: t("community_members.seven_days"), value: 7 * 24 * 60 * 60 },
+    { label: t("community_members.thirty_days"), value: 30 * 24 * 60 * 60 },
+  ];
+}
 
-const MAX_USE_OPTIONS: { label: string; value: number | null }[] = [
-  { label: "No limit", value: null },
-  { label: "1 use", value: 1 },
-  { label: "3 uses", value: 3 },
-  { label: "5 uses", value: 5 },
-  { label: "10 uses", value: 10 },
-  { label: "25 uses", value: 25 },
-];
+function buildMaxUseOptions(
+  t: (key: string) => string,
+): { label: string; value: number | null }[] {
+  return [
+    { label: t("mesh_compute.no_limit"), value: null },
+    { label: t("community_members.one_use"), value: 1 },
+    { label: t("community_members.three_uses"), value: 3 },
+    { label: t("community_members.five_uses"), value: 5 },
+    { label: t("community_members.ten_uses"), value: 10 },
+    { label: t("community_members.twenty_five_uses"), value: 25 },
+  ];
+}
 
-export const DEFAULT_INVITE_TTL_SECS = TTL_OPTIONS[1].value;
+export const DEFAULT_INVITE_TTL_SECS = 3 * 24 * 60 * 60;
 
 type CopyStatus = "idle" | "copying" | "copied";
 
@@ -49,19 +58,21 @@ export function InviteLinkSection({
   onTtlSecsChange: (ttlSecs: number) => void;
   ttlSecs: number;
 }) {
+  const { t } = useTranslation();
   const [copyStatus, setCopyStatus] = React.useState<CopyStatus>("idle");
   const [maxUses, setMaxUses] = React.useState<number | null>(null);
   const ttlLabel =
-    TTL_OPTIONS.find((option) => option.value === ttlSecs)?.label ?? "3 days";
+    buildTtlOptions(t).find((option) => option.value === ttlSecs)?.label ??
+    t("community_members.three_days");
   const maxUsesLabel =
-    MAX_USE_OPTIONS.find((option) => option.value === maxUses)?.label ??
-    "No limit";
+    buildMaxUseOptions(t).find((option) => option.value === maxUses)?.label ??
+    t("mesh_compute.no_limit");
   const copyLabel =
     copyStatus === "copying"
       ? "Copying…"
       : copyStatus === "copied"
         ? "Copied"
-        : "Copy link";
+        : t("community_members.copy_link");
 
   React.useEffect(() => {
     if (copyStatus !== "copied") return;
@@ -76,7 +87,7 @@ export function InviteLinkSection({
       const invite = await mintInvite({ ttlSecs, maxUses });
       await writeTextToClipboard(invite.url);
       setCopyStatus("copied");
-      toast.success("Invite link copied");
+      toast.success(t("community_members.invite_copied"));
     } catch {
       setCopyStatus("idle");
       toast.error("Couldn’t copy the invite link. Try again.");
@@ -91,7 +102,7 @@ export function InviteLinkSection({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                aria-label="Choose invite expiry"
+                aria-label={t("community_members.choose_invite_expiry")}
                 className="h-8 shrink-0 gap-1.5 px-2 text-sm text-muted-foreground"
                 data-testid="invite-link-ttl-trigger"
                 disabled={copyStatus === "copying"}
@@ -108,7 +119,7 @@ export function InviteLinkSection({
                 onValueChange={(value) => onTtlSecsChange(Number(value))}
                 value={String(ttlSecs)}
               >
-                {TTL_OPTIONS.map((option) => (
+                {buildTtlOptions(t).map((option) => (
                   <DropdownMenuRadioItem
                     data-testid={`invite-link-ttl-${option.value}`}
                     key={option.value}
@@ -126,7 +137,7 @@ export function InviteLinkSection({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                aria-label="Choose maximum invite uses"
+                aria-label={t("community_members.choose_max_uses")}
                 className="h-8 shrink-0 gap-1.5 px-2 text-sm text-muted-foreground"
                 data-testid="invite-link-max-uses-trigger"
                 disabled={copyStatus === "copying"}
@@ -145,7 +156,7 @@ export function InviteLinkSection({
                 }
                 value={String(maxUses ?? "no-limit")}
               >
-                {MAX_USE_OPTIONS.map((option) => (
+                {buildMaxUseOptions(t).map((option) => (
                   <DropdownMenuRadioItem
                     data-testid={`invite-link-max-uses-${option.value ?? "no-limit"}`}
                     key={option.value ?? "no-limit"}

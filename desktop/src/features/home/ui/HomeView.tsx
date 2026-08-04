@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { RefreshCcw } from "lucide-react";
 
@@ -101,6 +102,7 @@ export function HomeView({
   onOpenContext,
   onRefresh,
 }: HomeViewProps) {
+  const { t } = useTranslation();
   const relaySelfPubkey = useRelaySelfQuery().data;
   const [homeInboxRef, homeInboxWidthPx] = useElementWidth<HTMLDivElement>();
   const isNarrowHomeViewport =
@@ -714,7 +716,7 @@ export function HomeView({
           ) : null}
 
           <button
-            aria-label="Resize inbox list"
+            aria-label={t("home.resize_inbox")}
             className={cn(
               "group absolute bottom-0 z-40 w-3 -translate-x-1/2 cursor-col-resize",
               topChromeInset.top,
@@ -728,8 +730,8 @@ export function HomeView({
             style={{ left: `${effectiveInboxListWidthPx}px` }}
             title={
               canResetInboxListWidth
-                ? "Drag to resize. Double-click to reset width."
-                : "Drag to resize."
+                ? t("home.drag_resize_reset")
+                : t("home.drag_resize")
             }
             type="button"
           >
@@ -798,7 +800,7 @@ export function HomeView({
               }) => {
                 const channelId = selectedItem?.item.channelId;
                 if (!selectedItem || !channelId || !canReply) {
-                  throw new Error("Replies are not available for this item.");
+                  throw new Error(t("home.no_replies_available"));
                 }
 
                 const itemToReply = selectedItem;

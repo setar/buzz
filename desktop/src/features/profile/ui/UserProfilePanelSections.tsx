@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import {
   ArrowUpRight,
@@ -24,7 +25,7 @@ import {
   type ProfileField,
   ProfileFieldGroup,
 } from "@/features/profile/ui/UserProfilePanelFields";
-import { AGENT_DETAILS_FIELD_LABELS } from "@/features/profile/ui/UserProfilePanelAgentDetails";
+import { buildAgentDetailsFieldLabels } from "@/features/profile/ui/UserProfilePanelAgentDetails";
 import {
   ProfileInfoTabContent,
   ProfileIngressRow,
@@ -222,6 +223,7 @@ export function ProfileSummaryView({
   unfollowMutation,
   userStatus,
 }: ProfileSummaryViewProps) {
+  const { t } = useTranslation();
   const activeTurns = useAgentWorking(isBot ? pubkey : null).channels;
 
   const showMemoriesTab = isOwner === true && Boolean(pubkey);
@@ -231,10 +233,10 @@ export function ProfileSummaryView({
   const showChannelsTab =
     channelsLoading || channelCount > 0 || isBot || relayAgent !== undefined;
   const runtimeConfigurationFields = agentSettingsFields.filter((field) =>
-    AGENT_DETAILS_FIELD_LABELS.has(field.label),
+    buildAgentDetailsFieldLabels(t).has(field.label),
   );
   const runtimeSettingsFields = agentSettingsFields.filter(
-    (field) => !AGENT_DETAILS_FIELD_LABELS.has(field.label),
+    (field) => !buildAgentDetailsFieldLabels(t).has(field.label),
   );
   const showRuntimeTab =
     isOwner === true &&
@@ -257,7 +259,7 @@ export function ProfileSummaryView({
     !showRuntimeTab;
 
   const diagnosticsErrorField = diagnosticsFields.find(
-    (field) => field.label === "Last error",
+    (field) => field.label === t("profile.last_error"),
   );
   const diagnosticsTrailing =
     diagnosticsErrorField !== undefined ? (
@@ -666,13 +668,14 @@ export function ChannelsFocusedView({
   onOpenChannel: (channelId: string) => void;
   variant?: "embedded" | "focused";
 }) {
+  const { t } = useTranslation();
   return (
     <div className={cn("space-y-3", variant === "focused" && "pt-4")}>
       {canAddToChannel ? (
         <ProfileIngressRow
           disabled={isActionPending}
           icon={UserPlus}
-          label="Add to channel"
+          label={t("profile.add_to_channel")}
           onClick={onAddToChannel}
           testId="user-profile-agent-add-channel"
           trailing={isActionPending ? "Working…" : undefined}
@@ -693,13 +696,13 @@ export function ChannelsFocusedView({
           <UserPlus className="mx-auto h-4 w-4 text-muted-foreground" />
           <p className="mt-3 text-sm font-medium">
             {canAddToChannel
-              ? "Add this agent to a channel"
-              : "Channels appear here"}
+              ? t("profile.add_agent_to_channel")
+              : t("profile.channels_appear_here")}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             {canAddToChannel
-              ? "Choose a channel above so it can join the conversation."
-              : "Visible memberships appear as this agent joins channels."}
+              ? t("profile.choose_channel_hint")
+              : t("profile.visible_memberships_hint")}
           </p>
         </div>
       ) : (
@@ -761,10 +764,14 @@ export function DiagnosticsFocusedView({
   logLoading: boolean;
   managedAgent: ManagedAgent | undefined;
 }) {
+  const { t } = useTranslation();
   const hasLog = canOpenAgentLogs && managedAgent !== undefined;
-  const lastErrorField = fields.find((field) => field.label === "Last error");
+  const lastErrorField = fields.find(
+    (field) => field.label === t("profile.last_error"),
+  );
   const detailFields = fields.filter(
-    (field) => field.label !== "Last error" && field.label !== "Status",
+    (field) =>
+      field.label !== t("profile.last_error") && field.label !== "Status",
   );
 
   if (!lastErrorField && detailFields.length === 0 && !hasLog) {
@@ -781,7 +788,7 @@ export function DiagnosticsFocusedView({
         >
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
           <div className="min-w-0">
-            <AlertTitle>Last error</AlertTitle>
+            <AlertTitle>{t("profile.last_error")}</AlertTitle>
             <AlertDescription className="wrap-break-word">
               {lastErrorField.displayValue}
             </AlertDescription>

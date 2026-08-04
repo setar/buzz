@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   isDeferredTimelineSnapshotStale,
@@ -165,8 +166,8 @@ const MessageTimelineBase = React.forwardRef<
     isLoading = false,
     entranceMessageId = null,
     onEntranceMessageComplete,
-    emptyTitle = "No messages yet",
-    emptyDescription = "Send the first message to start the thread.",
+    emptyTitle,
+    emptyDescription,
     currentPubkey,
     fetchOlder,
     hasComposerOverlay = true,
@@ -211,6 +212,10 @@ const MessageTimelineBase = React.forwardRef<
   }: MessageTimelineProps,
   ref,
 ) {
+  const { t } = useTranslation();
+  const resolvedEmptyTitle = emptyTitle ?? t("messages.no_messages");
+  const resolvedEmptyDescription =
+    emptyDescription ?? t("messages.send_first_thread");
   const internalScrollRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = externalScrollRef ?? internalScrollRef;
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -826,10 +831,10 @@ const MessageTimelineBase = React.forwardRef<
                     data-testid="message-empty"
                   >
                     <p className="text-base font-semibold tracking-tight">
-                      {emptyTitle}
+                      {resolvedEmptyTitle}
                     </p>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      {emptyDescription}
+                      {resolvedEmptyDescription}
                     </p>
                   </div>
                 ) : null}
@@ -865,7 +870,7 @@ const MessageTimelineBase = React.forwardRef<
                   ? unreadCountLabel(bufferedTimeline.pendingCount)
                   : newMessageCount > 0
                     ? unreadCountLabel(newMessageCount)
-                    : "Jump to latest"
+                    : t("messages.jump_to_latest")
               }
               onClick={() => {
                 setIsSemanticallyAtBottom(true);

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import type { EnvVarsValue } from "./EnvVarsEditor";
 import {
@@ -30,6 +31,7 @@ export function getProviderApiKeyFieldState({
   personaSatisfied = false,
   provider,
   requiredEnvKeys,
+  t,
 }: {
   bakedEnvKeys: readonly string[] | undefined;
   effectiveEnvVars: EnvVarsValue;
@@ -39,6 +41,7 @@ export function getProviderApiKeyFieldState({
   personaSatisfied?: boolean;
   provider: string;
   requiredEnvKeys: readonly string[];
+  t?: (key: string, opts?: Record<string, unknown>) => string;
 }): ProviderApiKeyFieldState {
   const secretEnvVar = getProviderApiKeyEnvVar(provider);
   const advancedRequiredEnvKeys = secretEnvVar
@@ -80,13 +83,21 @@ export function getProviderApiKeyFieldState({
               : null;
   const inheritedLabel =
     source === "persona"
-      ? "Inherited from agent profile"
+      ? t
+        ? t("agents.inherited_from_agent_profile")
+        : "Inherited from agent profile"
       : source === "global"
-        ? "Inherited from global config"
+        ? t
+          ? t("agents.inherited_from_global_config")
+          : "Inherited from global config"
         : source === "build"
-          ? "Inherited from build"
+          ? t
+            ? t("agents.inherited_from_build")
+            : "Inherited from build"
           : source === "file"
-            ? "Set in runtime config"
+            ? t
+              ? t("agents.set_in_runtime_config")
+              : "Set in runtime config"
             : "";
 
   return {
@@ -118,6 +129,7 @@ export function useProviderApiKeyFieldState({
   provider: string;
   requiredEnvKeys: readonly string[];
 }): ProviderApiKeyFieldState {
+  const { t } = useTranslation();
   return React.useMemo(
     () =>
       getProviderApiKeyFieldState({
@@ -129,6 +141,7 @@ export function useProviderApiKeyFieldState({
         personaSatisfied,
         provider,
         requiredEnvKeys,
+        t,
       }),
     [
       bakedEnvKeys,
@@ -139,6 +152,7 @@ export function useProviderApiKeyFieldState({
       personaSatisfied,
       provider,
       requiredEnvKeys,
+      t,
     ],
   );
 }

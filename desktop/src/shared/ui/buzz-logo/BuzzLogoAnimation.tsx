@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useId, useLayoutEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import "./buzz-logo-animation.css";
@@ -622,7 +623,7 @@ function RestWindowFade({
 }
 
 export default function BuzzLogoAnimation({
-  ariaLabel = "Buzz logo animation",
+  ariaLabel,
   className = "",
   fullScreen = true,
   loop = false,
@@ -633,6 +634,7 @@ export default function BuzzLogoAnimation({
   textured = true,
   variant = "v8",
 }: BuzzLogoAnimationProps) {
+  const { t } = useTranslation();
   const markRef = useRef<SVGSVGElement>(null);
   const idSuffix = idPart(useId());
   const baseConfig = VARIANTS[variant] ?? VARIANTS.v8;
@@ -682,7 +684,12 @@ export default function BuzzLogoAnimation({
   }, [loop, reverse, restSeconds, textured, variant]);
 
   return (
-    <div className={classes} style={style} role="img" aria-label={ariaLabel}>
+    <div
+      className={classes}
+      style={style}
+      role="img"
+      aria-label={ariaLabel ?? t("shared.buzz_logo_animation")}
+    >
       <svg
         ref={markRef}
         className="buzz-logo__mark"

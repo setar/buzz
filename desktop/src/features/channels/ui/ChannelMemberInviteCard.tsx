@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Search, UserPlus, X } from "lucide-react";
 import * as React from "react";
 
@@ -41,6 +42,7 @@ export function ChannelMemberInviteCard({
   open: boolean;
   requestErrorMessage?: string | null;
 }) {
+  const { t } = useTranslation();
   const [inviteQuery, setInviteQuery] = React.useState("");
   const [selectedInvitees, setSelectedInvitees] = React.useState<
     UserSearchResult[]
@@ -170,7 +172,7 @@ export function ChannelMemberInviteCard({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm font-medium">
           <UserPlus className="h-4 w-4" />
-          <span>Add members</span>
+          <span>{t("channel.add_members")}</span>
         </div>
         {inviteTargets.length > 0 ? (
           <span className="rounded-full bg-background px-2 py-1 text-2xs font-medium leading-none text-muted-foreground">
@@ -191,7 +193,7 @@ export function ChannelMemberInviteCard({
               disabled={isPending}
               id="channel-management-search-users"
               onChange={(event) => setInviteQuery(event.target.value)}
-              placeholder="Search people, or paste a public key"
+              placeholder={t("channel.search_people_or_paste")}
               value={inviteQuery}
             />
           </div>
@@ -358,7 +360,7 @@ export function ChannelMemberInviteCard({
           size="sm"
           type="submit"
         >
-          {isPending ? "Adding..." : "Add members"}
+          {isPending ? "Adding..." : t("channel.add_members")}
         </Button>
       </div>
       {requestErrorMessage ? (

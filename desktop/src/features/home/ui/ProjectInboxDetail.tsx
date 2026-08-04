@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 
 import { useAppNavigation } from "@/app/navigation/useAppNavigation";
@@ -27,12 +28,13 @@ function ProjectInboxStatus({
   onBack?: () => void;
   onRetry?: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <section className="flex min-h-0 min-w-0 flex-col bg-background/60">
       {onBack ? (
         <div className="flex min-h-13 items-center px-5 py-2">
           <Button
-            aria-label="Back to Inbox"
+            aria-label={t("home.back_to_inbox")}
             onClick={onBack}
             size="icon"
             type="button"
@@ -61,6 +63,7 @@ export function ProjectInboxDetail({
   onBack,
   profiles,
 }: ProjectInboxDetailProps) {
+  const { t } = useTranslation();
   const { goProject } = useAppNavigation();
   const projectsQuery = useProjectsQuery();
   const projectsWorkItemsQuery = useProjectsWorkItemsQuery(
@@ -79,7 +82,7 @@ export function ProjectInboxDetail({
       <ProjectInboxStatus
         message={
           error
-            ? "Could not load this project item."
+            ? t("home.could_not_load_project")
             : isLoading
               ? "Loading project item…"
               : "This project item could not be found."

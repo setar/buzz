@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import {
   Clock3,
@@ -96,6 +97,7 @@ export function AgentSessionThreadPanel({
   widthPx,
   transparentChrome = false,
 }: AgentSessionThreadPanelProps) {
+  const { t } = useTranslation();
   const isLive = isManagedAgentActive(agent);
   const isOverlay = useIsThreadPanelOverlay();
   const sessionChannelId = channelId ?? channel?.id ?? null;
@@ -118,7 +120,7 @@ export function AgentSessionThreadPanel({
     [events, sessionChannelId],
   );
   // Archived channel events merged with live scoped events so the header's
-  // "Last updated" timestamp reflects the full loaded history, not just the
+  // t("channel.last_updated") timestamp reflects the full loaded history, not just the
   // capped live window. Mirrors ManagedAgentSessionPanel's combinedEvents.
   const archivedChannelEvents = useArchivedChannelEvents(
     agent.pubkey,
@@ -132,7 +134,7 @@ export function AgentSessionThreadPanel({
     () => getLatestActivityTimestamp(combinedHeaderEvents),
     [combinedHeaderEvents],
   );
-  const lastUpdatedLabel = formatLastUpdatedLabel(latestActivityAt, now);
+  const lastUpdatedLabel = formatLastUpdatedLabel(latestActivityAt, now, t);
   const lastUpdatedTitle =
     latestActivityAt === null
       ? undefined
@@ -238,7 +240,7 @@ export function AgentSessionThreadPanel({
     ? scopeChannelName
       ? `#${scopeChannelName}`
       : "1 channel"
-    : "All channels";
+    : t("channel.all_channels");
   const agentProfile = profiles?.[normalizePubkey(agent.pubkey)] ?? null;
   const agentLabel = resolveUserLabel({
     pubkey: agent.pubkey,
@@ -246,7 +248,7 @@ export function AgentSessionThreadPanel({
     profiles,
     preferResolvedSelfLabel: true,
   });
-  const viewLabel = showRawFeed ? "Raw ACP activity" : "Activity";
+  const viewLabel = showRawFeed ? t("channel.raw_acp_activity") : "Activity";
   const headerScopeLabel = `${viewLabel} · ${scopeLabel}`;
   const animateActivity = useTranscriptAnimationEnabled();
   const showTimestamps = useTranscriptTimestampsEnabled();
@@ -275,11 +277,11 @@ export function AgentSessionThreadPanel({
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
-              aria-label="Open activity settings"
+              aria-label={t("channel.open_activity_settings")}
               className="relative"
               data-testid="agent-session-settings-menu-trigger"
               size="icon"
-              title="Activity settings"
+              title={t("channel.activity_settings")}
               type="button"
               variant="ghost"
             >
@@ -307,10 +309,10 @@ export function AgentSessionThreadPanel({
               }}
               title={
                 showRawFeed
-                  ? "Hide raw JSON-RPC payloads."
+                  ? t("channel.hide_raw_payloads")
                   : channel
-                    ? "Show raw JSON-RPC payloads for this channel."
-                    : "Show raw JSON-RPC payloads for this agent."
+                    ? t("channel.show_raw_for_channel")
+                    : t("channel.show_raw_for_agent")
               }
             >
               <span className="min-w-0 flex-1">
@@ -339,10 +341,10 @@ export function AgentSessionThreadPanel({
               }}
               title={
                 showRawFeed
-                  ? "Raw activity rows don't animate in."
+                  ? t("channel.raw_rows_no_animate")
                   : animateActivity
-                    ? "Stop animating new activity rows."
-                    : "Animate new activity rows as they arrive."
+                    ? t("channel.stop_animating_rows")
+                    : t("channel.animate_rows_desc")
               }
             >
               <span className="min-w-0 flex-1">
@@ -367,8 +369,8 @@ export function AgentSessionThreadPanel({
               }}
               title={
                 showTimestamps
-                  ? "Hide per-row activity timestamps."
-                  : "Show a timestamp under each activity row."
+                  ? t("channel.hide_row_timestamps")
+                  : t("channel.show_row_timestamp")
               }
             >
               <span className="min-w-0 flex-1">
@@ -394,10 +396,10 @@ export function AgentSessionThreadPanel({
               }}
               title={
                 canStopCurrentTurn
-                  ? "Interrupt the current ACP turn without stopping the agent process."
+                  ? t("channel.interrupt_turn_desc")
                   : isWorking
-                    ? "Only locally managed agents can be interrupted from this community."
-                    : "Available while the agent is working."
+                    ? t("channel.interrupt_local_only")
+                    : t("channel.available_while_working")
               }
             >
               <Octagon className="mt-0.5 h-4 w-4 text-muted-foreground" />
@@ -408,8 +410,8 @@ export function AgentSessionThreadPanel({
                 {!canStopCurrentTurn ? (
                   <span className="mt-0.5 block text-xs text-muted-foreground">
                     {isWorking
-                      ? "Only available for locally managed agents."
-                      : "Available while the agent is working."}
+                      ? t("channel.local_agents_only")
+                      : t("channel.available_while_working")}
                   </span>
                 ) : null}
               </span>
@@ -424,7 +426,7 @@ export function AgentSessionThreadPanel({
     <>
       <AuxiliaryPanelHeaderGroup
         align="start"
-        backButtonAriaLabel="Back from activity"
+        backButtonAriaLabel={t("channel.back_from_activity")}
         backButtonTestId="agent-session-back"
         onBack={onBack}
       >
@@ -535,12 +537,16 @@ function getLatestActivityTimestamp(
   return latest;
 }
 
-function formatLastUpdatedLabel(timestamp: number | null, now: number): string {
+function formatLastUpdatedLabel(
+  timestamp: number | null,
+  now: number,
+  t: (key: string) => string,
+): string {
   if (timestamp === null) {
-    return "No updates yet";
+    return t("channel.no_updates_yet");
   }
 
-  return `Last updated ${formatRelativeActivityTime(timestamp, now)}`;
+  return `${t("channel.last_updated")} ${formatRelativeActivityTime(timestamp, now)}`;
 }
 
 function formatRelativeActivityTime(timestamp: number, now: number): string {

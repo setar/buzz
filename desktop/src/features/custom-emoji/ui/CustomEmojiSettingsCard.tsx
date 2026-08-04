@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ImagePlus, Trash2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -22,13 +23,15 @@ import { SettingsSectionHeader } from "@/features/settings/ui/SettingsSectionHea
 /**
  * Custom emoji management (NIP-30, kind:30030). Each member owns their own set:
  * adding uploads an image and republishes the caller's own 30030; removing only
- * touches the caller's own set. So this card edits "My emoji" — the only set the
+ * touches the caller's own set. So this card edits t("custom_emoji.my") — the only set the
  * caller can publish — and shows the community palette (the read-only union of
  * every member's set) separately, since a member cannot remove someone else's
  * emoji. When shortcodes collide across members, the palette shows one
  * deterministic winner (see `unionCustomEmoji`).
  */
 export function CustomEmojiSettingsCard() {
+  const { t } = useTranslation();
+
   const { data: own = [], isLoading: ownLoading } = useOwnCustomEmojiQuery();
   const { data: community = [], isLoading: communityLoading } =
     useCustomEmojiQuery();
@@ -62,7 +65,7 @@ export function CustomEmojiSettingsCard() {
         return;
       }
       if (!blob.type.startsWith("image/")) {
-        toast.error("Choose an image file for custom emoji.");
+        toast.error(t("custom_emoji.choose_image"));
         return;
       }
       setPendingUpload({ url: blob.url, filename: blob.filename ?? null });
@@ -76,12 +79,12 @@ export function CustomEmojiSettingsCard() {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to upload emoji image.",
+          : t("custom_emoji.failed_upload"),
       );
     } finally {
       setIsUploading(false);
     }
-  }, [name]);
+  }, [name, t]);
 
   const handleAdd = React.useCallback(async () => {
     if (normalized === null || pendingUpload === null) return;
@@ -95,10 +98,10 @@ export function CustomEmojiSettingsCard() {
       toast.success(`Added :${stored}:`);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to add emoji.",
+        error instanceof Error ? error.message : t("custom_emoji.failed_add"),
       );
     }
-  }, [normalized, pendingUpload, setEmoji]);
+  }, [normalized, pendingUpload, setEmoji, t]);
 
   const handleReset = React.useCallback(() => {
     setName("");
@@ -112,11 +115,13 @@ export function CustomEmojiSettingsCard() {
         toast.success(`Removed :${shortcode}:`);
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to remove emoji.",
+          error instanceof Error
+            ? error.message
+            : t("custom_emoji.failed_remove"),
         );
       }
     },
-    [removeEmoji],
+    [removeEmoji, t],
   );
 
   // Community emoji owned by someone else (so the caller can't remove them).
@@ -126,7 +131,7 @@ export function CustomEmojiSettingsCard() {
   return (
     <section className="min-w-0" data-testid="settings-custom-emoji">
       <SettingsSectionHeader
-        title="Custom emoji"
+        title={t("custom_emoji.title")}
         description={
           <>
             Add your own custom emoji for everyone on this relay to use. Type{" "}
@@ -156,7 +161,7 @@ export function CustomEmojiSettingsCard() {
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border bg-background">
                   {pendingUpload ? (
                     <img
-                      alt="Selected custom emoji preview"
+                      alt={t("custom_emoji.preview")}
                       src={rewriteRelayUrl(pendingUpload.url)}
                       className="h-14 w-14 object-contain"
                       draggable={false}
@@ -181,8 +186,8 @@ export function CustomEmojiSettingsCard() {
                     {isUploading
                       ? "Uploading…"
                       : pendingUpload
-                        ? "Choose different image"
-                        : "Upload image"}
+                        ? t("custom_emoji.choose_different")
+                        : t("custom_emoji.upload")}
                   </Button>
                 </div>
               </div>
@@ -250,7 +255,7 @@ export function CustomEmojiSettingsCard() {
                 data-testid="custom-emoji-add"
                 disabled={!canSubmit}
               >
-                {setEmoji.isPending ? "Saving…" : "Save emoji"}
+                {setEmoji.isPending ? "Saving…" : t("custom_emoji.save")}
               </Button>
             </div>
           </SettingsOptionGroup>

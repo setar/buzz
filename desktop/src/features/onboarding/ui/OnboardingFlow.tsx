@@ -316,6 +316,7 @@ export function OnboardingFlow({
       savedProfile,
       complete,
       showAvatarPage,
+      t,
     ],
   );
 
@@ -424,7 +425,7 @@ export function OnboardingFlow({
           : t("onboarding.flow.error_create_identity"),
       );
     }
-  }, [queryClient]);
+  }, [queryClient, t]);
 
   if (currentPage === "membership-denied") {
     return (
@@ -489,7 +490,8 @@ export function OnboardingFlow({
                 ) : (
                   <>
                     <p className="font-medium text-destructive">
-                      {membershipError.message ?? t("onboarding.flow.error_generic")}
+                      {membershipError.message ??
+                        t("onboarding.flow.error_generic")}
                     </p>
                     <p className="mt-1 text-muted-foreground">
                       {t("onboarding.flow.relay_error_desc")}
@@ -556,7 +558,11 @@ export function OnboardingFlow({
                 ) : null}
 
                 <NostrKeyImportForm
-                  backLabel={identityLost ? t("onboarding.flow.start_new_identity") : undefined}
+                  backLabel={
+                    identityLost
+                      ? t("onboarding.flow.start_new_identity")
+                      : undefined
+                  }
                   onBack={identityLost ? handleLostModeBack : showProfilePage}
                   onImport={importExistingKey}
                 />

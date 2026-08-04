@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   AlertCircle,
   ArrowLeft,
@@ -159,6 +160,7 @@ function InboxMessageDetailPane({
   onSendReply,
   onToggleReaction,
 }: InboxDetailPaneProps) {
+  const { t } = useTranslation();
   const detailPaneRef = React.useRef<HTMLElement | null>(null);
   const { activeCommunity } = useCommunities();
   // Refs for the shared anchored-scroll hook's container and content roots.
@@ -420,10 +422,10 @@ function InboxMessageDetailPane({
   const sourceEventId = selectedEventId ?? item.id;
   const contextThreadRootId = isThreadContext ? item.conversationId : null;
   const openContextLabel = isThreadContext
-    ? "Open full thread"
+    ? t("home.open_full_thread")
     : isDirectMessage
-      ? "Open conversation"
-      : "Open in channel";
+      ? t("home.open_conversation")
+      : t("home.open_in_channel");
 
   const handleSelectReplyTarget = (message: InboxDisplayMessage) => {
     setReplyTargetId((currentReplyTargetId) =>
@@ -450,7 +452,7 @@ function InboxMessageDetailPane({
               >
                 {onBack ? (
                   <Button
-                    aria-label="Back to inbox list"
+                    aria-label={t("home.back_to_inbox_list")}
                     className="rounded-full text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                     onClick={onBack}
                     size="icon"
@@ -670,8 +672,7 @@ function InboxMessageDetailPane({
                   ? isDirectMessage
                     ? `Message ${item.senderLabel}`
                     : `Send reply to ${item.channelLabel ? `#${item.channelLabel} thread` : "channel thread"}`
-                  : (disabledReplyReason ??
-                    "Replies are not available for this item.")
+                  : (disabledReplyReason ?? t("home.no_replies_available"))
               }
               replyTarget={composerReplyTarget}
             />
@@ -701,9 +702,10 @@ function HeaderMoreMenu({
   isDeletingMessage: boolean;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const trigger = (
     <Button
-      aria-label="More actions"
+      aria-label={t("home.more_actions")}
       className="rounded-full text-muted-foreground"
       size="icon"
       type="button"
@@ -719,7 +721,7 @@ function HeaderMoreMenu({
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
         </TooltipTrigger>
-        <TooltipContent>More actions</TooltipContent>
+        <TooltipContent>{t("home.more_actions")}</TooltipContent>
       </Tooltip>
       <DropdownMenuContent align="end">
         <DropdownMenuItem

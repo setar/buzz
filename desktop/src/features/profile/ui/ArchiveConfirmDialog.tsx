@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +31,10 @@ export function ArchiveConfirmDialog({
   isBot: boolean;
   isPending: boolean;
 }) {
-  const title = isBot ? "Archive this agent?" : "Archive this identity?";
+  const { t } = useTranslation();
+  const title = isBot
+    ? t("profile.archive_agent_confirm")
+    : t("profile.archive_identity_confirm");
   const subject = isBot ? "this agent" : "this person";
 
   return (

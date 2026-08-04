@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import type { CreateProjectInput } from "@/features/projects/useCreateProject";
@@ -29,6 +30,7 @@ export function CreateProjectDialog({
   onOpenChange,
   open,
 }: CreateProjectDialogProps) {
+  const { t } = useTranslation();
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [cloneUrl, setCloneUrl] = React.useState("");
@@ -71,7 +73,9 @@ export function CreateProjectDialog({
       onOpenChange(false);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to create project.",
+        error instanceof Error
+          ? error.message
+          : t("projects.failed_create_project"),
       );
     }
   }
@@ -88,7 +92,7 @@ export function CreateProjectDialog({
         className="max-w-lg"
         contentClassName="pt-3"
         data-testid="create-project-dialog"
-        description="Projects are repositories published to this workspace's relay."
+        description={t("projects.projects_are_repos")}
         footer={
           <div className="flex w-full items-center justify-end gap-3">
             <Button
@@ -97,13 +101,13 @@ export function CreateProjectDialog({
               form="create-project-form"
               type="submit"
             >
-              {isCreating ? "Creating..." : "Create project"}
+              {isCreating ? "Creating..." : t("projects.create_project")}
             </Button>
           </div>
         }
         footerClassName="border-t-0 pt-0"
         headerClassName="pb-2"
-        title="Create a new project"
+        title={t("projects.create_new_project")}
       >
         <form
           className="space-y-5"
@@ -169,7 +173,7 @@ export function CreateProjectDialog({
                   setDescription(event.target.value);
                   setErrorMessage(null);
                 }}
-                placeholder="What this project is about"
+                placeholder={t("projects.project_about_placeholder")}
                 rows={2}
                 value={description}
               />

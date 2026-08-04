@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type * as React from "react";
 
 import { AUXILIARY_PANEL_MIN_WIDTH_PX } from "@/shared/layout/AuxiliaryPanel";
@@ -22,6 +23,7 @@ export function RightAuxiliaryPane({
   testId,
   widthPx,
 }: RightAuxiliaryPaneProps) {
+  const { t } = useTranslation();
   return (
     <aside
       className={cn(
@@ -36,15 +38,15 @@ export function RightAuxiliaryPane({
       }}
     >
       <button
-        aria-label="Resize panel"
+        aria-label={t("channel.resize_panel")}
         className="peer/right-pane-resize group/right-pane-resize absolute inset-y-0 left-0 z-50 w-3 -translate-x-1/2 cursor-col-resize"
         data-testid="right-auxiliary-pane-resize-handle"
         onDoubleClick={canResetWidth ? onResetWidth : undefined}
         onPointerDown={onResizeStart}
         title={
           canResetWidth
-            ? "Drag to resize. Double-click to reset width."
-            : "Drag to resize."
+            ? t("channel.drag_resize_reset")
+            : t("channel.drag_resize")
         }
         type="button"
       >

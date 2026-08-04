@@ -10,6 +10,7 @@
 import { AlertCircle, Check, Loader } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -72,6 +73,7 @@ export function AgentDefaultsEditor({
   onSavingChange,
   secondaryAction,
 }: AgentDefaultsEditorProps) {
+  const { t } = useTranslation();
   const flatLayout = layout === "flat";
   const shouldReduceMotion = useReducedMotion();
   const [config, setConfig] =
@@ -230,7 +232,7 @@ export function AgentDefaultsEditor({
       }
     } catch (err) {
       setSaveState("error");
-      setSaveError(typeof err === "string" ? err : "Couldn't save.");
+      setSaveError(typeof err === "string" ? err : t("agents.couldnt_save"));
     } finally {
       onSavingChange?.(false);
     }
@@ -286,7 +288,7 @@ export function AgentDefaultsEditor({
               id="global-agent-default-harness"
               onValueChange={handleHarnessChange}
               options={harnessOptions}
-              placeholder="Select a harness"
+              placeholder={t("agents.select_harness")}
               placeholderClassName={
                 flatLayout ? "text-muted-foreground/55" : undefined
               }

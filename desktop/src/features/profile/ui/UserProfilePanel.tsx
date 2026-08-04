@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { useAppNavigation } from "@/app/navigation/useAppNavigation";
@@ -124,6 +125,7 @@ export function UserProfilePanel({
   widthPx,
   transparentChrome = false,
 }: UserProfilePanelProps) {
+  const { t } = useTranslation();
   const { globalConfig } = useGlobalAgentConfig();
   const isOverlay = useIsThreadPanelOverlay();
   const isSplitLayout = layout === "split";
@@ -765,6 +767,7 @@ export function UserProfilePanel({
       : null;
   const { headerActions, headerLeftContent } = getUserProfilePanelHeaderContent(
     {
+      t,
       agentSettingsMenu,
       effectivePubkey,
       logCopyValue: isDiagnosticsLikeView ? managedAgentLogContent : null,

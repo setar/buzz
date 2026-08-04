@@ -13,6 +13,7 @@ import {
   SquareCode,
   Strikethrough,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/shared/lib/cn";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
@@ -129,6 +130,7 @@ export const FormattingToolbar = React.memo(function FormattingToolbar({
   disabled = false,
   onLinkButton,
 }: FormattingToolbarProps) {
+  const { t } = useTranslation();
   const pendingSelectionRef = React.useRef<FormattingSelectionRange | null>(
     null,
   );
@@ -254,18 +256,18 @@ export const FormattingToolbar = React.memo(function FormattingToolbar({
     const hasSelection = from !== to;
 
     if (hasSelection) {
-      const url = window.prompt("Enter URL:");
+      const url = window.prompt(t("messages.enter_url"));
       if (url) {
         editor.chain().focus().setLink({ href: url }).run();
       }
     } else {
-      const url = window.prompt("Enter URL:");
+      const url = window.prompt(t("messages.enter_url"));
       if (url) {
-        const label = window.prompt("Link text:", url) || url;
+        const label = window.prompt(t("messages.link_text"), url) || url;
         editor.chain().focus().insertContent(`[${label}](${url})`).run();
       }
     }
-  }, [editor, formattingChain, onLinkButton, restorePendingSelection]);
+  }, [editor, formattingChain, onLinkButton, restorePendingSelection, t]);
 
   const toggleBulletList = React.useCallback(() => {
     formattingChain()
@@ -348,7 +350,7 @@ export const FormattingToolbar = React.memo(function FormattingToolbar({
     },
     {
       icon: SquareCode,
-      label: "Code block",
+      label: t("messages.code_block"),
       action: toggleCodeBlock,
       active: activeStates.codeBlock,
     },
@@ -361,13 +363,13 @@ export const FormattingToolbar = React.memo(function FormattingToolbar({
     },
     {
       icon: List,
-      label: "Bullet list",
+      label: t("messages.bullet_list"),
       action: toggleBulletList,
       active: activeStates.bulletList,
     },
     {
       icon: ListOrdered,
-      label: "Ordered list",
+      label: t("messages.ordered_list"),
       action: toggleOrderedList,
       active: activeStates.orderedList,
     },

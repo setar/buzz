@@ -1,4 +1,5 @@
 import { Copy } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
 import { Button, type ButtonProps } from "@/shared/ui/button";
@@ -18,7 +19,8 @@ export function CopyButton({
   value: string;
   variant?: ButtonProps["variant"];
 }) {
-  const resolvedLabel = label ?? "Copy";
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t("common.copy");
 
   return (
     <Button

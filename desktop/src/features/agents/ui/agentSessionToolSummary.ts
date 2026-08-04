@@ -59,7 +59,10 @@ type ToolItem = Extract<TranscriptItem, { type: "tool" }>;
 export type CompactFileEditSummary = FileEditDiffSummary;
 
 /** Build the muted compact summary label and preview for any tool row. */
-export function buildCompactToolSummary(item: ToolItem): CompactToolSummary {
+export function buildCompactToolSummary(
+  item: ToolItem,
+  t: (key: string) => string,
+): CompactToolSummary {
   const descriptor = item.descriptor ?? classifyToolItem(item);
   const fileEditDiff = buildFileEditDiff(item, descriptor);
   const fileEditSummary = fileEditDiff
@@ -71,8 +74,8 @@ export function buildCompactToolSummary(item: ToolItem): CompactToolSummary {
       }
     : null;
   const fileReadContent =
-    buildFileReadContent(item, descriptor) ??
-    buildSkillReadContent(item, descriptor);
+    buildFileReadContent(item, descriptor, t) ??
+    buildSkillReadContent(item, descriptor, t);
   const imageContent = buildImageContent(item, descriptor);
   const shellContent = buildShellContent(item, descriptor);
   const thumbnailSrc = imageContent?.src ?? null;

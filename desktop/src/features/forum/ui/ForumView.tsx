@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { MessageSquareText } from "lucide-react";
 import * as React from "react";
 
@@ -48,6 +49,7 @@ export function ForumView({
   selectedPostId,
   targetReplyId,
 }: ForumViewProps) {
+  const { t } = useTranslation();
   const [isComposerOpen, setIsComposerOpen] = React.useState(false);
   const postsScrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -178,7 +180,7 @@ export function ForumView({
               });
               setIsComposerOpen(false);
             }}
-            placeholder="Write your post..."
+            placeholder={t("forum.write_post")}
             profiles={profiles}
           />
         ) : (
@@ -189,10 +191,10 @@ export function ForumView({
             type="button"
           >
             {channel.archivedAt
-              ? "This forum is archived."
+              ? t("forum.archived")
               : !channel.isMember
-                ? "Join this forum to create posts."
-                : "Start a new post..."}
+                ? t("forum.join_to_post")
+                : t("forum.new_post_placeholder")}
           </button>
         )}
       </div>

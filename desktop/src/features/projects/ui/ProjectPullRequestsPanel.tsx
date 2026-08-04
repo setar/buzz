@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Check,
   ChevronDown,
@@ -243,6 +244,7 @@ function PullRequestRow({
   profiles?: UserProfileLookup;
   pullRequest: ProjectPullRequest;
 }) {
+  const { t } = useTranslation();
   const authorProfile = profileForPubkey(pullRequest.author, profiles);
   const authorLabel = labelForPubkey(pullRequest.author, profiles);
   const StatusIcon =
@@ -310,7 +312,7 @@ function PullRequestRow({
             <ProjectFeedRowMonoCell
               label={`#${pullRequest.id.slice(0, 8)}`}
               onClick={onOpen}
-              title="View pull request"
+              title={t("projects.view_pr")}
             />
           </ProjectFeedRowCluster>
         </>
@@ -330,6 +332,7 @@ export function PullRequestDetailHeader({
   profiles?: UserProfileLookup;
   pullRequest: ProjectPullRequest;
 }) {
+  const { t } = useTranslation();
   const authorLabel = labelForPubkey(pullRequest.author, profiles);
   const sourceChannelId = pullRequest.channelId;
   const { goChannel } = useAppNavigation();
@@ -367,7 +370,7 @@ export function PullRequestDetailHeader({
         {sourceChannelId ? (
           <span
             className="inline-flex min-w-0 items-center gap-1"
-            title="Source channel is claimed by the pull request author and is not relay-verified."
+            title={t("projects.source_channel_not_verified")}
           >
             <span>linked from</span>
             {sourceChannel ? (
@@ -515,6 +518,7 @@ export function ProjectPullRequestDetail({
   project: Project;
   pullRequest: ProjectPullRequest;
 }) {
+  const { t } = useTranslation();
   const identityQuery = useIdentityQuery();
   const commentMutation = useCreateProjectPullRequestCommentMutation(project);
   const [
@@ -546,17 +550,19 @@ export function ProjectPullRequestDetail({
         });
         toast.success(
           decision === "request-changes"
-            ? "Changes requested."
-            : "Comment posted.",
+            ? t("projects.changes_requested_dot")
+            : t("projects.comment_posted"),
         );
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to post comment.",
+          error instanceof Error
+            ? error.message
+            : t("projects.failed_post_comment"),
         );
         throw error;
       }
     },
-    [commentMutation, pullRequest],
+    [commentMutation, pullRequest, t],
   );
   const handleCommentSubmit = React.useCallback(
     (content: string, mentionPubkeys: string[], mediaTags?: string[][]) =>
@@ -597,7 +603,7 @@ export function ProjectPullRequestDetail({
               createdAt={update.createdAt}
               hash={update.commit}
               key={update.id}
-              message={update.content.trim() || "Updated pull request branch"}
+              message={update.content.trim() || t("projects.updated_pr_branch")}
               onOpenCommit={onOpenCommit}
               profiles={profiles}
             />
@@ -725,7 +731,7 @@ export function ProjectPullRequestDetail({
                   ? `Show ${reviewHistory.length} earlier ${
                       reviewHistory.length === 1 ? "activity" : "activities"
                     }`
-                  : "Collapse review history"}
+                  : t("projects.collapse_review_history")}
               </span>
               {reviewHistoryCollapsed ? (
                 <ChevronDown className="mt-0.5 h-3.5 w-3.5" />
@@ -896,7 +902,7 @@ export function ProjectPullRequestDetail({
             onSubmit={handleCommentSubmit}
             placeholder="Add a comment…"
             profiles={profiles}
-            secondarySubmitLabel="Request changes"
+            secondarySubmitLabel={t("projects.request_changes")}
           />
         </div>
       </section>
@@ -929,6 +935,7 @@ export function PullRequestsPanel({
   pullRequests: ProjectPullRequest[];
   selectedPullRequestId: string | null;
 }) {
+  const { t } = useTranslation();
   const selectedPullRequest =
     pullRequests.find((item) => item.id === selectedPullRequestId) ?? null;
 
@@ -952,9 +959,7 @@ export function PullRequestsPanel({
   if (pullRequests.length === 0) {
     return (
       <p className="p-4 text-sm text-muted-foreground">
-        {error
-          ? "Could not load pull requests for this repository."
-          : "No pull requests yet."}
+        {error ? t("projects.could_not_load_prs") : t("projects.no_prs_yet")}
       </p>
     );
   }

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type * as React from "react";
 import {
   ArrowRight,
@@ -157,29 +158,29 @@ export function ChannelResultBody({ channel }: { channel: Channel }) {
   );
 }
 
-function describeSearchHit(hit: SearchHit) {
+function describeSearchHit(hit: SearchHit, t: (key: string) => string) {
   switch (hit.kind) {
     case 1:
       return "Note";
     case 45001:
-      return "Forum post";
+      return t("search.forum_post");
     case 45003:
-      return "Forum reply";
+      return t("search.forum_reply");
     case 43001:
-      return "Agent job";
+      return t("search.agent_job");
     case 43003:
-      return "Agent update";
+      return t("search.agent_update");
     case 46010:
-      return "Approval request";
+      return t("search.approval_request");
     default:
       return "Message";
   }
 }
 
-function truncateContent(content: string) {
+function truncateContent(content: string, t: (key: string) => string) {
   const trimmed = content.trim();
   if (trimmed.length === 0) {
-    return "No message body.";
+    return t("chat.no_body");
   }
 
   if (trimmed.length <= 180) {
@@ -221,6 +222,7 @@ export function MessageResultBody({
   hit: SearchHit;
   resultProfiles?: UserProfileLookup;
 }) {
+  const { t } = useTranslation();
   const authorLabel = resolveUserLabel({
     pubkey: hit.pubkey,
     currentPubkey,
@@ -240,7 +242,7 @@ export function MessageResultBody({
         <p className="text-sm font-semibold tracking-tight">
           {hit.channelName}
         </p>
-        <Badge variant="secondary">{describeSearchHit(hit)}</Badge>
+        <Badge variant="secondary">{describeSearchHit(hit, t)}</Badge>
         <span className="flex items-center gap-1 text-xs text-muted-foreground">
           <UserAvatar
             avatarUrl={avatarUrl}
@@ -259,7 +261,7 @@ export function MessageResultBody({
         </p>
       ) : null}
       <p className="mt-2 text-sm leading-6 text-foreground">
-        {truncateContent(hit.content)}
+        {truncateContent(hit.content, t)}
       </p>
     </div>
   );

@@ -1,4 +1,5 @@
 import { Check, CloudOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   SidebarCompactActionCard,
@@ -58,16 +59,19 @@ export function SidebarRelayConnectionCompactCard({
   surface,
   testId = "sidebar-relay-unreachable-compact",
 }: SidebarRelayConnectionCardProps) {
+  const { t } = useTranslation();
   const reconnectTitle = isWaitingOnReconnectHook
-    ? "Waiting to reconnect"
+    ? t("sidebar.waiting_to_reconnect")
     : "Connecting";
   const reconnectDescription = isWaitingOnReconnectHook
-    ? "Complete any prompts opened by the reconnect helper to continue."
+    ? t("sidebar.reconnect_prompts")
     : "Reconnecting";
 
   return (
     <SidebarCompactActionCard
-      actionAriaLabel={isConnected ? "Connected" : "Connect to relay"}
+      actionAriaLabel={
+        isConnected ? "Connected" : t("sidebar.connect_to_relay")
+      }
       actionDisabled={isActionDisabled || isReconnectPending || isConnected}
       actionTestId={actionTestId}
       description={
@@ -75,9 +79,9 @@ export function SidebarRelayConnectionCompactCard({
           ? undefined
           : isReconnectPending
             ? reconnectDescription
-            : "Click to connect"
+            : t("sidebar.click_to_connect")
       }
-      dismissLabel="Dismiss relay notification"
+      dismissLabel={t("sidebar.dismiss_relay_notice")}
       iconKey={
         isConnected ? "connected" : isReconnectPending ? "pending" : "idle"
       }

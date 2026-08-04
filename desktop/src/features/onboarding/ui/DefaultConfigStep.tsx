@@ -304,7 +304,7 @@ function AgentDefaultsSection({
 /**
  * Machine onboarding page 4 — default model configuration. Presents the
  * global agent defaults (provider, model, effort, env vars) centered under
- * the mock's "Configure your default model settings" heading.
+ * the mock's t("onboarding.configure_default_model") heading.
  */
 export function DefaultConfigStep({
   actions,
@@ -337,7 +337,7 @@ export function DefaultConfigStep({
     } finally {
       setIsSaving(false);
     }
-  }, [actions, isSaving, persistenceState]);
+  }, [actions, isSaving, persistenceState, t]);
 
   const handleSkip = React.useCallback(() => {
     actions.discardDraft();
@@ -392,7 +392,7 @@ export function DefaultConfigStep({
             type="button"
             variant="ghost"
           >
-            {t("onboarding.skip_for_now")}
+            Skip for now
           </Button>
         </div>
 

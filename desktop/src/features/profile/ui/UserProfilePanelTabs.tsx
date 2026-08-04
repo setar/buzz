@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -223,6 +224,7 @@ export function ProfileTabBar({
     trailing?: React.ReactNode;
   }>;
 }) {
+  const { t } = useTranslation();
   const { didDragRef, onPointerDown, scrollRef } = useHorizontalDragScroll();
 
   return (
@@ -232,7 +234,7 @@ export function ProfileTabBar({
       ref={scrollRef}
     >
       <div
-        aria-label="Profile sections"
+        aria-label={t("profile.profile_sections")}
         className="flex w-max min-w-full justify-center gap-1.5"
         role="tablist"
       >
@@ -302,6 +304,7 @@ export function ProfileInfoTabContent({
   pubkey: string | null;
   showActivityIngress: boolean;
 }) {
+  const { t } = useTranslation();
   const infoFields: ProfileField[] = isArchived
     ? [
         ...agentInfoFields,
@@ -339,7 +342,7 @@ export function ProfileInfoTabContent({
         ) : (
           <ProfileIngressRow
             icon={Wrench}
-            label="Activity log"
+            label={t("profile.activity_log")}
             onClick={() => onOpenActivity(null)}
             testId={`user-profile-view-activity-${pubkey}`}
             trailing="View"
@@ -432,6 +435,7 @@ function ProfileLiveActivityEmbed({
   feedScope: ProfileActivityFeedScope;
   onOpenActivity: (channelId?: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [selectedChannelId, setSelectedChannelId] = React.useState<
     string | null
@@ -514,7 +518,7 @@ function ProfileLiveActivityEmbed({
     selectedTurn?.anchorAt ??
     null;
   const emptyState = feedScope.isLive ? "loading" : "idle";
-  const emptyDescription = "Live activity will appear here.";
+  const emptyDescription = t("profile.live_activity_hint");
   const openSelectedActivity = React.useCallback(() => {
     onOpenActivity(activeChannelId);
   }, [activeChannelId, onOpenActivity]);
@@ -533,12 +537,16 @@ function ProfileLiveActivityEmbed({
   if (slides.length === 0) {
     return (
       <section
-        aria-label={`Open activity feed. Last live ${formatLastLiveLabel(lastLiveAt, Date.now())}.`}
+        aria-label={t("profile.open_activity_feed", {
+          time: formatLastLiveLabel(lastLiveAt, Date.now(), t),
+        })}
         className="relative flex h-56 cursor-pointer flex-col overflow-hidden rounded-2xl border bg-background text-left shadow-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         data-testid={`user-profile-live-activity-${activityAgent.pubkey}`}
       >
         <button
-          aria-label={`Open activity feed. Last live ${formatLastLiveLabel(lastLiveAt, Date.now())}.`}
+          aria-label={t("profile.open_activity_feed", {
+            time: formatLastLiveLabel(lastLiveAt, Date.now(), t),
+          })}
           className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={openSelectedActivity}
           type="button"
@@ -578,12 +586,16 @@ function ProfileLiveActivityEmbed({
   return (
     <div>
       <section
-        aria-label={`Open activity feed. Last live ${formatLastLiveLabel(lastLiveAt, Date.now())}.`}
+        aria-label={t("profile.open_activity_feed", {
+          time: formatLastLiveLabel(lastLiveAt, Date.now(), t),
+        })}
         className="relative flex h-56 cursor-pointer flex-col overflow-hidden rounded-2xl border bg-background text-left shadow-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         data-testid={`user-profile-live-activity-${activityAgent.pubkey}`}
       >
         <button
-          aria-label={`Open activity feed. Last live ${formatLastLiveLabel(lastLiveAt, Date.now())}.`}
+          aria-label={t("profile.open_activity_feed", {
+            time: formatLastLiveLabel(lastLiveAt, Date.now(), t),
+          })}
           className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={openSelectedActivity}
           type="button"
@@ -677,13 +689,14 @@ function ActivityCarouselDots({
   selectedIndex: number;
   slides: string[];
 }) {
+  const { t } = useTranslation();
   if (slides.length <= 1) {
     return null;
   }
 
   return (
     <div
-      aria-label="Choose active channel feed"
+      aria-label={t("profile.choose_channel_feed")}
       className="mt-2 flex items-center justify-center gap-1.5"
       role="tablist"
     >
@@ -730,8 +743,9 @@ function LiveActivityOpenButton({
   lastLiveAt: number | null;
   onOpenActivity: (channelId?: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const now = useNow(15_000);
-  const label = formatLastLiveLabel(lastLiveAt, now);
+  const label = formatLastLiveLabel(lastLiveAt, now, t);
 
   return (
     <Button
@@ -750,42 +764,47 @@ function LiveActivityOpenButton({
   );
 }
 
-function formatLastLiveLabel(timestamp: number | null, now: number): string {
+function formatLastLiveLabel(
+  timestamp: number | null,
+  now: number,
+  t: (key: string) => string,
+): string {
   if (timestamp === null) {
-    return "No activity yet";
+    return t("profile.no_activity_yet");
   }
 
   const elapsedMs = Math.max(0, now - timestamp);
   const totalSeconds = Math.floor(elapsedMs / 1000);
   if (totalSeconds < 60) {
-    return "Just now";
+    return t("profile.just_now");
   }
 
   const totalMinutes = Math.floor(totalSeconds / 60);
   if (totalMinutes < 60) {
-    return `${totalMinutes}m ago`;
+    return `${totalMinutes}${t("profile.m_ago")}`;
   }
 
   const totalHours = Math.floor(totalMinutes / 60);
   if (totalHours < 24) {
-    return `${totalHours}h ago`;
+    return `${totalHours}${t("profile.h_ago")}`;
   }
 
   const totalDays = Math.floor(totalHours / 24);
   if (totalDays < 7) {
-    return `${totalDays}d ago`;
+    return `${totalDays}${t("profile.d_ago")}`;
   }
 
   const totalWeeks = Math.floor(totalDays / 7);
-  return `${totalWeeks}w ago`;
+  return `${totalWeeks}${t("profile.w_ago")}`;
 }
 
 function ArchiveStatusTooltip() {
+  const { t } = useTranslation();
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
-          aria-label="What archived means"
+          aria-label={t("profile.what_archived_means")}
           className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           data-testid="user-profile-archived-info"
           type="button"
@@ -830,11 +849,13 @@ export function ProfileRuntimeTabContent({
   showDiagnosticsIngress: boolean;
   showInstructionBlock: boolean;
 }) {
+  const { t } = useTranslation();
   const statusDiagnosticsFields = diagnosticsFields.filter(
     (field) => field.label === "Status",
   );
   const detailDiagnosticsFields = diagnosticsFields.filter(
-    (field) => field.label !== "Last error" && field.label !== "Status",
+    (field) =>
+      field.label !== t("profile.last_error") && field.label !== "Status",
   );
   const hasRuntimeRows =
     runtimeConfigurationFields.length > 0 || runtimeSettingsFields.length > 0;
@@ -883,7 +904,7 @@ export function ProfileRuntimeTabContent({
       {showDiagnosticsIngress ? (
         <ProfileIngressRow
           icon={Activity}
-          label="Harness Log"
+          label={t("profile.harness_log")}
           onClick={onOpenDiagnostics}
           testId="user-profile-diagnostics-ingress"
           trailing={diagnosticsSummary}

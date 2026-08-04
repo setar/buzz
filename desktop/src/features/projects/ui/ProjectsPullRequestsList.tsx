@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { GitPullRequest, MessageSquare } from "lucide-react";
 
 import type {
@@ -61,11 +62,14 @@ type ProjectsPullRequestsListProps = {
   viewMode: "grid" | "list";
 };
 
-function nextStepLabel(status: ProjectPullRequest["status"]) {
-  if (status === "Draft") return "View draft";
-  if (status === "Merged") return "View merge";
-  if (status === "Closed") return "View closed";
-  return "Review PR";
+function nextStepLabel(
+  status: ProjectPullRequest["status"],
+  t: (key: string) => string,
+) {
+  if (status === "Draft") return t("projects.view_draft");
+  if (status === "Merged") return t("projects.view_merge");
+  if (status === "Closed") return t("projects.view_closed");
+  return t("projects.review_pr");
 }
 
 function PullRequestGridCard({
@@ -79,6 +83,7 @@ function PullRequestGridCard({
   pullRequest: ProjectPullRequest;
   onOpen: (project: Project, pullRequest: ProjectPullRequest) => void;
 }) {
+  const { t } = useTranslation();
   const authorLabel = resolveUserLabel({
     profiles,
     pubkey: pullRequest.author,
@@ -119,7 +124,7 @@ function PullRequestGridCard({
             type="button"
             variant="outline"
           >
-            {nextStepLabel(pullRequest.status)}
+            {nextStepLabel(pullRequest.status, t)}
           </Button>
         </div>
 
@@ -169,6 +174,7 @@ function PullRequestListRow({
   pullRequest: ProjectPullRequest;
   onOpen: (project: Project, pullRequest: ProjectPullRequest) => void;
 }) {
+  const { t } = useTranslation();
   const authorLabel = resolveUserLabel({
     profiles,
     pubkey: pullRequest.author,
@@ -233,7 +239,7 @@ function PullRequestListRow({
           <ProjectListRowMenu label={`More options for ${pullRequest.title}`}>
             <DropdownMenuItem onSelect={() => onOpen(project, pullRequest)}>
               <GitPullRequest className="h-4 w-4" />
-              {nextStepLabel(pullRequest.status)}
+              {nextStepLabel(pullRequest.status, t)}
             </DropdownMenuItem>
           </ProjectListRowMenu>
         </div>

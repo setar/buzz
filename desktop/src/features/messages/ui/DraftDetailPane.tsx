@@ -8,6 +8,7 @@ import {
   Trash2,
 } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useAppNavigation } from "@/app/navigation/useAppNavigation";
 import {
@@ -37,6 +38,7 @@ export function DraftDetailPane({
   onBack,
   onDelete,
 }: DraftDetailPaneProps) {
+  const { t } = useTranslation();
   const { goChannel } = useAppNavigation();
   const [sendDialogOpen, setSendDialogOpen] = React.useState(false);
 
@@ -67,7 +69,7 @@ export function DraftDetailPane({
     ? isDm
       ? source.label
       : `#${source.label}`
-    : "Unknown channel";
+    : t("messages.unknown_channel");
   const openEnabled = canOpenDraft(entry.draft, source) && !isOrphaned;
   const sendEnabled = canSendDraft(entry.draft, source, rootStatus);
   const content = entry.draft.content.trim();
@@ -84,7 +86,7 @@ export function DraftDetailPane({
             <div className="flex min-w-0 items-center gap-1">
               {onBack ? (
                 <Button
-                  aria-label="Back to drafts list"
+                  aria-label={t("messages.back_to_drafts")}
                   className="rounded-full text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   onClick={onBack}
                   size="icon"
@@ -147,14 +149,14 @@ export function DraftDetailPane({
                   Draft
                 </span>
                 <span className="shrink-0 text-xs font-normal tabular-nums text-muted-foreground/55">
-                  {formatDraftCreatedAt(entry.draft)}
+                  {formatDraftCreatedAt(entry.draft, t)}
                 </span>
               </div>
 
               <div className="mt-0.5 text-base leading-6 text-foreground">
                 <Markdown
                   className="inbox-preview-markdown text-inherit leading-6"
-                  content={content || getDraftPreview(entry.draft)}
+                  content={content || getDraftPreview(entry.draft, t)}
                   interactive={false}
                 />
                 {attachmentCount > 0 && content ? (
@@ -198,6 +200,7 @@ function DraftActionBar({
   onOpen: () => void;
   onSend: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="absolute right-2 top-1 z-10">
       <div
@@ -208,7 +211,7 @@ function DraftActionBar({
           <div className="flex items-center gap-0.5 p-1">
             <DraftActionButton
               disabled={!canOpen}
-              label="Open draft"
+              label={t("messages.open_draft")}
               onClick={onOpen}
             >
               <Pencil className="h-4 w-4" />

@@ -1,5 +1,6 @@
 import { SmilePlus } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { EmojiPicker } from "@/features/custom-emoji/ui/EmojiPicker";
 import type {
@@ -200,10 +201,12 @@ function resolveInlineDisplayLabel(
   pubkey: string | undefined,
   currentPubkey: string | undefined,
   profiles: UserProfileLookup | undefined,
+  t: (key: string) => string,
 ): string {
   return toInlineName(
     resolveLabel(pubkey, currentPubkey, profiles),
     isSelfPubkey(pubkey, currentPubkey),
+    t,
   );
 }
 
@@ -402,6 +405,7 @@ function MembershipPersonName({
   profiles: UserProfileLookup | undefined;
   pubkey: string;
 }) {
+  const { t } = useTranslation();
   return (
     <ProfileName
       isAgent={isKnownAgentPubkey(
@@ -413,7 +417,7 @@ function MembershipPersonName({
       pubkey={pubkey}
       underlineOnHover
     >
-      {resolveInlineDisplayLabel(pubkey, currentPubkey, profiles)}
+      {resolveInlineDisplayLabel(pubkey, currentPubkey, profiles, t)}
     </ProfileName>
   );
 }
@@ -505,8 +509,9 @@ function describeSystemEvent(
   payload: SystemMessagePayload,
   currentPubkey: string | undefined,
   profiles: UserProfileLookup | undefined,
-  personaLookup?: Map<string, string>,
-  agentPubkeys?: ReadonlySet<string>,
+  personaLookup: Map<string, string> | undefined,
+  agentPubkeys: ReadonlySet<string> | undefined,
+  t: (key: string) => string,
 ): SystemMessageDescription | null {
   const isTargetAgent = isKnownAgentPubkey(
     payload.target,
@@ -528,6 +533,7 @@ function describeSystemEvent(
     payload.target,
     currentPubkey,
     profiles,
+    t,
   );
   const actorName = (
     <ProfileName pubkey={payload.actor}>{actorLabel}</ProfileName>
@@ -554,15 +560,16 @@ function describeSystemEvent(
         title: membershipTitle,
         action: (
           <>
-            added by{" "}
+            {t("messages.added_by")}{" "}
             <ProfileName pubkey={payload.actor} underlineOnHover>
               {resolveInlineDisplayLabel(
                 payload.actor,
                 currentPubkey,
                 profiles,
+                t,
               )}
             </ProfileName>
-            , along with{" "}
+            , {t("messages.along_with")}{" "}
             <MemberNamesInlineList
               agentPubkeys={agentPubkeys}
               currentPubkey={currentPubkey}
@@ -579,7 +586,7 @@ function describeSystemEvent(
         title: membershipTitle,
         action: (
           <>
-            joined the channel along with{" "}
+            {t("messages.joined_with_others")}{" "}
             <MemberNamesInlineList
               agentPubkeys={agentPubkeys}
               currentPubkey={currentPubkey}
@@ -595,19 +602,20 @@ function describeSystemEvent(
       if (normalizePubkey(payload.actor) === normalizePubkey(payload.target)) {
         return {
           title: membershipTitle,
-          action: "joined the channel",
+          action: t("messages.joined_the_channel"),
         };
       }
       return {
         title: membershipTitle,
         action: (
           <>
-            added by{" "}
+            {t("messages.added_by")}{" "}
             <ProfileName pubkey={payload.actor} underlineOnHover>
               {resolveInlineDisplayLabel(
                 payload.actor,
                 currentPubkey,
                 profiles,
+                t,
               )}
             </ProfileName>
           </>
@@ -617,37 +625,37 @@ function describeSystemEvent(
     case "member_left":
       return {
         title: actorName,
-        action: "left the channel",
+        action: t("messages.left_the_channel"),
       };
     case "member_removed":
       return {
         title: actorName,
-        action: <>removed {targetName} from the channel</>,
+        action: <>{t("messages.removed_before_name")} {targetName} {t("messages.removed_after_name")}</>,
       };
     case "topic_changed":
       return {
         title: actorName,
-        action: describeChannelTextFieldChange("topic", payload.topic),
+        action: describeChannelTextFieldChange("topic", payload.topic, t),
       };
     case "purpose_changed":
       return {
         title: actorName,
-        action: describeChannelTextFieldChange("purpose", payload.purpose),
+        action: describeChannelTextFieldChange("purpose", payload.purpose, t),
       };
     case "channel_created":
       return {
         title: actorName,
-        action: "created this channel",
+        action: t("messages.created_this_channel"),
       };
     case "channel_archived":
       return {
         title: actorName,
-        action: "archived this channel",
+        action: t("messages.archived_this_channel"),
       };
     case "channel_unarchived":
       return {
         title: actorName,
-        action: "unarchived this channel",
+        action: t("messages.unarchived_this_channel"),
       };
     case "message_deleted": {
       // Room-facing tombstone. When a moderator removed the message, the relay
@@ -655,13 +663,13 @@ function describeSystemEvent(
       // content and the reporter are never disclosed here.
       if (payload.public_reason) {
         return {
-          title: "Removed by community moderators",
+          title: t("messages.removed_by_moderators"),
           action: payload.public_reason,
         };
       }
       return {
         title: actorName,
-        action: "removed a message",
+        action: t("messages.removed_a_message"),
       };
     }
     default:
@@ -693,6 +701,7 @@ export const SystemMessageRow = React.memo(function SystemMessageRow({
     remove: boolean,
   ) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const sourceMessages = React.useMemo(
     () => groupedMessages ?? [message],
     [groupedMessages, message],
@@ -758,6 +767,7 @@ export const SystemMessageRow = React.memo(function SystemMessageRow({
     profiles,
     personaLookup,
     agentPubkeys,
+    t,
   );
   if (!description) {
     return null;
@@ -883,7 +893,7 @@ export const SystemMessageRow = React.memo(function SystemMessageRow({
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <Button
-                          aria-label="Open reactions"
+                          aria-label={t("messages.open_reactions")}
                           className={SYSTEM_ACTION_BUTTON_CLASS}
                           size="sm"
                           type="button"

@@ -10,7 +10,8 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type * as React from "react";
 
 import type { ChannelSortMode } from "@/features/sidebar/lib/channelSortPreference";
@@ -68,11 +69,6 @@ const SECTION_LABEL_CHEVRON_CLASS =
   "relative size-2.5 shrink-0 text-current opacity-0 transition-[color,opacity] group-hover/sidebar-section:opacity-100 group-hover/section-label:opacity-100 group-focus-within/sidebar-section:opacity-100 group-focus-visible/section-label:opacity-100 group-data-[section-actions-open=true]/sidebar-section:opacity-100";
 const SECTION_LABEL_CHEVRON_ICON_CLASS =
   "absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2";
-
-const SORT_OPTIONS: { value: ChannelSortMode; label: string }[] = [
-  { value: "recent", label: "Recent" },
-  { value: "alpha", label: "A–Z" },
-];
 
 /**
  * A single always-visible "+" quick action shown at the right edge of a
@@ -161,6 +157,15 @@ export function SectionActionsMenu({
   onSortModeChange?: (mode: ChannelSortMode) => void;
 }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const { t } = useTranslation();
+  const sortOptions = useMemo(
+    () =>
+      [
+        { value: "recent", label: t("sidebar.recent") },
+        { value: "alpha", label: "A–Z" },
+      ] satisfies { value: ChannelSortMode; label: string }[],
+    [t],
+  );
   const showSectionManagement = Boolean(onRenameSection || onDeleteSection);
   const showSort = Boolean(sortMode && onSortModeChange);
 
@@ -189,19 +194,19 @@ export function SectionActionsMenu({
         {hasUnread && onMarkAllRead ? (
           <DropdownMenuItem onSelect={() => deferMenuAction(onMarkAllRead)}>
             <CheckCheck className="h-4 w-4" />
-            <span>Mark all as read</span>
+            <span>{t("sidebar.mark_all_read")}</span>
           </DropdownMenuItem>
         ) : null}
         {onNewMessage ? (
           <DropdownMenuItem onSelect={() => deferMenuAction(onNewMessage)}>
             <Plus className="h-4 w-4" />
-            <span>{newMessageLabel ?? "New message"}</span>
+            <span>{newMessageLabel ?? t("sidebar.new_dm")}</span>
           </DropdownMenuItem>
         ) : null}
         {onBrowse ? (
           <DropdownMenuItem onSelect={() => deferMenuAction(onBrowse)}>
             <HashSearch className="h-4 w-4" />
-            <span>{browseLabel ?? "Browse channels"}</span>
+            <span>{browseLabel ?? t("sidebar.browse_channels")}</span>
             <DropdownMenuShortcut>
               {getPlatformKeysById("browse-channels")}
             </DropdownMenuShortcut>
@@ -210,7 +215,7 @@ export function SectionActionsMenu({
         {onCreate ? (
           <DropdownMenuItem onSelect={() => deferMenuAction(onCreate)}>
             <Plus className="h-4 w-4" />
-            <span>{createLabel ?? "Create channel"}</span>
+            <span>{createLabel ?? t("sidebar.create_channel")}</span>
           </DropdownMenuItem>
         ) : null}
         {showSectionManagement ? (
@@ -220,7 +225,7 @@ export function SectionActionsMenu({
                 onSelect={() => deferMenuAction(onRenameSection)}
               >
                 <Pencil className="h-4 w-4" />
-                <span>Rename section</span>
+                <span>{t("sidebar.rename_section")}</span>
               </DropdownMenuItem>
             ) : null}
             {onMoveSectionUp ? (
@@ -258,7 +263,7 @@ export function SectionActionsMenu({
                   }
                   value={sortMode}
                 >
-                  {SORT_OPTIONS.map((option) => (
+                  {sortOptions.map((option) => (
                     <DropdownMenuRadioItem
                       key={option.value}
                       value={option.value}
@@ -388,7 +393,7 @@ export function ChannelGroupSection({
   /**
    * Overrides the quick-create (`+`) button's click handler. Defaults to
    * `onCreateClick`. Used to point the sidebar `+` at the unified
-   * "Add channel" search-and-create browser instead of the bare create form.
+   * t("sidebar.add_channel") search-and-create browser instead of the bare create form.
    */
   onQuickCreateClick?: () => void;
   /** Overrides the quick-create button's aria-label/tooltip. */
@@ -426,6 +431,7 @@ export function ChannelGroupSection({
 }) {
   const contentId = `sidebar-${listTestId}`;
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const channelList =
     items.length > 0 ? (
@@ -504,7 +510,9 @@ export function ChannelGroupSection({
           <>
             {showQuickCreate && (onQuickCreateClick ?? onCreateClick) ? (
               <SectionQuickAction
-                label={quickCreateLabel ?? createLabel ?? "Create channel"}
+                label={
+                  quickCreateLabel ?? createLabel ?? t("sidebar.create_channel")
+                }
                 onClick={(onQuickCreateClick ?? onCreateClick) as () => void}
                 testId={
                   actionsTestId ? `${actionsTestId}-quick-create` : undefined

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CircleDot, FolderGit2, GitPullRequest, Plus } from "lucide-react";
 import * as React from "react";
 
@@ -19,6 +20,7 @@ export function ProjectsCreateMenu({
   onCreatePullRequest: () => void;
   onCreateRepository: () => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLElement>(null);
 
@@ -49,7 +51,7 @@ export function ProjectsCreateMenu({
 
   return (
     <nav
-      aria-label="Create project item"
+      aria-label={t("projects.create_project_item")}
       className="relative shrink-0 pl-4"
       onBlurCapture={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) {

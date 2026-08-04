@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Clock,
   Copy,
@@ -57,6 +58,7 @@ export function WorkflowCard({
   onDuplicate,
   onDelete,
 }: WorkflowCardProps) {
+  const { t } = useTranslation();
   const displayStatus = getWorkflowDisplayStatus(workflow);
   const description = getWorkflowDescription(workflow.definition);
   const triggerSummary = getWorkflowTriggerSummary(workflow.definition);
@@ -103,7 +105,7 @@ export function WorkflowCard({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              aria-label="Workflow actions"
+              aria-label={t("workflows.workflow_actions")}
               className="relative z-10 h-7 w-7 shrink-0"
               size="icon"
               variant="ghost"

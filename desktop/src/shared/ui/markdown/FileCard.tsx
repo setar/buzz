@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Download, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -38,6 +39,7 @@ export function FileCard({
   filename: string;
   size?: number;
 }) {
+  const { t } = useTranslation();
   const cardRef = React.useRef<HTMLButtonElement | null>(null);
   const sizeLabel = size != null ? formatFileSize(size) : "";
   useSmoothCorners(cardRef);
@@ -49,7 +51,8 @@ export function FileCard({
       onClick={() => {
         invokeTauri("download_file", { url: href, filename }).catch(
           (err: unknown) => {
-            const msg = err instanceof Error ? err.message : "Download failed";
+            const msg =
+              err instanceof Error ? err.message : t("shared.download_failed");
             toast.error(msg);
           },
         );

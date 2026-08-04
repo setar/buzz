@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Activity, Headphones, MessageSquare } from "lucide-react";
@@ -69,15 +70,14 @@ type UserProfilePopoverProps = {
 const HOVER_OPEN_DELAY_MS = 500;
 const HOVER_CLOSE_DELAY_MS = 200;
 
-const RUNTIME_LABELS: Record<string, string> = {
-  goose: "Goose",
-  "claude-code": "Claude Code",
-  "codex-acp": "Codex",
-  aider: "Aider",
-};
-
-function runtimeLabel(command: string): string {
-  return RUNTIME_LABELS[command] ?? command;
+function runtimeLabel(command: string, t: (key: string) => string): string {
+  const labels: Record<string, string> = {
+    goose: "Goose",
+    "claude-code": t("profile.claude_code"),
+    "codex-acp": "Codex",
+    aider: "Aider",
+  };
+  return labels[command] ?? command;
 }
 
 function InfoBadge({ children }: { children: React.ReactNode }) {
@@ -177,6 +177,7 @@ export function UserProfilePopover({
   role,
   botIdenticonValue,
 }: UserProfilePopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const [pendingAction, setPendingAction] = React.useState<
     "message" | "huddle" | "wave" | null
@@ -240,7 +241,7 @@ export function UserProfilePopover({
   // wrongly hides the affordance from them — and gating on bot-ness alone shows
   // it to every viewer. Combine declared ownership with local management, same
   // shape as the pane/sidebar/memory fixes. Every real boundary is server-side;
-  // this only decides whether to paint the "View activity log" button.
+  // this only decides whether to paint the t("profile.view_activity_log") button.
   const isOwner = useIsManagedAgent(isBotProfile ? pubkey : null);
   const identityQuery = useIdentityQuery();
   const currentPubkey = identityQuery.data?.pubkey;
@@ -342,9 +343,7 @@ export function UserProfilePopover({
       }
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to open direct message.",
+        error instanceof Error ? error.message : t("profile.failed_open_dm"),
       );
     } finally {
       if (isMountedRef.current) {
@@ -358,6 +357,7 @@ export function UserProfilePopover({
     pendingAction,
     pubkey,
     showMessageAction,
+    t,
   ]);
 
   const handleHuddle = React.useCallback(async () => {
@@ -417,7 +417,7 @@ export function UserProfilePopover({
     try {
       const identity = identityQuery.data;
       if (!identity) {
-        throw new Error("No identity available for sending messages.");
+        throw new Error(t("profile.no_identity"));
       }
 
       const dm =
@@ -479,7 +479,7 @@ export function UserProfilePopover({
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to send wave.",
+        error instanceof Error ? error.message : t("profile.failed_send_wave"),
       );
     } finally {
       if (isMountedRef.current) {
@@ -499,6 +499,7 @@ export function UserProfilePopover({
     selfProfileQuery.data?.displayName,
     showHumanProfileActions,
     showProfileActions,
+    t,
   ]);
 
   React.useEffect(() => {
@@ -614,9 +615,11 @@ export function UserProfilePopover({
           {isBotProfile && (managedAgent || relayAgent) ? (
             <div className="flex flex-wrap gap-1.5">
               {managedAgent?.agentCommand ? (
-                <InfoBadge>{runtimeLabel(managedAgent.agentCommand)}</InfoBadge>
+                <InfoBadge>
+                  {runtimeLabel(managedAgent.agentCommand, t)}
+                </InfoBadge>
               ) : relayAgent?.agentType ? (
-                <InfoBadge>{runtimeLabel(relayAgent.agentType)}</InfoBadge>
+                <InfoBadge>{runtimeLabel(relayAgent.agentType, t)}</InfoBadge>
               ) : null}
               {managedAgent?.model ? (
                 <InfoBadge>{managedAgent.model}</InfoBadge>

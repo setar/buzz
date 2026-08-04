@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   commitAuthorPubkeysFromPullRequests,
   contributorKey,
@@ -42,11 +43,14 @@ export function ContributorsPanel({
   profiles?: UserProfileLookup;
   repoContributors: ProjectRepoContributor[];
 }) {
+  const { t } = useTranslation();
   const rows = repoContributors.map((contributor) => {
     const matchedProfile = profileForContributor(contributor, profiles);
     const label = matchedProfile
       ? resolveUserLabel({ pubkey: matchedProfile.pubkey, profiles })
-      : contributor.name || contributor.email || "Unknown contributor";
+      : contributor.name ||
+        contributor.email ||
+        t("projects.unknown_contributor");
 
     return {
       avatarUrl: matchedProfile?.profile.avatarUrl ?? null,
@@ -62,9 +66,9 @@ export function ContributorsPanel({
         ? `${
             matchedProfile.profile.nip05Handle ||
             contributor.email ||
-            "Git contributor"
+            t("projects.git_contributor")
           } · unverified match`
-        : contributor.email || "Git contributor",
+        : contributor.email || t("projects.git_contributor"),
     };
   });
 
@@ -106,7 +110,7 @@ export function ContributorsPanel({
               <span className="truncate">{row.role}</span>
               <span className="rounded-full border border-border/60 px-1.5 py-0.5 text-2xs">
                 {row.commitCount === null
-                  ? "No git commits"
+                  ? t("projects.no_git_commits")
                   : `${row.commitCount} commit${row.commitCount === 1 ? "" : "s"}`}
               </span>
               {row.lastCommitAt ? (
@@ -144,6 +148,7 @@ export function ActivityPanel({
   repoContributors: ProjectRepoContributor[];
   viewerGitIdentity?: ViewerGitIdentity | null;
 }) {
+  const { t } = useTranslation();
   const commits = snapshot?.commits ?? [];
   const commitAuthorPubkeys = commitAuthorPubkeysFromPullRequests(
     pullRequests ?? [],
@@ -167,8 +172,8 @@ export function ActivityPanel({
         data-project-detail-panel
       >
         {error
-          ? "Could not load repository activity from git."
-          : "No commits are available yet."}
+          ? t("projects.could_not_load_activity")
+          : t("projects.no_commits_yet")}
       </p>
     );
   }
@@ -194,7 +199,9 @@ export function ActivityPanel({
                 pubkey: matchedProfile.pubkey,
                 profiles,
               })
-            : commit.authorName || commit.authorEmail || "Unknown author";
+            : commit.authorName ||
+              commit.authorEmail ||
+              t("projects.unknown_author");
           const matchingContributor = repoContributors.find(
             (contributor) =>
               contributor.name.trim().toLowerCase() ===

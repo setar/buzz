@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { AgentChannelAttachmentFailure } from "@/features/agents/channelAttachmentFailure";
 import type { CreateManagedAgentResponse } from "@/shared/api/types";
 import { Button } from "@/shared/ui/button";
@@ -23,15 +24,15 @@ export function SecretRevealDialog({
   onOpenChange: (open: boolean) => void;
   onRetryAttachment?: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog onOpenChange={onOpenChange} open={created !== null}>
       <DialogContent className="max-w-2xl overflow-hidden p-0">
         <div className="flex max-h-[85vh] flex-col">
           <DialogHeader className="border-b border-border/60 px-6 py-5 pr-14">
-            <DialogTitle>Agent created</DialogTitle>
+            <DialogTitle>{t("agents.agent_created")}</DialogTitle>
             <DialogDescription>
-              Save the private key now. The app can keep running the harness
-              locally, but this secret is only revealed here.
+              {t("agents.save_private_key_now")}
             </DialogDescription>
           </DialogHeader>
 
@@ -42,14 +43,14 @@ export function SecretRevealDialog({
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold tracking-tight">
-                        Private key (nsec)
+                        {t("agents.private_key_nsec")}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        This is the agent identity used by `buzz-acp`.
+                        {t("agents.private_key_identity_help")}
                       </p>
                     </div>
                     <CopyButton
-                      label="Copy key"
+                      label={t("agents.copy_private_key")}
                       value={created.privateKeyNsec}
                     />
                   </div>
@@ -74,19 +75,24 @@ export function SecretRevealDialog({
                     role="alert"
                   >
                     <p>
-                      {created.agent.name} was created, but couldn’t be added to
-                      #{attachmentFailure.channelName}.
+                      {t("agents.attach_failed", {
+                        name: created.agent.name,
+                        channel: attachmentFailure.channelName,
+                      })}
                     </p>
                     <p>{attachmentFailure.error}</p>
                   </div>
                 ) : (
                   <p className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary">
-                    {created.agent.name} is ready
                     {created.agent.status === "running"
-                      ? " and running."
+                      ? t("agents.agent_ready_running", {
+                          name: created.agent.name,
+                        })
                       : created.agent.status === "deployed"
-                        ? " and deployed."
-                        : "."}
+                        ? t("agents.agent_ready_deployed", {
+                            name: created.agent.name,
+                          })
+                        : t("agents.agent_ready", { name: created.agent.name })}
                   </p>
                 )}
               </>
@@ -101,7 +107,9 @@ export function SecretRevealDialog({
                 size="sm"
                 type="button"
               >
-                {isRetryingAttachment ? "Trying again…" : "Try again"}
+                {isRetryingAttachment
+                  ? t("agents.trying_again")
+                  : t("agents.try_again")}
               </Button>
             ) : null}
             <Button
@@ -111,7 +119,7 @@ export function SecretRevealDialog({
               type="button"
               variant="outline"
             >
-              Done
+              {t("common.done")}
             </Button>
           </div>
         </div>

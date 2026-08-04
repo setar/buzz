@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/lib/cn";
 import type { FileEditDiff } from "../agentSessionFileEditDiff";
 import type { FileReadContent } from "../agentSessionFileRead";
@@ -30,6 +31,7 @@ export function ToolDetailBlocks({
   result: string;
   shellCommand: string | null;
 }) {
+  const { t } = useTranslation();
   const showFileEditDiff =
     fileEditDiff && hasFileEditLineDiff(fileEditDiff) && !isError;
   const showFileReadContent = fileReadContent != null && !isError;
@@ -54,7 +56,7 @@ export function ToolDetailBlocks({
         <ShellCommandBlock command={shellCommand} result={result} />
       ) : showParameters ? (
         <ToolCodeBlock
-          label="Parameters"
+          label={t("agents.parameters")}
           tone="muted"
           value={JSON.stringify(args, null, 2)}
         />
@@ -71,7 +73,7 @@ export function ToolDetailBlocks({
           />
         ) : (
           <ToolCodeBlock
-            label={isError ? "Error" : "Result"}
+            label={isError ? t("agents.error") : t("agents.result")}
             tone={isError ? "error" : "muted"}
             value={result}
           />

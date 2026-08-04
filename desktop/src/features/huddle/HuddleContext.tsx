@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import * as React from "react";
@@ -87,6 +88,7 @@ export function HuddleProvider({
   /** Reveals an active or archived Huddle channel in the main app. */
   onViewHuddleChannel?: (ephemeralChannelId: string) => void;
 }) {
+  const { t } = useTranslation();
   const workletRef = React.useRef<AudioWorkletHandle | null>(null);
   const tokenRef = React.useRef(0);
   const busyRef = React.useRef(false);
@@ -649,7 +651,7 @@ export function HuddleProvider({
         workletRef.current = null;
         await cleanupFailedStart(w, true);
         setHuddleError(formatHuddleActionError(e, "start"));
-        console.error("Failed to start huddle:", e);
+        console.error(t("huddle.failed_start"), e);
         throw e;
       } finally {
         onHuddleStartPendingChange?.(false);
@@ -663,6 +665,7 @@ export function HuddleProvider({
       connectAndSetupMedia,
       onHuddleStartPendingChange,
       onHuddleStarted,
+      t,
     ],
   );
 
@@ -723,7 +726,7 @@ export function HuddleProvider({
         workletRef.current = null;
         await cleanupFailedStart(w, false);
         setHuddleError(formatHuddleActionError(e, "join"));
-        console.error("Failed to join huddle:", e);
+        console.error(t("huddle.failed_join"), e);
         throw e;
       } finally {
         setIsStarting(false);
@@ -735,6 +738,7 @@ export function HuddleProvider({
       cleanupSupersededStart,
       connectAndSetupMedia,
       onHuddleStarted,
+      t,
     ],
   );
 

@@ -29,7 +29,7 @@ type AvatarStepProps = {
     updateAvatarUrl: ProfileStepActions["updateAvatarUrl"];
   };
   direction: OnboardingTransitionDirection;
-  /** When true, a ghost "Skip for now" button is always visible (not just on error). */
+  /** When true, a ghost t("onboarding.skip_for_now") button is always visible (not just on error). */
   showAlwaysSkip?: boolean;
   state: Pick<
     ProfileStepState,
@@ -75,6 +75,7 @@ function AvatarPreview({
   avatarUrl: string;
   previewName: string;
 }) {
+  const { t } = useTranslation();
   const emojiAvatar = parseEmojiAvatarDataUrl(avatarUrl);
   const hasAvatarUrl = avatarUrl.trim().length > 0;
 
@@ -101,7 +102,7 @@ function AvatarPreview({
         </div>
       ) : !hasAvatarUrl ? (
         <div
-          aria-label="Add a display image"
+          aria-label={t("onboarding.add_display_image")}
           className="flex h-full w-full shrink-0 items-center justify-center rounded-full border-2 border-dashed border-border bg-background text-primary shadow-xs"
           data-testid="onboarding-avatar-preview"
           role="img"

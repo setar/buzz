@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
@@ -9,10 +10,11 @@ export function InlineEmojiPopover({
   alt: string | undefined;
   resolvedSrc: string;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const openTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const label = alt?.trim() || "Custom emoji";
+  const label = alt?.trim() || t("shared.custom_emoji");
 
   const clearTimers = React.useCallback(() => {
     if (openTimeout.current) {

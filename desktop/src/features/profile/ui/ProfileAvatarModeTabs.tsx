@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { createPortal } from "react-dom";
 
 import type {
@@ -29,6 +30,7 @@ export function ProfileAvatarModeTabs({
   presentation,
   portalContainer,
 }: ProfileAvatarModeTabsProps) {
+  const { t } = useTranslation();
   const isOnboardingModal = presentation === "onboarding-modal";
   const tabs = (
     <Tabs
@@ -39,7 +41,7 @@ export function ProfileAvatarModeTabs({
       value={mode}
     >
       <TabsList
-        aria-label="Avatar type"
+        aria-label={t("profile.avatar_type")}
         className={cn(
           isOnboardingModal
             ? "flex h-10 w-auto gap-2 rounded-none bg-transparent p-0 text-muted-foreground"

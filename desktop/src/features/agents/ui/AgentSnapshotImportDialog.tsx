@@ -1,5 +1,6 @@
 import * as React from "react";
 import { AlertCircle, Lock, Upload } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type {
   AgentSnapshotImportPreview,
@@ -47,6 +48,7 @@ export function AgentSnapshotImportDialog({
   onConfirm,
   onOpenChange,
 }: AgentSnapshotImportDialogProps) {
+  const { t } = useTranslation();
   // Default: clear the source allowlist (safe default per spec).
   const [keepAllowlist, setKeepAllowlist] = React.useState(false);
 
@@ -63,10 +65,10 @@ export function AgentSnapshotImportDialog({
   const hasMemory = preview.memoryEntryCount > 0;
   const memoryLevelLabel =
     preview.memoryLevel === "core"
-      ? "core"
+      ? t("agents.memory_level_core")
       : preview.memoryLevel === "everything"
-        ? "all"
-        : "none";
+        ? t("agents.memory_level_all")
+        : t("agents.memory_level_none");
 
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
@@ -79,7 +81,9 @@ export function AgentSnapshotImportDialog({
         <DialogHeader className="space-y-0">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle>
-              {phase === "result" ? "Agent imported" : "Import agent snapshot"}
+              {phase === "result"
+                ? t("agents.agent_imported")
+                : t("agents.import_agent_snapshot")}
             </DialogTitle>
             <div className="flex items-center gap-2">
               {phase === "preview" ? (
@@ -93,7 +97,7 @@ export function AgentSnapshotImportDialog({
                     variant="default"
                   >
                     <Upload className="h-4 w-4" />
-                    Import
+                    {t("agents.import")}
                   </Button>
                   <DialogClose asChild>
                     <Button
@@ -102,14 +106,14 @@ export function AgentSnapshotImportDialog({
                       type="button"
                       variant="ghost"
                     >
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                   </DialogClose>
                 </>
               ) : (
                 <DialogClose asChild>
                   <Button size="sm" type="button" variant="ghost">
-                    Close
+                    {t("common.close")}
                   </Button>
                 </DialogClose>
               )}
@@ -129,7 +133,7 @@ export function AgentSnapshotImportDialog({
           />
         ) : phase === "confirming" ? (
           <div className="py-4 text-center text-sm text-muted-foreground">
-            Creating agent…
+            {t("agents.creating_agent")}
           </div>
         ) : result !== null ? (
           <ResultBody result={result} confirmError={confirmError} />
@@ -154,6 +158,7 @@ export function PreviewBody({
   keepAllowlist: boolean;
   onKeepAllowlistChange: (v: boolean) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4 py-1">
       {/* Agent identity */}
@@ -189,22 +194,23 @@ export function PreviewBody({
         data-testid="agent-snapshot-import-behavior"
       >
         <div>
-          <p className="text-sm font-medium">Agent instructions</p>
+          <p className="text-sm font-medium">
+            {t("agents.snapshot_instructions_title")}
+          </p>
           <p className="text-xs text-muted-foreground">
-            Review the instructions this agent will follow after import.
+            {t("agents.snapshot_instructions_subtitle")}
           </p>
         </div>
         <pre
           className="max-h-48 overflow-auto whitespace-pre-wrap break-words rounded bg-muted/60 p-3 text-xs"
           data-testid="agent-snapshot-import-system-prompt"
         >
-          {preview.systemPrompt || "No system prompt included."}
+          {preview.systemPrompt || t("agents.snapshot_no_system_prompt")}
         </pre>
       </section>
 
       <p className="text-sm text-muted-foreground">
-        A new agent will be created with a fresh keypair. The imported agent is
-        independent of the source — identity never travels.
+        {t("agents.import_independent_note")}
       </p>
 
       {/* Memory section */}
@@ -215,18 +221,19 @@ export function PreviewBody({
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
-            This snapshot includes{" "}
+            {t("agents.import_memory_includes")}{" "}
             <strong>
-              {preview.memoryEntryCount} {memoryLevelLabel} memory entr
-              {preview.memoryEntryCount === 1 ? "y" : "ies"}
+              {t("agents.memory_entries", {
+                count: preview.memoryEntryCount,
+                level: memoryLevelLabel,
+              })}
             </strong>
-            . Memory is stored as plaintext in the file and will be restored
-            under the new agent's identity.
+            {t("agents.import_memory_after")}
           </p>
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">
-          No memory included — config only.
+          {t("agents.no_memory_included")}
         </p>
       )}
 
@@ -237,12 +244,12 @@ export function PreviewBody({
           data-testid="agent-snapshot-import-allowlist-section"
         >
           <p className="text-sm font-medium">
-            Respond-to allowlist ({preview.sourceAllowlistCount} entr
-            {preview.sourceAllowlistCount === 1 ? "y" : "ies"})
+            {t("agents.allowlist_count", {
+              count: preview.sourceAllowlistCount,
+            })}
           </p>
           <p className="text-xs text-muted-foreground">
-            This snapshot includes source-environment pubkeys. Review every key
-            before choosing Keep; Clear is safer when you do not recognize them.
+            {t("agents.import_allowlist_note")}
           </p>
           <ul
             className="max-h-28 space-y-1 overflow-y-auto rounded bg-muted/60 p-2 font-mono text-xs"
@@ -264,7 +271,8 @@ export function PreviewBody({
                 type="radio"
               />
               <span className="text-sm">
-                <strong>Clear</strong> — start with an empty allowlist (safer)
+                <strong>{t("agents.allowlist_clear")}</strong>
+                {t("agents.allowlist_clear_after")}
               </span>
             </label>
             <label className="flex cursor-pointer items-center gap-2">
@@ -276,7 +284,8 @@ export function PreviewBody({
                 type="radio"
               />
               <span className="text-sm">
-                <strong>Keep</strong> — copy source allowlist to the new agent
+                <strong>{t("agents.allowlist_keep")}</strong>
+                {t("agents.allowlist_keep_after")}
               </span>
             </label>
           </div>
@@ -311,14 +320,15 @@ export function ResultBody({
   result: AgentSnapshotImportResult;
   confirmError: string | null;
 }) {
+  const { t } = useTranslation();
   const hasPartialMemory =
     result.memoryTotal > 0 && result.memoryWritten < result.memoryTotal;
 
   return (
     <div className="space-y-3 py-1">
       <p className="text-sm">
-        <span className="font-medium">{result.displayName}</span> was created
-        successfully.
+        <span className="font-medium">{result.displayName}</span>{" "}
+        {t("agents.was_created_successfully")}
       </p>
 
       {result.memoryTotal > 0 ? (
@@ -330,10 +340,10 @@ export function ResultBody({
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <div className="flex flex-col gap-1">
               <p>
-                Memory partially restored: {result.memoryWritten} of{" "}
-                {result.memoryTotal} entr
-                {result.memoryTotal === 1 ? "y" : "ies"} written. The agent
-                exists but some memory entries failed to publish.
+                {t("agents.memory_partially_restored", {
+                  written: result.memoryWritten,
+                  count: result.memoryTotal,
+                })}
               </p>
               {result.memoryErrors.length > 0 ? (
                 <ul
@@ -354,15 +364,14 @@ export function ResultBody({
             className="text-xs text-muted-foreground"
             data-testid="agent-snapshot-import-memory-success"
           >
-            {result.memoryTotal} memory entr
-            {result.memoryTotal === 1 ? "y" : "ies"} restored.
+            {t("agents.memory_restored", { count: result.memoryTotal })}
           </p>
         )
       ) : null}
 
       {result.profileSyncError ? (
         <p className="text-xs text-amber-600 dark:text-amber-400">
-          Profile sync: {result.profileSyncError}
+          {t("agents.profile_sync", { error: result.profileSyncError })}
         </p>
       ) : null}
 

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Camera, Link2, Upload, X } from "lucide-react";
 
@@ -30,6 +31,7 @@ export function AvatarUpload({
   idleHint = "",
   testIdPrefix = "avatar",
 }: AvatarUploadProps) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = React.useState(false);
 
   const onUploadSuccess = React.useCallback(
@@ -103,7 +105,7 @@ export function AvatarUpload({
               className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full border border-background bg-destructive text-destructive-foreground shadow-xs transition-colors hover:bg-destructive/80"
               data-testid={`${testIdPrefix}-clear`}
               onClick={onClear}
-              title="Remove photo"
+              title={t("profile.remove_photo")}
               type="button"
             >
               <X className="h-4 w-4" />

@@ -12,6 +12,8 @@ export type PersonaDialogState = {
   title: string;
 };
 
+type TranslateFn = (key: string, options?: Record<string, unknown>) => string;
+
 /**
  * Whether the persona dialog's save action should be enabled.
  *
@@ -37,11 +39,13 @@ export function parsePersonaNamePoolText(text: string): string[] {
     .filter((value) => value.length > 0);
 }
 
-export function createPersonaDialogState(): PersonaDialogState {
+export function createPersonaDialogState(t?: TranslateFn): PersonaDialogState {
   return {
-    title: "Create agent",
-    description: "Create an agent and start it immediately.",
-    submitLabel: "Create agent",
+    title: t ? t("agents.create_agent") : "Create agent",
+    description: t
+      ? t("agents.create_agent_description")
+      : "Create an agent and start it immediately.",
+    submitLabel: t ? t("agents.create_agent") : "Create agent",
     initialValues: {
       displayName: "",
       avatarUrl: "",
@@ -54,12 +58,16 @@ export function createPersonaDialogState(): PersonaDialogState {
 
 export function duplicatePersonaDialogState(
   persona: AgentPersona,
+  t?: TranslateFn,
 ): PersonaDialogState {
   return {
-    title: `Duplicate ${persona.displayName}`,
-    description:
-      "Create a new agent by copying this profile and adjusting it as needed.",
-    submitLabel: "Create agent",
+    title: t
+      ? t("agents.duplicate_agent", { name: persona.displayName })
+      : `Duplicate ${persona.displayName}`,
+    description: t
+      ? t("agents.duplicate_agent_description")
+      : "Create a new agent by copying this profile and adjusting it as needed.",
+    submitLabel: t ? t("agents.create_agent") : "Create agent",
     initialValues: {
       displayName: `${persona.displayName} copy`,
       avatarUrl: persona.avatarUrl ?? "",
@@ -104,11 +112,12 @@ function behaviorEntry(
 
 export function editPersonaDialogState(
   persona: AgentPersona,
+  t?: TranslateFn,
 ): PersonaDialogState {
   return {
-    title: "Edit agent",
+    title: t ? t("agents.edit_agent") : "Edit agent",
     description: "",
-    submitLabel: "Save changes",
+    submitLabel: t ? t("common.save") : "Save changes",
     initialValues: {
       id: persona.id,
       displayName: persona.displayName,

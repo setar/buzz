@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPresenceLabel } from "@/features/presence/lib/presence";
 import { PresenceDot } from "@/features/presence/ui/PresenceBadge";
@@ -57,6 +58,7 @@ export function SidebarProfileCard({
   selfUserStatus,
   communities,
 }: SidebarProfileCardProps) {
+  const { t } = useTranslation();
   const selfProfileCache = useSelfProfileCache();
   const myMembershipQuery = useMyRelayMembershipLookupQuery();
   const activeRole = myMembershipQuery.data?.membership?.role;
@@ -81,7 +83,7 @@ export function SidebarProfileCard({
     [toggleProfilePopover],
   );
   const hasStatus = Boolean(selfUserStatus?.text || selfUserStatus?.emoji);
-  const communityLabel = activeCommunity?.name ?? "No community";
+  const communityLabel = activeCommunity?.name ?? t("sidebar.no_community");
   const readonlyCommunityLabel = (
     <span
       className="flex min-w-0 cursor-pointer items-center gap-1 text-xs leading-snug text-sidebar-foreground/70"

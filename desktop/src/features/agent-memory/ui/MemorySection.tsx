@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { AlertTriangle, Brain, ChevronDown, RefreshCw } from "lucide-react";
 
@@ -10,12 +11,6 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
 const MEMORY_LIST_PREVIEW_LIMIT = 3;
-
-const MEMORY_TRUNCATED_TOOLTIP =
-  "This list may be incomplete — the relay returned the maximum number of memories.";
-
-const MEMORY_DANGLING_REF_TOOLTIP =
-  "This memory links to a slug that wasn't found in the loaded memory list.";
 
 /**
  * Memory section — IXI-7 phase 1 read-only viewer.
@@ -65,6 +60,7 @@ export function MemoryRefreshButton({
   iconClassName?: string;
   variant?: ButtonProps["variant"];
 }): React.ReactElement | null {
+  const { t } = useTranslation();
   const { query } = useAgentMemoryGraph(agentPubkey, {
     enabled: viewerIsOwner,
   });
@@ -73,7 +69,7 @@ export function MemoryRefreshButton({
 
   return (
     <Button
-      aria-label="Refresh memory"
+      aria-label={t("agent_memory.refresh")}
       className={cn(className, query.isFetching && "cursor-wait")}
       data-testid="agent-memory-refetch"
       disabled={query.isFetching}
@@ -100,7 +96,7 @@ function MemorySectionForOwner({ agentPubkey }: { agentPubkey: string }) {
   // - error with no cache → error state (with retry)
   // - error WITH cache → keep the data, show a non-blocking "refetch failed"
   //   banner; user can retry without losing what they had
-  // - data, but empty → empty state ("This agent has no memories yet")
+  // - data, but empty → empty state (t("agent_memory.empty"))
   // - data, non-empty → render
   const showInitialSkeleton = query.isLoading && !query.data;
   const showInitialError = query.isError && !query.data;
@@ -136,9 +132,10 @@ function MemorySectionForOwner({ agentPubkey }: { agentPubkey: string }) {
 // ── Subviews ────────────────────────────────────────────────────────────────
 
 function MemorySkeleton() {
+  const { t } = useTranslation();
   return (
     <div
-      aria-label="Loading memory"
+      aria-label={t("agent_memory.loading")}
       className="space-y-2"
       data-testid="agent-memory-skeleton"
       role="status"
@@ -159,6 +156,7 @@ function MemoryErrorState({
   onRetry: () => void;
   retrying: boolean;
 }) {
+  const { t } = useTranslation();
   const message =
     error instanceof Error ? error.message : String(error ?? "unknown error");
   return (
@@ -171,7 +169,7 @@ function MemoryErrorState({
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
         <div className="space-y-1">
           <div className="font-medium text-destructive">
-            Couldn't load memory
+            {t("agent_memory.couldnt_load")}
           </div>
           <div className="text-muted-foreground">{message}</div>
         </div>
@@ -183,26 +181,29 @@ function MemoryErrorState({
         size="sm"
         variant="outline"
       >
-        {retrying ? "Retrying…" : "Retry"}
+        {retrying ? t("agent_memory.retrying") : t("agent_memory.retry")}
       </Button>
     </div>
   );
 }
 
 function MemoryStaleErrorBanner({ onRetry }: { onRetry: () => void }) {
+  const { t } = useTranslation();
   return (
     <div
       className="mb-2 flex items-center gap-2 rounded-md border border-warning/30 bg-warning/5 px-2 py-1.5 text-xs"
       data-testid="agent-memory-stale-error"
     >
       <AlertTriangle className="h-4 w-4 shrink-0 text-warning" />
-      <span className="flex-1 text-muted-foreground">Refresh failed.</span>
+      <span className="flex-1 text-muted-foreground">
+        {t("agent_memory.refresh_failed")}
+      </span>
       <button
         className="font-medium text-warning hover:underline"
         onClick={onRetry}
         type="button"
       >
-        Retry
+        {t("agent_memory.retry")}
       </button>
     </div>
   );
@@ -215,6 +216,7 @@ function MemoryGraphView({
   graph: NonNullable<ReturnType<typeof useAgentMemoryGraph>["graph"]>;
   truncated: boolean;
 }) {
+  const { t } = useTranslation();
   const { rootedTree, orphans, dangling } = graph;
   const [showAllEntries, setShowAllEntries] = React.useState(false);
   const danglingSlugs = React.useMemo(
@@ -230,9 +232,11 @@ function MemoryGraphView({
         data-testid="agent-memory-empty"
       >
         <Brain className="mx-auto h-4 w-4 text-muted-foreground" />
-        <p className="mt-3 text-sm font-medium">Build this agent's memory</p>
+        <p className="mt-3 text-sm font-medium">
+          {t("agent_memory.build_memory")}
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Try telling this agent to remember something for next time.
+          {t("agent_memory.build_memory_hint")}
         </p>
       </div>
     );
@@ -304,6 +308,7 @@ function MemoryShowMoreButton({
   onClick: () => void;
   truncated: boolean;
 }) {
+  const { t } = useTranslation();
   const button = (
     <button
       className="flex w-full items-center justify-center gap-2 rounded-2xl bg-muted/40 px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted/50"
@@ -323,13 +328,15 @@ function MemoryShowMoreButton({
     <Tooltip>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent className="max-w-xs text-xs" side="top">
-        {MEMORY_TRUNCATED_TOOLTIP}
+        {t("agent_memory.truncated_tooltip")}
       </TooltipContent>
     </Tooltip>
   );
 }
 
 function MemoryTruncatedHint() {
+  const { t } = useTranslation();
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -341,7 +348,7 @@ function MemoryTruncatedHint() {
         </div>
       </TooltipTrigger>
       <TooltipContent className="max-w-xs text-xs" side="top">
-        {MEMORY_TRUNCATED_TOOLTIP}
+        {t("agent_memory.truncated_tooltip")}
       </TooltipContent>
     </Tooltip>
   );
@@ -387,6 +394,7 @@ function MemoryBodyText({ body }: { body: string }) {
 }
 
 function MemoryDanglingRefsHint({ slugs }: { slugs: string[] }) {
+  const { t } = useTranslation();
   if (slugs.length === 0) return null;
 
   return (
@@ -396,7 +404,10 @@ function MemoryDanglingRefsHint({ slugs }: { slugs: string[] }) {
     >
       <div className="rounded-xl bg-warning/5 px-2.5 py-2 text-xs leading-5">
         <p className="text-warning">
-          Missing {slugs.length === 1 ? "link" : "links"}:{" "}
+          {slugs.length === 1
+            ? t("agent_memory.missing_link")
+            : t("agent_memory.missing_links")}
+          :{" "}
           {slugs.map((slug, index) => (
             <React.Fragment key={slug}>
               {index > 0 ? ", " : null}
@@ -410,7 +421,7 @@ function MemoryDanglingRefsHint({ slugs }: { slugs: string[] }) {
           ))}
         </p>
         <p className="mt-0.5 text-foreground/50">
-          {MEMORY_DANGLING_REF_TOOLTIP}
+          {t("agent_memory.slug_missing")}
         </p>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, ChevronsUpDown, Search } from "lucide-react";
 import * as React from "react";
 
@@ -24,6 +25,7 @@ export function ChannelCombobox({
   onChange,
   value,
 }: ChannelComboboxProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const [highlightedIndex, setHighlightedIndex] = React.useState(0);
@@ -97,7 +99,9 @@ export function ChannelCombobox({
           type="button"
         >
           <span className="truncate">
-            {selected ? formatChannelLabel(selected) : "Select a channel..."}
+            {selected
+              ? formatChannelLabel(selected)
+              : t("workflows.select_channel")}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
@@ -119,7 +123,7 @@ export function ChannelCombobox({
               setHighlightedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Search channels..."
+            placeholder={t("workflows.search_channels")}
             spellCheck={false}
             value={query}
           />

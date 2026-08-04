@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CalendarClock, Clock, Loader2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -31,6 +32,7 @@ export function RemindMeLaterDialog({
   onOpenChange: (open: boolean) => void;
   target: ReminderTarget | null;
 }) {
+  const { t } = useTranslation();
   const pubkey = useIdentityQuery().data?.pubkey ?? "";
   const { create } = useReminderMutations(pubkey);
   const [note, setNote] = React.useState("");
@@ -44,11 +46,11 @@ export function RemindMeLaterDialog({
       { target, notBefore, note: note || undefined },
       {
         onSuccess: () => {
-          toast.success("Reminder set");
+          toast.success(t("reminders.set"));
           onOpenChange(false);
           setNote("");
         },
-        onError: () => toast.error("Failed to create reminder"),
+        onError: () => toast.error(t("reminders.failed_create")),
       },
     );
   };
@@ -87,7 +89,7 @@ export function RemindMeLaterDialog({
           </p>
           <div className="flex gap-2">
             <Input
-              aria-label="Reminder date"
+              aria-label={t("reminders.date")}
               className="flex-1"
               min={todayDateString()}
               onChange={(e) => setCustomDate(e.target.value)}
@@ -95,7 +97,7 @@ export function RemindMeLaterDialog({
               value={customDate}
             />
             <Input
-              aria-label="Reminder time"
+              aria-label={t("reminders.time")}
               className="w-[120px]"
               onChange={(e) => setCustomTime(e.target.value)}
               type="time"
@@ -113,7 +115,7 @@ export function RemindMeLaterDialog({
           </label>
           <Textarea
             id="reminder-note"
-            placeholder="Add a note..."
+            placeholder={t("reminders.add_note")}
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={2}

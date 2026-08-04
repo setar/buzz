@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 
 import { Button } from "@/shared/ui/button";
@@ -53,6 +54,7 @@ function StepConfigFields({
   triggerType: TriggerType;
   onUpdate: (step: StepFormState) => void;
 }) {
+  const { t } = useTranslation();
   switch (step.action) {
     case "delay":
       return (
@@ -98,7 +100,7 @@ function StepConfigFields({
               onChange={(event) =>
                 onUpdate({ ...step, channel: event.target.value })
               }
-              placeholder="Channel UUID"
+              placeholder={t("workflows.channel_uuid")}
               value={step.channel ?? ""}
             />
             <p className="text-xs text-muted-foreground">
@@ -141,7 +143,7 @@ function StepConfigFields({
               onChange={(event) =>
                 onUpdate({ ...step, text: event.target.value })
               }
-              placeholder="DM content"
+              placeholder={t("workflows.dm_content")}
               value={step.text ?? ""}
             />
           </div>
@@ -220,7 +222,7 @@ function StepConfigFields({
               onChange={(event) =>
                 onUpdate({ ...step, from: event.target.value })
               }
-              placeholder="Pubkey or role"
+              placeholder={t("workflows.pubkey_or_role")}
               value={step.from ?? ""}
             />
           </div>
@@ -233,7 +235,7 @@ function StepConfigFields({
               onChange={(event) =>
                 onUpdate({ ...step, message: event.target.value })
               }
-              placeholder="Approval request message"
+              placeholder={t("workflows.approval_request_message")}
               value={step.message ?? ""}
             />
           </div>
@@ -283,7 +285,7 @@ function StepConfigFields({
               onChange={(event) =>
                 onUpdate({ ...step, topic: event.target.value })
               }
-              placeholder="New channel topic"
+              placeholder={t("workflows.new_channel_topic")}
               value={step.topic ?? ""}
             />
           </div>
@@ -309,16 +311,17 @@ export function WorkflowStepCard({
   step: StepFormState;
   triggerType: TriggerType;
 }) {
+  const { t } = useTranslation();
   const prefix = `wf-step-${index}`;
 
   return (
     <div className="space-y-3 rounded-lg border border-border/70 bg-muted/10 p-3">
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium text-muted-foreground">
-          Step {index + 1}
+          {t("workflows.step_number", { count: index + 1 })}
         </span>
         <Button
-          aria-label="Remove step"
+          aria-label={t("workflows.remove_step")}
           className="h-7 w-7"
           disabled={disabled}
           onClick={onRemove}

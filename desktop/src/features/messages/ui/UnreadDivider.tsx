@@ -1,12 +1,15 @@
+import { useTranslation } from "react-i18next";
+
 /**
  * Inline "New" divider rendered directly above the oldest unread top-level
  * message, mirroring Slack's read/unread boundary. Computed from the
  * channel's read frontier as it stood when the channel was opened.
  */
 export function UnreadDivider() {
+  const { t } = useTranslation();
   return (
     <section
-      aria-label="New messages"
+      aria-label={t("messages.new_messages")}
       className="relative flex items-center py-1"
       data-testid="message-unread-divider"
     >

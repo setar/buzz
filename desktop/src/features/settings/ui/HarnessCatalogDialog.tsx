@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { ChevronRight, ExternalLink, Plus, Search } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
@@ -47,7 +48,7 @@ import {
 const CUSTOM_ENTRY_ID = "\u0000custom";
 
 /**
- * "Add runtimes" — master-detail catalog dialog, modeled on the Agent
+ * t("settings.add_runtimes") — master-detail catalog dialog, modeled on the Agent
  * Catalog (PersonaCatalogDialog): searchable left chooser, right detail pane
  * with one neutral vendor-sourced sentence, operational setup state, and
  * technical details, plus a primary Install / setup-guide CTA pinned in a
@@ -61,6 +62,7 @@ export function HarnessCatalogDialog({
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }) {
+  const { t } = useTranslation();
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const runtimesQuery = useAcpRuntimesQuery();
   const isLoading = runtimesQuery.isLoading;
@@ -127,7 +129,7 @@ export function HarnessCatalogDialog({
         scrollAreaClassName="flex min-h-0 overflow-hidden px-0"
         scrollAreaTestId="harness-catalog-dialog-body"
         tabIndex={-1}
-        title="Add runtimes"
+        title={t("settings.add_runtimes")}
       >
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar sm:flex-row">
           {/* Left: search + chooser list */}
@@ -136,7 +138,7 @@ export function HarnessCatalogDialog({
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-sidebar-foreground/50" />
                 <Input
-                  aria-label="Search runtimes"
+                  aria-label={t("settings.search_runtimes")}
                   className="h-8 border-sidebar-border bg-sidebar-accent/40 pl-8 text-sm"
                   data-testid="harness-catalog-search"
                   onChange={(e) => setQuery(e.target.value)}
@@ -302,10 +304,11 @@ function CatalogSection({
 
 /** Pulsing placeholder rows shown while harness discovery is running. */
 function CatalogListSkeleton() {
+  const { t } = useTranslation();
   const widths = ["w-24", "w-32", "w-20", "w-28", "w-24", "w-16"];
   return (
     <div
-      aria-label="Loading runtimes"
+      aria-label={t("settings.loading_runtimes")}
       className="space-y-1"
       data-testid="harness-catalog-list-skeleton"
       role="status"
@@ -327,9 +330,10 @@ function CatalogListSkeleton() {
 
 /** Pulsing placeholder mirroring the detail-pane layout while loading. */
 function CatalogDetailSkeleton() {
+  const { t } = useTranslation();
   return (
     <div
-      aria-label="Loading runtime details"
+      aria-label={t("settings.loading_runtime_details")}
       className="flex min-h-full flex-col gap-6"
       data-testid="harness-catalog-detail-skeleton"
       role="status"
@@ -392,6 +396,7 @@ function CatalogListItem({
 }
 
 function CatalogDetail({ entry }: { entry: AcpRuntimeCatalogEntry }) {
+  const { t } = useTranslation();
   const install = useInstallAcpRuntimeMutation();
   const [installError, setInstallError] = React.useState<string | null>(null);
   const [isUpdateWarningOpen, setIsUpdateWarningOpen] = React.useState(false);
@@ -412,7 +417,7 @@ function CatalogDetail({ entry }: { entry: AcpRuntimeCatalogEntry }) {
       },
       onError: (error) => {
         setInstallError(
-          error instanceof Error ? error.message : "Install failed.",
+          error instanceof Error ? error.message : t("settings.install_failed"),
         );
       },
     });
@@ -563,6 +568,7 @@ function CatalogDetail({ entry }: { entry: AcpRuntimeCatalogEntry }) {
 }
 
 function TechnicalDetails({ entry }: { entry: AcpRuntimeCatalogEntry }) {
+  const { t } = useTranslation();
   const rows: Array<{ label: string; value: string }> = [
     { label: "ID", value: entry.id },
     ...(entry.command ? [{ label: "Command", value: entry.command }] : []),
@@ -570,12 +576,18 @@ function TechnicalDetails({ entry }: { entry: AcpRuntimeCatalogEntry }) {
       ? [{ label: "Arguments", value: entry.defaultArgs.join(" ") }]
       : []),
     ...(entry.underlyingCliPath
-      ? [{ label: "Underlying CLI", value: entry.underlyingCliPath }]
+      ? [
+          {
+            label: t("settings.underlying_cli"),
+            value: entry.underlyingCliPath,
+          },
+        ]
       : []),
     ...(entry.binaryPath ? [{ label: "Path", value: entry.binaryPath }] : []),
     {
       label: "Source",
-      value: entry.source === "builtin" ? "Built-in" : "Bundled preset",
+      value:
+        entry.source === "builtin" ? "Built-in" : t("settings.bundled_preset"),
     },
   ];
 

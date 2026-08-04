@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/lib/cn";
 import BuzzLogoAnimation, {
   type BuzzLogoAnimationProps,
@@ -23,22 +24,23 @@ export type FuzzyLogoProps = {
  * crisp geometry with a lightweight CSS pulse — recommended for long-lived mounts.
  */
 export function FuzzyLogo({
+  ariaLabel,
   fuzz = true,
   className,
-  ariaLabel = "Buzz logo",
   loop = false,
   loopRestSeconds = 0,
   pulse = true,
   reverse = false,
   variant = "v8",
 }: FuzzyLogoProps) {
+  const { t } = useTranslation();
   // The rest-window loop already reads as "alive"; skip the pulse so the two
   // opacity animations don't fight.
   const hasRestWindow = loop && loopRestSeconds > 0;
 
   return (
     <BuzzLogoAnimation
-      ariaLabel={ariaLabel}
+      ariaLabel={ariaLabel ?? t("shared.buzz_logo")}
       className={cn(
         pulse && !fuzz && !hasRestWindow && "buzz-logo--pulse",
         className,

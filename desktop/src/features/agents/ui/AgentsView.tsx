@@ -1,5 +1,6 @@
 import * as React from "react";
 import { EllipsisVertical, OctagonX, Settings2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   consumePendingSnapshotImport,
   subscribeSnapshotImport,
@@ -39,6 +40,7 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { getInheritedAgentDefaults } from "./bakedEnvHelpers";
 
 export function AgentsView() {
+  const { t } = useTranslation();
   const { openPersonaProfilePanel, openProfilePanel } = useProfilePanel();
   const { globalConfig } = useGlobalAgentConfig();
   const { data: bakedEnv } = useBakedBuildEnvQuery({ enabled: true });
@@ -150,8 +152,8 @@ export function AgentsView() {
                   >
                     <Settings2 />
                     {hasSavedAgentDefaults
-                      ? "Agent defaults"
-                      : "Set agent defaults"}
+                      ? t("agents.agent_defaults")
+                      : t("agents.set_agent_defaults")}
                   </Button>
                   {runningAgentCount > 0 ? (
                     <Button
@@ -163,7 +165,7 @@ export function AgentsView() {
                       variant="outline"
                     >
                       <OctagonX />
-                      Stop running agents
+                      {t("agents.stop_running_agents")}
                     </Button>
                   ) : null}
                 </div>
@@ -171,7 +173,7 @@ export function AgentsView() {
                 <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      aria-label="Agent actions"
+                      aria-label={t("agents.agent_actions")}
                       className="hidden [@container(max-width:40rem)]:inline-flex"
                       data-testid="agent-actions-menu-trigger"
                       ref={compactActionsTriggerRef}
@@ -190,8 +192,8 @@ export function AgentsView() {
                     >
                       <Settings2 />
                       {hasSavedAgentDefaults
-                        ? "Agent defaults"
-                        : "Set agent defaults"}
+                        ? t("agents.agent_defaults")
+                        : t("agents.set_agent_defaults")}
                     </DropdownMenuItem>
                     {runningAgentCount > 0 ? (
                       <DropdownMenuItem
@@ -201,15 +203,15 @@ export function AgentsView() {
                         }}
                       >
                         <OctagonX />
-                        Stop running agents
+                        {t("agents.stop_running_agents")}
                       </DropdownMenuItem>
                     ) : null}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             }
-            description="Set up and manage your agents."
-            title="Agents"
+            description={t("agents.set_up_and_manage_agents")}
+            title={t("sidebar.agents")}
           />
           <div className="flex flex-col gap-8">
             <UnifiedAgentsSection

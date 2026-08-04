@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { cn } from "@/shared/lib/cn";
 
 export function AgentDefinitionMetadata({
@@ -11,18 +13,19 @@ export function AgentDefinitionMetadata({
   model: string | null;
   runtime: string | null;
 }) {
+  const { t } = useTranslation();
   const items = [
     {
-      label: "Type",
-      value: isBuiltIn ? "Built-in agent" : "Custom agent",
+      label: t("agents.type"),
+      value: isBuiltIn ? t("agents.built_in_agent") : t("agents.custom_agent"),
     },
     {
-      label: "Preferred model",
-      value: model ?? "Use app default",
+      label: t("agents.preferred_model"),
+      value: model ?? t("agents.use_app_default"),
     },
     {
-      label: "Preferred runtime",
-      value: runtime ?? "Use app default",
+      label: t("agents.preferred_runtime"),
+      value: runtime ?? t("agents.use_app_default"),
     },
   ];
 

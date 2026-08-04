@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -394,6 +395,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
+  const { t } = useTranslation();
   const { toggleSidebar, open } = useSidebar();
 
   return (
@@ -410,7 +412,7 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       {open ? <PanelLeftClose /> : <PanelLeftOpen />}
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">{t("shared.toggle_sidebar")}</span>
     </Button>
   );
 });
@@ -431,6 +433,7 @@ const SidebarRail = React.forwardRef<
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const {
       setIsResizing,
       setSidebarWidth,
@@ -472,7 +475,7 @@ const SidebarRail = React.forwardRef<
       <button
         ref={ref}
         data-sidebar="rail"
-        aria-label="Resize sidebar"
+        aria-label={t("shared.resize_sidebar")}
         tabIndex={-1}
         disabled={isRailDisabled || state !== "expanded"}
         onPointerCancel={(event) => {
@@ -545,7 +548,7 @@ const SidebarRail = React.forwardRef<
           onPointerUp?.(event);
           finishResize(event);
         }}
-        title="Drag to resize sidebar"
+        title={t("shared.drag_resize_sidebar")}
         className={cn(
           "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
           "cursor-col-resize",

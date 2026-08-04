@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { Bot } from "lucide-react";
 import * as React from "react";
@@ -34,6 +35,7 @@ export function AddAgentDialog({
   onAdd,
   currentAgentPubkeys,
 }: AddAgentDialogProps) {
+  const { t } = useTranslation();
   const [agents, setAgents] = React.useState<ManagedAgentSummary[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [adding, setAdding] = React.useState<string | null>(null);
@@ -44,11 +46,11 @@ export function AddAgentDialog({
     invoke<ManagedAgentSummary[]>("list_managed_agents")
       .then(setAgents)
       .catch((e: unknown) => {
-        console.error("Failed to load agents:", e);
-        setError("Could not load agents.");
+        console.error(t("huddle.failed_load"), e);
+        setError(t("huddle.could_not_load"));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   // Only show running agents that aren't already in the huddle.
   const runningAgents = agents.filter(
@@ -74,7 +76,7 @@ export function AddAgentDialog({
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(`Failed to add agent: ${msg}`);
-      console.error("Failed to add agent to huddle:", e);
+      console.error(t("huddle.failed_add"), e);
     } finally {
       setAdding(null);
     }
@@ -122,8 +124,8 @@ export function AddAgentDialog({
           ) : runningAgents.length === 0 ? (
             <p className="py-4 text-center text-sm text-muted-foreground">
               {agents.filter((a) => a.status === "running").length > 0
-                ? "All running agents are already in this huddle."
-                : "No running agents found."}
+                ? t("huddle.all_agents_in")
+                : t("huddle.no_running_agents")}
             </p>
           ) : (
             <ul className="flex flex-col gap-1">

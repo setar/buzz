@@ -33,6 +33,7 @@ import { Button } from "@/shared/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { MembershipDenied } from "./MembershipDenied";
+import { LanguageSwitcher } from "@/shared/ui/LanguageSwitcher";
 import { StartupWindowDragRegion } from "@/shared/ui/StartupWindowDragRegion";
 import {
   ONBOARDING_PRIMARY_CTA_CLASS,
@@ -90,7 +91,11 @@ function AvatarCircle({
 
   return (
     <button
-      aria-label={hasAvatar ? t("onboarding.community_flow.change_avatar") : t("onboarding.community_flow.add_avatar")}
+      aria-label={
+        hasAvatar
+          ? t("onboarding.community_flow.change_avatar")
+          : t("onboarding.community_flow.add_avatar")
+      }
       className="group block shrink-0 rounded-full"
       data-testid="community-avatar-open"
       onClick={onClick}
@@ -467,6 +472,7 @@ export function CommunityOnboardingFlow({
       }
     >
       <StartupWindowDragRegion />
+      <LanguageSwitcher className="fixed right-4 top-4 z-30" />
       {isProfileStage || isTeamStage ? (
         <OnboardingChrome current={isTeamStage ? 7 : 6} />
       ) : null}
@@ -487,7 +493,9 @@ export function CommunityOnboardingFlow({
             <>
               <Users className="mx-auto h-10 w-10" />
               <h1 className="mt-5 text-title font-normal">
-                {t("onboarding.community_flow.joining", { name: transaction.communityName })}
+                {t("onboarding.community_flow.joining", {
+                  name: transaction.communityName,
+                })}
               </h1>
               <p className="mt-3 text-sm text-foreground/80">
                 {transaction.error ??
@@ -521,7 +529,9 @@ export function CommunityOnboardingFlow({
                 data-testid="community-profile-main"
               >
                 <div className="shrink-0">
-                  <h1 className="text-title font-normal">{t("onboarding.community_flow.build_profile_title")}</h1>
+                  <h1 className="text-title font-normal">
+                    {t("onboarding.community_flow.build_profile_title")}
+                  </h1>
                   <p className="mx-auto mt-3 max-w-[380px] text-sm leading-6 text-foreground/80">
                     {t("onboarding.community_flow.build_profile_description")}
                   </p>
@@ -550,7 +560,9 @@ export function CommunityOnboardingFlow({
                       disabled={isPending || isUploadingAvatar}
                       id="community-display-name"
                       onChange={(event) => setDisplayName(event.target.value)}
-                      placeholder={t("onboarding.community_flow.username_placeholder")}
+                      placeholder={t(
+                        "onboarding.community_flow.username_placeholder",
+                      )}
                       ref={nameInputRef}
                       spellCheck={false}
                       type="text"
@@ -636,7 +648,9 @@ export function CommunityOnboardingFlow({
             </>
           ) : (
             <>
-              <h1 className="text-title font-normal">{t("onboarding.community_flow.team_title")}</h1>
+              <h1 className="text-title font-normal">
+                {t("onboarding.community_flow.team_title")}
+              </h1>
               <p className="mx-auto mt-3 max-w-[400px] text-sm leading-6 text-foreground/80">
                 {t("onboarding.community_flow.team_description")}
               </p>
@@ -692,7 +706,9 @@ export function CommunityOnboardingFlow({
                   }
                 >
                   {isPending || transaction.stage === "entering" ? (
-                    <LoadingDots label={t("onboarding.community_flow.preparing")} />
+                    <LoadingDots
+                      label={t("onboarding.community_flow.preparing")}
+                    />
                   ) : starterChannelFailureCount >= 2 ? (
                     t("onboarding.community_flow.skip_for_now")
                   ) : (

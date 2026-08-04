@@ -23,7 +23,7 @@ import {
 import { ONBOARDING_KEY_TEXT_CLASS } from "./NsecMaskedDisplay";
 
 /**
- * How long the "Creating your identity key" loader holds the stage before the
+ * How long the t("onboarding.creating_identity_key") loader holds the stage before the
  * finished state fades in. Purely perceptual — the key already exists; the
  * pause sells the creation moment.
  */
@@ -339,7 +339,7 @@ export function BackupStep({
           data-testid="backup-intro-logo"
         >
           <FuzzyLogo
-            ariaLabel="Creating your identity key"
+            ariaLabel={t("onboarding.creating_identity_key")}
             className="w-20! text-foreground"
             fuzz
             loop

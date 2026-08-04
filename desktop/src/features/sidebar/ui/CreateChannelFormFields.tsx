@@ -1,5 +1,6 @@
 import { ChevronDown, Plus } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { TemplateFormDialog } from "@/features/settings/ui/ChannelTemplatesSettingsCard";
 import { cn } from "@/shared/lib/cn";
@@ -33,7 +34,7 @@ export const CREATE_CHANNEL_FORM_ID = "create-channel-form";
 /**
  * The body of the create-channel form (name, description, visibility,
  * optional template). Rendered inside both the standalone dialog and the
- * "Add channel" browser's create mode. Wrap in a `<form>` with
+ * t("sidebar.add_channel") browser's create mode. Wrap in a `<form>` with
  * `id={CREATE_CHANNEL_FORM_ID}` and hook up `form.handleSubmit`.
  */
 export function CreateChannelFormFields({
@@ -42,6 +43,7 @@ export function CreateChannelFormFields({
   form: CreateChannelFormState;
 }) {
   const { channelKind, kindLabel, isCreating } = form;
+  const { t } = useTranslation();
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = React.useState(false);
   const selectedTemplate = form.templates.find(
     (template) => template.id === form.selectedTemplateId,
@@ -71,7 +73,7 @@ export function CreateChannelFormFields({
           className="text-sm font-medium text-foreground"
           htmlFor="create-channel-name"
         >
-          Name
+          {t("channel.create.name_field")}
         </label>
         <div
           className={cn(
@@ -106,8 +108,10 @@ export function CreateChannelFormFields({
           className="text-sm font-medium text-foreground"
           htmlFor="create-channel-description"
         >
-          Description
-          <span className={CREATE_LABEL_OPTIONAL_CLASS}>Optional</span>
+          {t("channel.create.description_field")}
+          <span className={CREATE_LABEL_OPTIONAL_CLASS}>
+            {t("channel.create.optional")}
+          </span>
         </label>
         <div className={CHANNEL_FORM_FIELD_SHELL_CLASS}>
           <Textarea
@@ -238,7 +242,8 @@ export function CreateChannelFormFooter({
   form: CreateChannelFormState;
   submitLabel?: string;
 }) {
-  const { isCreating, kindLabel } = form;
+  const { isCreating, channelKind } = form;
+  const { t } = useTranslation();
 
   return (
     <div className="flex w-full items-center justify-end gap-3">
@@ -248,7 +253,12 @@ export function CreateChannelFormFooter({
         form={CREATE_CHANNEL_FORM_ID}
         type="submit"
       >
-        {isCreating ? "Creating..." : (submitLabel ?? `Create ${kindLabel}`)}
+        {isCreating
+          ? t("channel.create.creating")
+          : (submitLabel ??
+            (channelKind === "forum"
+              ? t("channel.create.submit_forum")
+              : t("channel.create.submit")))}
       </Button>
     </div>
   );

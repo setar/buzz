@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { usePreventSleepContext } from "@/features/agents/usePreventSleep";
 import { Switch } from "@/shared/ui/switch";
 import { SettingsOptionGroup, SettingsOptionRow } from "./SettingsOptionGroup";
@@ -8,6 +9,7 @@ import {
 import { SettingsSectionHeader } from "./SettingsSectionHeader";
 
 export function PreventSleepSettingsCard() {
+  const { t } = useTranslation();
   const { enabled, setEnabled, hasRunningAgents, expired, clearExpired } =
     usePreventSleepContext();
   const persistentAudience = usePersistentAgentAudience(null);
@@ -16,7 +18,7 @@ export function PreventSleepSettingsCard() {
     <section className="min-w-0" data-testid="settings-agents">
       <SettingsSectionHeader
         title="Agents"
-        description="Control how agents behave in conversations and run on this machine."
+        description={t("settings.agent_defaults_desc")}
       />
 
       <SettingsOptionGroup>

@@ -6,6 +6,7 @@ import {
   ChevronRight,
   RefreshCw,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useAppNavigation } from "@/app/navigation/useAppNavigation";
 import { PresenceDot } from "@/features/presence/ui/PresenceBadge";
@@ -55,9 +56,12 @@ export function ManagedAgentRow({
   onOpenProfile: (pubkey: string) => void;
   onSelectLogAgent: (pubkey: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const isLocal = agent.backend.type === "local";
   const runtimeSource =
-    agent.backend.type === "provider" ? `Remote (${agent.backend.id})` : null;
+    agent.backend.type === "provider"
+      ? t("agents.remote_provider", { id: agent.backend.id })
+      : null;
   const personaLabel = agent.personaId
     ? (personaLabelsById[agent.personaId] ?? null)
     : null;
@@ -77,12 +81,12 @@ export function ManagedAgentRow({
   const isWorking = activeWorkingChannels.length > 0;
   const processDetail =
     agent.pid !== null
-      ? `PID ${agent.pid}`
+      ? t("agents.process_pid", { pid: agent.pid })
       : agent.lastExitCode !== null
-        ? `Exit ${agent.lastExitCode}`
+        ? t("agents.process_exit", { code: agent.lastExitCode })
         : isLocal
-          ? "Ready to launch"
-          : "Managed remotely";
+          ? t("agents.ready_to_launch")
+          : t("agents.managed_remotely");
   // When the harness recovered a meaningful error string from the agent's
   // log tail (Max's seam in `managed_agents/storage.rs`), promote it to
   // user-visible copy below the process detail. Specifically renders the
@@ -165,7 +169,7 @@ export function ManagedAgentRow({
             type="button"
             variant="outline"
           >
-            Manage
+            {t("agents.manage")}
           </Button>
         </div>
       </div>
@@ -184,7 +188,7 @@ export function ManagedAgentRow({
           />
           <div className="mt-4 border-t border-border/50 pt-3">
             <p className="mb-2 text-xs font-medium text-muted-foreground">
-              Configuration
+              {t("agents.configuration")}
             </p>
             <AgentConfigPanel pubkey={agent.pubkey} />
           </div>
@@ -211,6 +215,7 @@ function AgentSummary({
   personaLabel: string | null;
   presenceStatus: PresenceStatus | undefined;
 }) {
+  const { t } = useTranslation();
   const { goChannel } = useAppNavigation();
   const { openAgentActivity } = useOpenAgentActivity();
 
@@ -241,18 +246,18 @@ function AgentSummary({
             {agent.personaOrphaned ? (
               <Badge className="gap-1" variant="warning">
                 <AlertTriangle className="h-3 w-3" />
-                Configuration missing
+                {t("agents.configuration_missing")}
               </Badge>
             ) : agent.needsRestart ? (
               <Badge className="gap-1" variant="warning">
                 <RefreshCw className="h-3 w-3" />
-                Restart required
+                {t("agents.restart_required")}
               </Badge>
             ) : null}
             {agent.personaOutOfDate ? (
               <Badge className="gap-1" variant="warning">
                 <AlertTriangle className="h-3 w-3" />
-                Out of date
+                {t("agents.out_of_date")}
               </Badge>
             ) : null}
           </div>
@@ -260,10 +265,12 @@ function AgentSummary({
             <PubKey pubkey={agent.pubkey} />
             {agent.backend.type === "local" ? (
               <span>
-                {agent.startOnAppLaunch ? "Auto-start" : "Manual start"}
+                {agent.startOnAppLaunch
+                  ? t("agents.auto_start")
+                  : t("agents.manual_start")}
               </span>
             ) : (
-              <span>Remote deployment</span>
+              <span>{t("agents.remote_deployment")}</span>
             )}
           </div>
           {agent.personaOrphaned ? (

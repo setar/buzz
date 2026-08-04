@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   FileCode2,
   GitBranch,
@@ -148,6 +149,7 @@ export function ProjectOverviewPanel({
   snapshot,
   sourceControls,
 }: ProjectOverviewPanelProps) {
+  const { t } = useTranslation();
   const languages = topLanguages(files);
   const people = projectPeople(project);
   const latestCommit = snapshot?.latestCommit ?? null;
@@ -175,7 +177,7 @@ export function ProjectOverviewPanel({
             </button>
           </div>
         </OverviewRailSection>
-        <OverviewRailSection title="Top Languages">
+        <OverviewRailSection title={t("projects.top_languages")}>
           {languages.length > 0 ? (
             <LanguageChips languages={languages} />
           ) : (

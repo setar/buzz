@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { isCatalogPersonaSelected } from "@/features/agents/lib/catalog";
 import { isCatalogPersona } from "@/features/agents/lib/personaCatalogRelay";
@@ -53,6 +54,7 @@ export function PersonaCatalogDialog({
   open,
   personas,
 }: PersonaCatalogDialogProps) {
+  const { t } = useTranslation();
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const [selectedPersonaId, setSelectedPersonaId] = React.useState<
     string | null
@@ -106,7 +108,7 @@ export function PersonaCatalogDialog({
         className="h-[42rem] max-w-4xl"
         contentClassName="flex min-h-0 min-w-0 flex-1 p-0"
         data-testid="persona-catalog-dialog"
-        description={personaCatalogCopy.dialogDescription}
+        description={personaCatalogCopy(t).dialogDescription}
         headerClassName="bg-sidebar pb-3 text-sidebar-foreground"
         headerTestId="persona-catalog-dialog-header"
         onOpenAutoFocus={(event) => {
@@ -117,7 +119,7 @@ export function PersonaCatalogDialog({
         scrollAreaClassName="flex min-h-0 overflow-hidden px-0"
         scrollAreaTestId="persona-catalog-dialog-body"
         tabIndex={-1}
-        title={personaCatalogCopy.dialogTitle}
+        title={personaCatalogCopy(t).dialogTitle}
       >
         <PersonaCatalogChooser
           error={error}
@@ -158,6 +160,7 @@ function PersonaCatalogChooser({
   selectedPersona,
   selectedPersonaId,
 }: PersonaCatalogChooserProps) {
+  const { t } = useTranslation();
   if (!isLoading && personas.length === 0 && !error) {
     return (
       <div
@@ -173,10 +176,10 @@ function PersonaCatalogChooser({
             src={agentOutlineUrl}
           />
           <p className="mt-4 text-sm font-semibold">
-            {personaCatalogCopy.emptyCatalogTitle}
+            {personaCatalogCopy(t).emptyCatalogTitle}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            {personaCatalogCopy.emptyCatalogDescription}
+            {personaCatalogCopy(t).emptyCatalogDescription}
           </p>
         </div>
       </div>
@@ -251,9 +254,13 @@ function PersonaCatalogChooser({
           <Button
             aria-label={
               selectedPersona && isSelectedPersonaActive
-                ? `${selectedPersona.displayName} is already in My Agents`
+                ? t("agents.already_in_my_agents", {
+                    name: selectedPersona.displayName,
+                  })
                 : selectedPersona
-                  ? `Add ${selectedPersona.displayName} from Agent Catalog`
+                  ? t("agents.add_from_catalog", {
+                      name: selectedPersona.displayName,
+                    })
                   : undefined
             }
             data-testid={
@@ -268,8 +275,8 @@ function PersonaCatalogChooser({
             type="button"
           >
             {isSelectedPersonaActive
-              ? personaCatalogCopy.addedAction
-              : personaCatalogCopy.useAction}
+              ? personaCatalogCopy(t).addedAction
+              : personaCatalogCopy(t).useAction}
           </Button>
         </div>
       </div>
@@ -278,22 +285,30 @@ function PersonaCatalogChooser({
 }
 
 /**
- * Derives the "Added by" label for a catalog entry from a resolved profile
- * summary. Prefers `displayName`, falls back to `name`, then to the default
- * "Community member" string when both are absent, null, or whitespace-only.
+ * Hook returning a resolver for the t("agents.added_by") label of a catalog entry from
+ * a resolved profile summary. Prefers `displayName`, falls back to `name`,
+ * then to the default t("agents.community_member") string when both are absent, null,
+ * or whitespace-only.
  */
-export function resolveCatalogOwnerLabel(
-  summary:
-    | { displayName?: string | null; name?: string | null }
-    | null
-    | undefined,
-): string {
+function useResolveCatalogOwnerLabel() {
+  const { t } = useTranslation();
   return (
-    summary?.displayName?.trim() || summary?.name?.trim() || "Community member"
-  );
+    summary:
+      | { displayName?: string | null; name?: string | null }
+      | null
+      | undefined,
+  ): string => {
+    return (
+      summary?.displayName?.trim() ||
+      summary?.name?.trim() ||
+      t("agents.community_member")
+    );
+  };
 }
 
 function PersonaCatalogDetail({ persona }: { persona: AgentPersona }) {
+  const { t } = useTranslation();
+  const resolveCatalogOwnerLabel = useResolveCatalogOwnerLabel();
   const isCommunityEntry =
     isCatalogPersona(persona) && !persona.catalogSource.isOwn;
   const ownerPubkey = isCommunityEntry
@@ -305,7 +320,7 @@ function PersonaCatalogDetail({ persona }: { persona: AgentPersona }) {
 
   let addedByLabel: string;
   if (!isCommunityEntry) {
-    addedByLabel = "You";
+    addedByLabel = t("agents.you");
   } else {
     const summary = ownerPubkey
       ? ownerBatchQuery.data?.profiles[ownerPubkey.toLowerCase()]
@@ -339,7 +354,7 @@ function PersonaCatalogDetail({ persona }: { persona: AgentPersona }) {
 
       <div className="min-w-0 max-w-full pt-3">
         <p className="text-base font-semibold text-foreground">
-          Agent instruction
+          {t("agents.agent_instruction")}
         </p>
         <Markdown
           className={agentInstructionMarkdownClassName}

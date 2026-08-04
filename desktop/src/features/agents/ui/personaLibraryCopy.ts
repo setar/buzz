@@ -1,64 +1,76 @@
-export const personaLibraryCopy = {
-  title: "My agents",
-  description:
-    "The agents you have chosen for this app. Use them to create teams and launch agents.",
-  chooseFromCatalog: "Choose from catalog",
-  createNew: "New agent",
-  import: "Import snapshot",
-  emptyTitle: "No agents yet",
-  emptyDescription:
-    "Choose one from Agent Catalog, create your own, or import one to get started.",
-  emptyImportHint:
-    "Or drop an .agent.json or .agent.png snapshot here to import.",
-} as const;
+export function personaLibraryCopy(
+  t: (key: string, opts?: Record<string, unknown>) => string,
+) {
+  return {
+    title: t("agents.my_agents"),
+    description: t("agents.my_agents_description"),
+    chooseFromCatalog: t("agents.choose_from_catalog"),
+    createNew: t("agents.new_agent"),
+    import: t("agents.import_snapshot"),
+    emptyTitle: t("agents.no_agents_yet"),
+    emptyDescription: t("agents.no_agents_description"),
+    emptyImportHint: t("agents.drop_snapshot_hint"),
+  } as const;
+}
 
-export const personaCatalogCopy = {
-  title: "Agent Catalog",
-  description: "Browse agents shared to this relay.",
-  dialogTitle: "Agent Catalog",
-  dialogDescription: "Browse agents shared to this relay.",
-  emptyTitle: "You're all set",
-  emptyDescription: "Everything in Agent Catalog is already in My Agents.",
-  emptyCatalogDescription: "Shared agents will appear here.",
-  emptyCatalogTitle: "No agents are being shared",
-  detailsAction: "View details",
-  selectAction: "Choose",
-  deselectAction: "Deselect",
-  selectedState: "Selected",
-  availableState: "Available",
-  detailSelectedTitle: "Selected for My Agents",
-  detailSelectedDescription:
-    "Turn this off to remove the agent from teams and agent creation in this app.",
-  detailAvailableTitle: "Available in Agent Catalog",
-  detailAvailableDescription:
-    "Turn this on to make the agent available for teams and agent creation.",
-  useAction: "Add agent",
-  addedAction: "Added to My Agents",
-  teamEmptyState:
-    "No agents in My Agents yet. Create one or choose one from Agent Catalog first.",
-} as const;
+export function personaCatalogCopy(
+  t: (key: string, opts?: Record<string, unknown>) => string,
+) {
+  return {
+    title: t("agents.agent_catalog"),
+    description: t("agents.agent_catalog_description"),
+    dialogTitle: t("agents.agent_catalog"),
+    dialogDescription: t("agents.agent_catalog_description"),
+    emptyTitle: t("agents.catalog_empty_title"),
+    emptyDescription: t("agents.catalog_empty_description"),
+    emptyCatalogDescription: t("agents.catalog_empty_catalog_description"),
+    emptyCatalogTitle: t("agents.catalog_empty_catalog_title"),
+    detailsAction: t("agents.view_details"),
+    selectAction: t("agents.choose"),
+    deselectAction: t("agents.deselect"),
+    selectedState: t("agents.selected"),
+    availableState: t("agents.available"),
+    detailSelectedTitle: t("agents.detail_selected_title"),
+    detailSelectedDescription: t("agents.detail_selected_description"),
+    detailAvailableTitle: t("agents.detail_available_title"),
+    detailAvailableDescription: t("agents.detail_available_description"),
+    useAction: t("agents.add_agent"),
+    addedAction: t("agents.added_to_my_agents"),
+    teamEmptyState: t("agents.team_empty_state"),
+  } as const;
+}
 
-export function getPersonaCatalogSelectionActionCopy(isActive: boolean) {
+export function getPersonaCatalogSelectionActionCopy(
+  t: (key: string, opts?: Record<string, unknown>) => string,
+  isActive: boolean,
+) {
   return isActive
-    ? personaCatalogCopy.deselectAction
-    : personaCatalogCopy.selectAction;
+    ? personaCatalogCopy(t).deselectAction
+    : personaCatalogCopy(t).selectAction;
 }
 
 export function getPersonaCatalogSelectionAriaLabel(
+  t: (key: string, opts?: Record<string, unknown>) => string,
   displayName: string,
   isActive: boolean,
 ) {
-  return `${isActive ? "Deselect" : "Select"} ${displayName} in My Agents`;
+  return t("agents.select_in_my_agents", {
+    action: isActive ? t("agents.deselect") : t("agents.choose"),
+    name: displayName,
+  });
 }
 
-export function getPersonaCatalogDetailSelectionCopy(isActive: boolean) {
+export function getPersonaCatalogDetailSelectionCopy(
+  t: (key: string, opts?: Record<string, unknown>) => string,
+  isActive: boolean,
+) {
   return isActive
     ? {
-        title: personaCatalogCopy.detailSelectedTitle,
-        description: personaCatalogCopy.detailSelectedDescription,
+        title: personaCatalogCopy(t).detailSelectedTitle,
+        description: personaCatalogCopy(t).detailSelectedDescription,
       }
     : {
-        title: personaCatalogCopy.detailAvailableTitle,
-        description: personaCatalogCopy.detailAvailableDescription,
+        title: personaCatalogCopy(t).detailAvailableTitle,
+        description: personaCatalogCopy(t).detailAvailableDescription,
       };
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { truncatePubkey } from "@/shared/lib/pubkey";
@@ -24,6 +25,7 @@ export function ConfirmRemoveDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const removeMutation = useRemoveRelayMemberMutation();
   const label = displayName || (member ? truncatePubkey(member.pubkey) : "");
 
@@ -68,14 +70,14 @@ export function ConfirmRemoveDialog({
               if (!member) return;
               removeMutation.mutate(member.pubkey, {
                 onSuccess: () => {
-                  toast.success("Member removed");
+                  toast.success(t("community_members.member_removed"));
                   handleOpenChange(false);
                 },
                 onError: (error) => {
                   toast.error(
                     error instanceof Error
                       ? error.message
-                      : "Failed to remove member",
+                      : t("community_members.failed_remove"),
                   );
                 },
               });

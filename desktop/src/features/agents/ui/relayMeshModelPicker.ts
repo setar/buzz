@@ -10,10 +10,11 @@ import {
 
 function withSharedComputeAutoOption(
   options: readonly PersonaModelOption[],
+  t: (key: string) => string,
 ): readonly PersonaModelOption[] {
   const modelOptions = options.filter((option) => option.id.trim() !== "");
   return [
-    { id: "", label: "Auto (collective when available)" },
+    { id: "", label: t("agents.auto_collective_when_available") },
     ...modelOptions,
   ];
 }
@@ -26,7 +27,9 @@ export function relayMeshModelPickerState({
   model,
   modelFieldVisible = true,
   provider,
+  t,
 }: {
+  t: (key: string) => string;
   discoveredOptions: readonly PersonaModelOption[] | null;
   fallbackOptions: readonly PersonaModelOption[];
   knownOptions?: readonly PersonaModelOption[];
@@ -38,7 +41,7 @@ export function relayMeshModelPickerState({
   const isRelayMesh = provider.trim() === "relay-mesh";
   const trimmedModel = model.trim();
   const options = isRelayMesh
-    ? withSharedComputeAutoOption(discoveredOptions ?? [])
+    ? withSharedComputeAutoOption(discoveredOptions ?? [], t)
     : (discoveredOptions ?? fallbackOptions);
   const isKnownModel = hasPersonaModelOption(knownOptions ?? options, model);
   const isCustom = !isRelayMesh && !isKnownModel;

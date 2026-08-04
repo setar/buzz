@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   useId,
   useMemo,
@@ -92,10 +93,11 @@ export function StyledQrCode({
   centerImageSrc,
   foregroundColor = "#000000",
   size = 240,
-  title = "QR code",
+  title,
   value,
   ...svgProps
 }: StyledQrCodeProps) {
+  const { t } = useTranslation();
   const clipId = `styled-qr-logo-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const matrix = useMemo(
     () => create(value, { errorCorrectionLevel: "M" }).modules,
@@ -154,7 +156,7 @@ export function StyledQrCode({
   return (
     <svg
       {...svgProps}
-      aria-label={title}
+      aria-label={title ?? t("shared.qr_code")}
       data-qr-matrix-size={matrix.size}
       height={size}
       role="img"
@@ -162,7 +164,7 @@ export function StyledQrCode({
       width={size}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <title>{title}</title>
+      <title>{title ?? t("shared.qr_code")}</title>
       <rect
         fill={backgroundColor}
         height={viewBoxSize}

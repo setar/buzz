@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Smile } from "lucide-react";
 
@@ -67,6 +68,7 @@ export function ProfilePopover({
   triggerContainerRef,
   communitySwitcherSlot,
 }: ProfilePopoverProps) {
+  const { t } = useTranslation();
   const [statusDialogOpen, setStatusDialogOpen] = React.useState(false);
   const [presenceMenuOpen, setPresenceMenuOpen] = React.useState(false);
   const hasUserStatus = Boolean(userStatusText || userStatusEmoji);
@@ -110,7 +112,7 @@ export function ProfilePopover({
             }
           }}
         >
-          <div aria-label="Profile menu" role="menu">
+          <div aria-label={t("profile.profile_menu")} role="menu">
             {/* ── Identity block ─────────────────────────────────── */}
             <div className="flex items-center gap-2 px-3 pt-2 pb-2">
               <MaskedAvatarBadgeFrame
@@ -172,7 +174,7 @@ export function ProfilePopover({
                     side="bottom"
                     sideOffset={4}
                   >
-                    <div aria-label="Presence status" role="menu">
+                    <div aria-label={t("profile.presence_status")} role="menu">
                       {ALL_STATUSES.map((status) => (
                         <button
                           className={MENU_ITEM_CLASS}

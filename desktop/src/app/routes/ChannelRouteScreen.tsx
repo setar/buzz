@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { getCachedSearchHitEvent } from "@/app/navigation/searchHitEventCache";
@@ -27,11 +28,14 @@ type ChannelRouteScreenProps = {
 
 const MAX_ROUTE_ANCESTOR_HOPS = 50;
 
-async function fetchRouteEvent(eventId: string): Promise<RelayEvent | null> {
+async function fetchRouteEvent(
+  eventId: string,
+  t: (key: string) => string,
+): Promise<RelayEvent | null> {
   try {
     return await getEventById(eventId);
   } catch (error) {
-    console.error("Failed to load route event", eventId, error);
+    console.error(t("shared.failed_load_route"), eventId, error);
     return null;
   }
 }
@@ -48,6 +52,7 @@ async function fetchRouteTargetEvents(
   eventIds: string[],
   targetMessageId: string | null,
   targetThreadRootId: string | null,
+  t: (key: string) => string,
 ): Promise<RelayEvent[]> {
   const eventsById = new Map<string, RelayEvent>();
   const addEvent = (event: RelayEvent | null) => {
@@ -57,7 +62,9 @@ async function fetchRouteTargetEvents(
   };
 
   const uniqueEventIds = [...new Set(eventIds)];
-  const initialEvents = await Promise.all(uniqueEventIds.map(fetchRouteEvent));
+  const initialEvents = await Promise.all(
+    uniqueEventIds.map((id) => fetchRouteEvent(id, t)),
+  );
   for (const event of initialEvents) {
     addEvent(event);
   }
@@ -72,7 +79,7 @@ async function fetchRouteTargetEvents(
   const targetThreadRef = getThreadReference(targetEvent.tags);
   const threadRootId = targetThreadRootId ?? targetThreadRef.rootId ?? null;
   if (threadRootId && !eventsById.has(threadRootId)) {
-    addEvent(await fetchRouteEvent(threadRootId));
+    addEvent(await fetchRouteEvent(threadRootId, t));
   }
 
   let parentId = getReplyParentId(targetEvent);
@@ -83,7 +90,7 @@ async function fetchRouteTargetEvents(
     guard < MAX_ROUTE_ANCESTOR_HOPS
   ) {
     const parentEvent =
-      eventsById.get(parentId) ?? (await fetchRouteEvent(parentId));
+      eventsById.get(parentId) ?? (await fetchRouteEvent(parentId, t));
     if (!parentEvent) {
       break;
     }
@@ -104,6 +111,7 @@ export function ChannelRouteScreen({
   targetReplyId,
   targetThreadRootId,
 }: ChannelRouteScreenProps) {
+  const { t } = useTranslation();
   const isHuddleTranscript = huddleWindowChannelId() !== null;
   const { closeForumPost, goForumPost } = useAppNavigation();
   const channelsQuery = useChannelsQuery();
@@ -171,6 +179,7 @@ export function ChannelRouteScreen({
       eventIds,
       targetMessageId,
       targetThreadRootId,
+      t,
     ).then((events) => {
       if (!isCancelled) {
         setTargetMessageEvents((currentEvents) => {
@@ -186,7 +195,7 @@ export function ChannelRouteScreen({
     return () => {
       isCancelled = true;
     };
-  }, [selectedPostId, targetMessageId, targetThreadRootId]);
+  }, [selectedPostId, targetMessageId, targetThreadRootId, t]);
 
   if (channelsQuery.isPending && !activeChannel) {
     if (isHuddleTranscript) {

@@ -23,10 +23,14 @@ import {
  */
 export const ADD_CUSTOM_HARNESS_VALUE = "\u0000add-custom-harness";
 
-export const ADD_CUSTOM_HARNESS_OPTION: PersonaDropdownOption = {
-  label: "Add custom harness…",
-  value: ADD_CUSTOM_HARNESS_VALUE,
-};
+export function makeAddCustomHarnessOption(
+  t: (key: string) => string,
+): PersonaDropdownOption {
+  return {
+    label: t("agents.add_custom_harness"),
+    value: ADD_CUSTOM_HARNESS_VALUE,
+  };
+}
 
 export type RuntimeDropdownAction =
   | { kind: "add-custom-harness" }

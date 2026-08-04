@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 
@@ -16,6 +17,7 @@ export function AddChannelBotGenericSection({
   onNameChange,
   onPromptChange,
 }: AddChannelBotGenericSectionProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-5 rounded-2xl border border-border/70 bg-card/70 p-4">
       <div>
@@ -52,7 +54,7 @@ export function AddChannelBotGenericSection({
           disabled={disabled}
           id="channel-generic-prompt"
           onChange={(event) => onPromptChange(event.target.value)}
-          placeholder="What should this agent help with in the channel?"
+          placeholder={t("channel.agent_help_question")}
           value={prompt}
         />
         <p className="text-xs text-muted-foreground">

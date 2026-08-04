@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { AgentPersona } from "@/shared/api/types";
 import {
   AlertDialog,
@@ -21,27 +22,26 @@ type PersonaDeleteDialogProps = {
 };
 
 /**
- * Confirmation copy for deleting a persona. Pure so the cascade archival
- * disclosure stays unit-testable without a renderer: whenever instances are
- * cascade-deleted, each one's identity is also archived on the relay
- * (NIP-IA), and that durable side effect must be disclosed before the
+ * Confirmation copy for deleting a persona, exposed as a hook so the cascade
+ * archival disclosure stays unit-testable without a renderer: whenever
+ * instances are cascade-deleted, each one's identity is also archived on the
+ * relay (NIP-IA), and that durable side effect must be disclosed before the
  * destructive confirm — matching the direct agent-delete dialog.
  */
-export function personaDeleteDescription(
-  persona: AgentPersona | null,
-  instanceCount: number,
-): string {
-  if (!persona) {
-    return "Delete this agent.";
-  }
-  if (instanceCount === 0) {
-    return `Delete ${persona.displayName}.`;
-  }
-  const cascade =
-    instanceCount === 1
-      ? "Also deletes 1 agent instance and archives its identity on the relay, so it no longer appears in member lists or mention suggestions."
-      : `Also deletes ${instanceCount} agent instances and archives their identities on the relay, so they no longer appear in member lists or mention suggestions.`;
-  return `Delete ${persona.displayName}. ${cascade}`;
+function usePersonaDeleteDescription() {
+  const { t } = useTranslation();
+  return (persona: AgentPersona | null, instanceCount: number): string => {
+    if (!persona) {
+      return t("agents.delete_this_agent");
+    }
+    if (instanceCount === 0) {
+      return t("agents.delete_named_agent", { name: persona.displayName });
+    }
+    const cascade = t("agents.delete_cascade", { count: instanceCount });
+    return `${t("agents.delete_named_agent", {
+      name: persona.displayName,
+    })} ${cascade}`;
+  };
 }
 
 export function PersonaDeleteDialog({
@@ -51,19 +51,21 @@ export function PersonaDeleteDialog({
   onConfirm,
   onOpenChange,
 }: PersonaDeleteDialogProps) {
+  const { t } = useTranslation();
+  const deleteDescription = usePersonaDeleteDescription();
   return (
     <AlertDialog onOpenChange={onOpenChange} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete agent?</AlertDialogTitle>
+          <AlertDialogTitle>{t("agents.delete_agent_title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {personaDeleteDescription(persona, instanceCount)}
+            {deleteDescription(persona, instanceCount)}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t("common.cancel")}
             </Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
@@ -76,7 +78,7 @@ export function PersonaDeleteDialog({
               type="button"
               variant="destructive"
             >
-              Delete
+              {t("common.delete")}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

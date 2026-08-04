@@ -29,7 +29,7 @@ const LIFECYCLE_NOISE = new Set([
 /** Human-readable headline for a single transcript item. */
 export function getActivityHeadline(item: TranscriptItem): string | null {
   if (item.type === "tool") {
-    const summary = buildCompactToolSummary(item);
+    const summary = buildCompactToolSummary(item, (key) => key);
     return [summary.label, summary.preview].filter(Boolean).join(" · ");
   }
 

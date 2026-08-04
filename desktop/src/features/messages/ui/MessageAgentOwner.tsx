@@ -1,4 +1,5 @@
 import { Bot } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { UserProfilePopover } from "@/features/profile/ui/UserProfilePopover";
 
@@ -9,13 +10,16 @@ export function MessageAgentOwner({
   ownerLabel?: string | null;
   ownerPubkey?: string | null;
 }) {
+  const { t } = useTranslation();
   return (
     <span
       className="inline-flex min-w-0 max-w-56 items-baseline gap-1 text-xs leading-4 text-muted-foreground/65"
       data-testid="message-agent-owner"
     >
       <span className="sr-only">
-        {ownerLabel ? "Agent managed by" : "Agent; owner unavailable"}
+        {ownerLabel
+          ? t("messages.agent_managed_by")
+          : "Agent; owner unavailable"}
       </span>
       {ownerPubkey && ownerLabel ? (
         <>

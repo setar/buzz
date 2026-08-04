@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -74,30 +75,34 @@ import { Button } from "@/shared/ui/button";
 import { PageHeader } from "@/shared/ui/PageHeader";
 
 const MANY_PROJECTS_THRESHOLD = 12;
-const REPOSITORY_SCOPE_OPTIONS: Array<{
-  label: string;
-  value: ProjectsRepositoryScope;
-}> = [
-  { label: "All", value: "all" },
-  { label: "My Repositories", value: "mine" },
-  { label: "Local", value: "local" },
-];
-const PULL_REQUEST_SCOPE_OPTIONS: Array<{
-  label: string;
-  value: ProjectsWorkItemScope;
-}> = [
-  { label: "All", value: "all" },
-  { label: "My Pull Requests", value: "mine" },
-];
-const ISSUE_SCOPE_OPTIONS: Array<{
-  label: string;
-  value: ProjectsWorkItemScope;
-}> = [
-  { label: "All", value: "all" },
-  { label: "My Issues", value: "mine" },
-];
+function buildRepositoryScopeOptions(
+  t: (key: string) => string,
+): Array<{ label: string; value: ProjectsRepositoryScope }> {
+  return [
+    { label: t("projects.all"), value: "all" },
+    { label: t("projects.my_repositories"), value: "mine" },
+    { label: t("projects.local"), value: "local" },
+  ];
+}
+function buildPullRequestScopeOptions(
+  t: (key: string) => string,
+): Array<{ label: string; value: ProjectsWorkItemScope }> {
+  return [
+    { label: t("projects.all"), value: "all" },
+    { label: t("projects.my_pull_requests"), value: "mine" },
+  ];
+}
+function buildIssueScopeOptions(
+  t: (key: string) => string,
+): Array<{ label: string; value: ProjectsWorkItemScope }> {
+  return [
+    { label: t("projects.all"), value: "all" },
+    { label: t("projects.my_issues"), value: "mine" },
+  ];
+}
 
 export function ProjectsView() {
+  const { t } = useTranslation();
   const { goProject } = useAppNavigation();
   const { activeCommunity } = useCommunities();
   const scrollIdleTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
@@ -418,14 +423,16 @@ export function ProjectsView() {
     async (project: Project) => {
       try {
         await deleteProjectMutation.mutateAsync(project);
-        toast.success("Project deleted");
+        toast.success(t("projects.project_deleted"));
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to delete project",
+          error instanceof Error
+            ? error.message
+            : t("projects.failed_delete_project"),
         );
       }
     },
-    [deleteProjectMutation],
+    [deleteProjectMutation, t],
   );
 
   if (projectsQuery.isLoading) {
@@ -517,8 +524,8 @@ export function ProjectsView() {
           }
           value={sort}
         >
-          <option value="updated">Recent activity</option>
-          <option value="created">Created date</option>
+          <option value="updated">{t("projects.recent_activity")}</option>
+          <option value="created">{t("projects.created_date")}</option>
           <option value="name">Name</option>
         </select>
       </label>
@@ -574,8 +581,8 @@ export function ProjectsView() {
   const projectsHeader = (
     <PageHeader
       className="pointer-events-auto mb-8"
-      description="Set up and manage your projects."
-      title="Projects"
+      description={t("projects.projects_description")}
+      title={t("projects.projects")}
     />
   );
 
@@ -677,23 +684,23 @@ export function ProjectsView() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     {filter === "prs" ? (
                       <ProjectsListScopeDropdown
-                        label="Filter pull requests"
+                        label={t("projects.filter_prs")}
                         onChange={handlePullRequestScopeChange}
-                        options={PULL_REQUEST_SCOPE_OPTIONS}
+                        options={buildPullRequestScopeOptions(t)}
                         value={pullRequestScope}
                       />
                     ) : filter === "issues" ? (
                       <ProjectsListScopeDropdown
-                        label="Filter issues"
+                        label={t("projects.filter_issues")}
                         onChange={handleIssueScopeChange}
-                        options={ISSUE_SCOPE_OPTIONS}
+                        options={buildIssueScopeOptions(t)}
                         value={issueScope}
                       />
                     ) : (
                       <ProjectsListScopeDropdown
-                        label="Filter repositories"
+                        label={t("projects.filter_repos")}
                         onChange={handleRepositoryScopeChange}
-                        options={REPOSITORY_SCOPE_OPTIONS}
+                        options={buildRepositoryScopeOptions(t)}
                         value={repositoryScope}
                       />
                     )}

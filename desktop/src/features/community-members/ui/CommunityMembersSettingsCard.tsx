@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Crown, MoreHorizontal, Search, Shield } from "lucide-react";
 import { nip19 } from "nostr-tools";
 import * as React from "react";
@@ -30,7 +31,11 @@ import {
 import { VirtualizedList } from "@/shared/ui/VirtualizedList";
 import { CommunityInviteDialog } from "./CommunityInviteDialog";
 
-function formatDisplayName(member: RelayMember, displayName?: string | null) {
+function formatDisplayName(
+  member: RelayMember,
+  displayName: string | null | undefined,
+  t: (key: string) => string,
+) {
   const trimmedDisplayName = displayName?.trim();
   if (
     trimmedDisplayName &&
@@ -38,7 +43,9 @@ function formatDisplayName(member: RelayMember, displayName?: string | null) {
   ) {
     return trimmedDisplayName;
   }
-  return member.role === "owner" ? "Community owner" : "Unnamed member";
+  return member.role === "owner"
+    ? t("community_members.owner")
+    : t("community_members.unnamed");
 }
 
 function npubFromPubkey(pubkey: string): string | null {
@@ -94,6 +101,7 @@ function RelayMemberRow({
   profile?: UserProfileSummary;
   member: RelayMember;
 }) {
+  const { t } = useTranslation();
   const removeMutation = useRemoveRelayMemberMutation();
   const changeRoleMutation = useChangeRelayMemberRoleMutation();
   const isSelf = currentPubkey
@@ -107,7 +115,7 @@ function RelayMemberRow({
   const canPromote = currentRole === "owner" && member.role === "member";
   const canDemote = currentRole === "owner" && member.role === "admin";
   const hasActions = canRemove || canPromote || canDemote;
-  const displayName = formatDisplayName(member, profile?.displayName);
+  const displayName = formatDisplayName(member, profile?.displayName, t);
 
   async function mutateWithToast(
     action: () => Promise<unknown>,
@@ -194,7 +202,7 @@ function RelayMemberRow({
                         pubkey: member.pubkey,
                         role: "admin",
                       }),
-                    "Made community admin",
+                    t("community_members.made_admin"),
                   )
                 }
               >
@@ -210,7 +218,7 @@ function RelayMemberRow({
                         pubkey: member.pubkey,
                         role: "member",
                       }),
-                    "Made community member",
+                    t("community_members.made_member"),
                   )
                 }
               >
@@ -226,7 +234,7 @@ function RelayMemberRow({
                 onClick={() =>
                   void mutateWithToast(
                     () => removeMutation.mutateAsync(member.pubkey),
-                    "Removed community member",
+                    t("community_members.removed_member"),
                   )
                 }
               >
@@ -245,6 +253,7 @@ export function CommunityMembersSettingsCard({
 }: {
   currentPubkey?: string;
 }) {
+  const { t } = useTranslation();
   const myMembershipQuery = useMyRelayMembershipLookupQuery();
   const currentRole = myMembershipQuery.data?.membership?.role ?? null;
   const canManageRelay = currentRole === "owner" || currentRole === "admin";
@@ -308,7 +317,7 @@ export function CommunityMembersSettingsCard({
           </Button>
         }
         title="Invites"
-        description="Manage members and community access."
+        description={t("community_members.manage_desc")}
       />
 
       <div className="overflow-hidden rounded-2xl border border-border/70 bg-background/70 shadow-xs">
@@ -332,7 +341,7 @@ export function CommunityMembersSettingsCard({
               className="w-full rounded-lg border border-border/70 bg-background py-2 pl-9 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
               data-testid="community-members-search"
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search members"
+              placeholder={t("search.search_members")}
               spellCheck={false}
               type="text"
               value={search}

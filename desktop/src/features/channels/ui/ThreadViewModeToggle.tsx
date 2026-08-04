@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Columns2, PanelRightOpen } from "lucide-react";
 
 import {
@@ -24,20 +25,22 @@ export function shouldRestoreThreadToggleFocus(clickDetail: number): boolean {
  * The latter preserves the thread's spatial origin without implying browser
  * fullscreen or a separate app window.
  */
-const THREAD_VIEW_MODE_TOGGLE = {
-  focus: {
-    // Viewing the drawer → offer the pane.
-    icon: Columns2,
-    label: "Show thread beside channel",
-    target: "split",
-  },
-  split: {
-    // Viewing the pane → offer the drawer.
-    icon: PanelRightOpen,
-    label: "Expand thread",
-    target: "focus",
-  },
-} as const;
+function buildThreadViewModeToggle(t: (key: string) => string) {
+  return {
+    focus: {
+      // Viewing the drawer → offer the pane.
+      icon: Columns2,
+      label: t("channel.show_thread_beside"),
+      target: "split",
+    },
+    split: {
+      // Viewing the pane → offer the drawer.
+      icon: PanelRightOpen,
+      label: t("channel.expand_thread"),
+      target: "focus",
+    },
+  } as const;
+}
 
 /**
  * Switches an open thread between the focus drawer and the split pane.
@@ -57,8 +60,9 @@ export function ThreadViewModeToggle({
 }: {
   onChange: (mode: ThreadViewMode, restoreFocus: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const viewMode = useThreadViewMode();
-  const { icon: Icon, label, target } = THREAD_VIEW_MODE_TOGGLE[viewMode];
+  const { icon: Icon, label, target } = buildThreadViewModeToggle(t)[viewMode];
 
   return (
     <Tooltip disableHoverableContent>

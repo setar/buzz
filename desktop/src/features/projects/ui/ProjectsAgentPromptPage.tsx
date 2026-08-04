@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { EditorContent } from "@tiptap/react";
 import {
   ALargeSmall,
@@ -74,52 +75,59 @@ type ProjectAgentConversation = {
 };
 
 const MAX_CONTEXT_REPOS = 8;
-const REPO_CONTEXT_MARKER = "Workspace repositories:";
 
 /** Compact machine-readable footer so the agent can scope git queries
  * (repo announcements are addressable by these coordinates). Only sent
  * with the first message of a conversation. */
-function repoContextBlock(projects: readonly Project[]) {
+function repoContextBlock(
+  projects: readonly Project[],
+  t: (key: string) => string,
+) {
   if (projects.length === 0) return "";
   const listed = projects
     .slice(0, MAX_CONTEXT_REPOS)
     .map((project) => `- ${project.name} (${project.repoAddress})`);
   const remaining = projects.length - listed.length;
-  return ["", "---", REPO_CONTEXT_MARKER, ...listed]
+  return ["", "---", t("projects.workspace_repositories"), ...listed]
     .concat(remaining > 0 ? [`…and ${remaining} more`] : [])
     .join("\n");
 }
 
 /** Hides the machine-readable repo footer when rendering the user's own
  * prompt back in the inline conversation. */
-function stripRepoContext(content: string) {
-  const markerIndex = content.indexOf(`---\n${REPO_CONTEXT_MARKER}`);
+function stripRepoContext(content: string, t: (key: string) => string) {
+  const markerIndex = content.indexOf(
+    `---\n${t("projects.workspace_repositories")}`,
+  );
   if (markerIndex === -1) return content;
   return content.slice(0, markerIndex).replace(/\n+$/, "");
 }
 
-function buildSuggestions(projects: readonly Project[]) {
+function buildSuggestions(
+  projects: readonly Project[],
+  t: (key: string, opts?: Record<string, unknown>) => string,
+) {
   const firstRepo = projects[0]?.name;
   return [
     {
-      label: "PR review",
-      prompt: "Which pull requests need attention today?",
+      label: t("projects.pr_review"),
+      prompt: t("projects.prompt_pr_attention"),
     },
     {
-      label: "Release check",
+      label: t("projects.release_check"),
       prompt: firstRepo
-        ? `Are we safe to cut a release of ${firstRepo} this week?`
-        : "Are we safe to cut a release this week?",
+        ? t("projects.prompt_release_cut_named", { repo: firstRepo })
+        : t("projects.prompt_release_cut"),
     },
     {
-      label: "Issues",
-      prompt: "Summarize the open issues and flag anything urgent.",
+      label: t("projects.issues"),
+      prompt: t("projects.prompt_summarize_issues"),
     },
     {
-      label: "Activity",
+      label: t("projects.activity"),
       prompt: firstRepo
-        ? `Summarize recent activity in ${firstRepo}.`
-        : "Summarize recent repository activity.",
+        ? t("projects.prompt_summarize_activity_named", { repo: firstRepo })
+        : t("projects.prompt_summarize_activity"),
     },
   ];
 }
@@ -191,6 +199,7 @@ function ConversationThread({
   selfAvatarUrl: string | null;
   visibleAfter: number;
 }) {
+  const { t } = useTranslation();
   useChannelSubscription(channel);
   const messagesQuery = useChannelMessagesQuery(channel);
   const agentWorking = useAgentWorking(agent.pubkey, channel.id);
@@ -231,7 +240,7 @@ function ConversationThread({
               <Markdown
                 className="text-base text-foreground"
                 content={
-                  isSelf ? stripRepoContext(event.content) : event.content
+                  isSelf ? stripRepoContext(event.content, t) : event.content
                 }
               />
             </div>
@@ -261,6 +270,7 @@ export function ProjectsAgentPromptPage({
   onClose: () => void;
   workspaceId: string | null;
 }) {
+  const { t } = useTranslation();
   const [prompt, setPrompt] = React.useState("");
   const [storedConversation, setStoredConversation] =
     React.useState<StoredProjectsAgentConversation | null>(() =>
@@ -333,7 +343,7 @@ export function ProjectsAgentPromptPage({
     onUpdate: ({ text }) => setPrompt(text),
     placeholder: conversation
       ? `Reply to ${conversation.agent.name}…`
-      : "Are we safe to release this week?",
+      : t("projects.prompt_release_week"),
   });
   const linkEditor = useLinkEditor(richText);
   onEditLinkRef.current = linkEditor.openFromClick;
@@ -347,8 +357,8 @@ export function ProjectsAgentPromptPage({
   }, [richText.editor, richText.focusPreserve]);
 
   const suggestions = React.useMemo(
-    () => buildSuggestions(projects),
-    [projects],
+    () => buildSuggestions(projects, t),
+    [projects, t],
   );
   const canSubmit = Boolean(prompt.trim() && selectedAgent && !isSending);
 
@@ -374,7 +384,7 @@ export function ProjectsAgentPromptPage({
       // Repo context rides only on the conversation opener.
       const content = conversation
         ? trimmed
-        : `${trimmed}${repoContextBlock(projects)}`;
+        : `${trimmed}${repoContextBlock(projects, t)}`;
       await sendChannelMessage(channel.id, content, undefined, undefined, [
         selectedAgent.pubkey,
       ]);
@@ -397,7 +407,9 @@ export function ProjectsAgentPromptPage({
       richText.clearContent();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to reach the agent",
+        error instanceof Error
+          ? error.message
+          : t("projects.failed_reach_agent"),
       );
     } finally {
       setIsSending(false);
@@ -412,6 +424,7 @@ export function ProjectsAgentPromptPage({
     selectedAgent,
     startAgentMutation,
     workspaceId,
+    t,
   ]);
   submitPromptRef.current = () => {
     void handleSubmit();
@@ -444,7 +457,7 @@ export function ProjectsAgentPromptPage({
         <div className="flex items-center justify-between gap-2 pt-2">
           <div className="flex min-w-0 items-center gap-1">
             <Button
-              aria-label="Toggle formatting"
+              aria-label={t("projects.toggle_formatting")}
               aria-pressed={isFormattingOpen}
               className="h-7 w-7 shrink-0 px-0"
               disabled={isSending}
@@ -485,7 +498,7 @@ export function ProjectsAgentPromptPage({
                       />
                     ) : null}
                     <span className="min-w-0 truncate">
-                      {selectedAgent?.name ?? "No agents available"}
+                      {selectedAgent?.name ?? t("projects.no_agents_available")}
                     </span>
                     {candidates.length > 0 && conversation === null ? (
                       <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />

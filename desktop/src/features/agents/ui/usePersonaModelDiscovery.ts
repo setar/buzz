@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { discoverAgentModels } from "@/shared/api/agentModels";
 import type {
@@ -39,6 +40,7 @@ function isHarnessDefaultModelEntry(model: { id: string }) {
 export function getDiscoveredPersonaModelOptions(
   response: AgentModelsResponse | null,
   provider: string,
+  t?: (key: string, opts?: Record<string, unknown>) => string,
 ): readonly PersonaModelOption[] | null {
   if (!response?.supportsSwitching || response.models.length === 0) {
     return null;
@@ -62,10 +64,18 @@ export function getDiscoveredPersonaModelOptions(
             id: "",
             label:
               provider === "relay-mesh"
-                ? "Default (auto)"
+                ? t
+                  ? t("agents.default_auto")
+                  : "Default (auto)"
                 : agentDefaultModel
-                  ? `Default model (${agentDefaultModel})`
-                  : "Default model",
+                  ? t
+                    ? t("agents.default_model_with_name", {
+                        model: agentDefaultModel,
+                      })
+                    : `Default model (${agentDefaultModel})`
+                  : t
+                    ? t("agents.default_model")
+                    : "Default model",
           },
         ];
 
@@ -91,13 +101,17 @@ export function getDiscoveredPersonaModelOptions(
 export function synthesizeEmptyDiscoveryStatus(
   response: AgentModelsResponse,
   provider: string,
+  t?: (key: string, opts?: Record<string, unknown>) => string,
 ): PersonaModelDiscoveryStatus | null {
-  if (getDiscoveredPersonaModelOptions(response, provider) !== null) {
+  if (getDiscoveredPersonaModelOptions(response, provider, t) !== null) {
     return null;
   }
-  const agentLabel = response.agentName.trim() || "This agent";
+  const agentLabel =
+    response.agentName.trim() || (t ? t("agents.this_agent") : "This agent");
   return {
-    message: `${agentLabel} reported no models. Check that the CLI is installed and signed in, then reopen this screen.`,
+    message: t
+      ? t("agents.discovery_no_models_reported", { agent: agentLabel })
+      : `${agentLabel} reported no models. Check that the CLI is installed and signed in, then reopen this screen.`,
     tone: "warning",
   };
 }
@@ -176,6 +190,7 @@ export function usePersonaModelDiscovery({
   provider: string;
   selectedRuntime: AcpRuntimeCatalogEntry | undefined;
 }) {
+  const { t } = useTranslation();
   const [modelDiscoveryData, setModelDiscoveryData] =
     React.useState<AgentModelsResponse | null>(null);
   const [modelDiscoveryDataKey, setModelDiscoveryDataKey] = React.useState<
@@ -254,6 +269,7 @@ export function usePersonaModelDiscovery({
             new Error(`Runtime not available: ${selectedRuntimeAvailability}`),
             trimmedProvider,
             selectedRuntimeLabel,
+            t,
           ),
         );
         setModelDiscoveryStatusKey(null);
@@ -274,7 +290,7 @@ export function usePersonaModelDiscovery({
       setModelDiscoveryData(cached);
       setModelDiscoveryDataKey(activeModelDiscoveryKey);
       setModelDiscoveryStatus(
-        synthesizeEmptyDiscoveryStatus(cached, trimmedProvider),
+        synthesizeEmptyDiscoveryStatus(cached, trimmedProvider, t),
       );
       setModelDiscoveryStatusKey(activeModelDiscoveryKey);
       setModelDiscoveryLoading(false);
@@ -311,7 +327,7 @@ export function usePersonaModelDiscovery({
           setModelDiscoveryData(response);
           setModelDiscoveryDataKey(activeModelDiscoveryKey);
           setModelDiscoveryStatus(
-            synthesizeEmptyDiscoveryStatus(response, trimmedProvider),
+            synthesizeEmptyDiscoveryStatus(response, trimmedProvider, t),
           );
           setModelDiscoveryStatusKey(activeModelDiscoveryKey);
         })
@@ -326,6 +342,7 @@ export function usePersonaModelDiscovery({
               error,
               trimmedProvider,
               selectedRuntimeLabel,
+              t,
             ),
           );
           setModelDiscoveryStatusKey(activeModelDiscoveryKey);
@@ -364,6 +381,7 @@ export function usePersonaModelDiscovery({
     selectedRuntimeLabel,
     shouldDebounceModelDiscovery,
     trimmedProvider,
+    t,
   ]);
 
   const activeModelDiscoveryData =
@@ -381,8 +399,9 @@ export function usePersonaModelDiscovery({
       getDiscoveredPersonaModelOptions(
         activeModelDiscoveryData,
         trimmedProvider,
+        t,
       ),
-    [activeModelDiscoveryData, trimmedProvider],
+    [activeModelDiscoveryData, trimmedProvider, t],
   );
   const modelDiscoveryPending = deriveModelDiscoveryPending({
     modelDiscoveryLoading,

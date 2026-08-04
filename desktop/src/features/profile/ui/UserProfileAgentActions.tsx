@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import {
   Archive,
@@ -53,6 +54,7 @@ export function UserProfileAgentSettingsMenu({
   onToggleAutoStart?: () => void;
   personaActionKey?: string;
 }) {
+  const { t } = useTranslation();
   const [archiveConfirmOpen, setArchiveConfirmOpen] = React.useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
   const actionKey = managedAgent?.pubkey ?? "persona-draft";
@@ -76,15 +78,19 @@ export function UserProfileAgentSettingsMenu({
     return null;
   }
 
-  const archiveLabel = isBot ? "Archive agent" : "Archive identity";
-  const unarchiveLabel = isBot ? "Unarchive agent" : "Unarchive identity";
+  const archiveLabel = isBot
+    ? t("profile.archive_agent")
+    : t("profile.archive_identity");
+  const unarchiveLabel = isBot
+    ? t("profile.unarchive_agent")
+    : t("profile.unarchive_identity");
 
   return (
     <>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
-            aria-label="Open profile settings"
+            aria-label={t("profile.open_profile_settings")}
             data-testid="user-profile-settings-menu-trigger"
             size="icon"
             type="button"
@@ -304,6 +310,7 @@ function AgentDeleteConfirmDialog({
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }) {
+  const { t } = useTranslation();
   const isProviderAgent = agent.backend.type === "provider";
 
   return (
@@ -325,7 +332,7 @@ function AgentDeleteConfirmDialog({
           <li>
             {isProviderAgent
               ? "Requests remote deletion; if it is online, Buzz first sends a shutdown command when possible. If the deployment cannot be reached through a channel, the remote process may keep running without local management."
-              : "Stops any local agent process before deleting the record"}
+              : t("profile.stops_agent_hint")}
           </li>
         </ul>
         <p className="text-sm text-muted-foreground">
@@ -344,7 +351,7 @@ function AgentDeleteConfirmDialog({
             disabled={isPending}
             onClick={onConfirm}
           >
-            {isPending ? "Deleting..." : "Delete agent"}
+            {isPending ? "Deleting..." : t("profile.delete_agent")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {
@@ -64,6 +65,7 @@ function relayHost(url: string | null | undefined) {
 }
 
 export function HostedCommunitiesSettingsCard() {
+  const { t } = useTranslation();
   const onboarding = useCommunityOnboarding();
   const { activeCommunity } = useCommunities();
   const localPubkey = useIdentityQuery().data?.pubkey ?? null;
@@ -95,7 +97,7 @@ export function HostedCommunitiesSettingsCard() {
         errorMessage(
           identityResponse.error,
           identityResponse.correlation_id,
-          "Could not load the connected Buzz identity.",
+          t("settings.could_not_load_identity"),
         ),
       );
     }
@@ -104,13 +106,13 @@ export function HostedCommunitiesSettingsCard() {
         errorMessage(
           communitiesResponse.error,
           communitiesResponse.correlation_id,
-          "Could not load communities.",
+          t("settings.could_not_load_communities"),
         ),
       );
     }
     setIdentity(identityResponse.identity ?? null);
     setCommunities(communitiesResponse.communities ?? []);
-  }, []);
+  }, [t]);
 
   React.useEffect(() => {
     let active = true;
@@ -174,7 +176,7 @@ export function HostedCommunitiesSettingsCard() {
           errorMessage(
             response.error,
             response.correlation_id,
-            "Could not connect the Buzz identity.",
+            t("settings.could_not_connect_identity"),
           ),
         );
       }
@@ -192,7 +194,7 @@ export function HostedCommunitiesSettingsCard() {
           errorMessage(
             response.error,
             response.correlation_id,
-            "Could not unpair the Buzz identity.",
+            t("settings.could_not_unpair"),
           ),
         );
       }
@@ -230,7 +232,7 @@ export function HostedCommunitiesSettingsCard() {
           errorMessage(
             released.error,
             released.correlation_id,
-            "Could not release the previously connected Buzz identity.",
+            t("settings.could_not_release_identity"),
           ),
         );
       }
@@ -243,11 +245,11 @@ export function HostedCommunitiesSettingsCard() {
         await loadAccount();
         throw new Error(
           bound.error.code === "pubkey_already_bound"
-            ? "This device's Buzz identity is already reserved by another Builderlab account, so it can't be connected here. Sign in with that account, or transfer the identity there first."
+            ? t("settings.identity_reserved")
             : errorMessage(
                 bound.error,
                 bound.correlation_id,
-                "Could not connect this device's Buzz identity.",
+                t("settings.could_not_connect_device_identity"),
               ),
         );
       }
@@ -269,7 +271,7 @@ export function HostedCommunitiesSettingsCard() {
           errorMessage(
             response.error,
             response.correlation_id,
-            "Could not archive the community.",
+            t("settings.could_not_archive"),
           ),
         );
       }
@@ -289,7 +291,7 @@ export function HostedCommunitiesSettingsCard() {
           errorMessage(
             response.error,
             response.correlation_id,
-            "Could not unarchive the community.",
+            t("settings.could_not_unarchive"),
           ),
         );
       }
@@ -308,7 +310,7 @@ export function HostedCommunitiesSettingsCard() {
           errorMessage(
             response.error,
             response.correlation_id,
-            "Could not transfer ownership.",
+            t("settings.could_not_transfer"),
           ),
         );
       }
@@ -374,7 +376,7 @@ export function HostedCommunitiesSettingsCard() {
           errorMessage(
             availabilityResponse.error,
             availabilityResponse.correlation_id,
-            "That Buzz address is already taken.",
+            t("settings.address_taken"),
           ),
         );
       }
@@ -387,13 +389,12 @@ export function HostedCommunitiesSettingsCard() {
           errorMessage(
             response.error,
             response.correlation_id,
-            "Could not create the community.",
+            t("settings.could_not_create_community"),
           ),
         );
       }
       const url = relayUrl(response.community);
-      if (!url)
-        throw new Error("The new community did not return a relay address.");
+      if (!url) throw new Error(t("settings.no_relay_address"));
       setName("");
       setAvailability(null);
       await loadAccount();
@@ -404,9 +405,7 @@ export function HostedCommunitiesSettingsCard() {
           communityName: response.community.name ?? normalizedName,
         })
       ) {
-        throw new Error(
-          "Another community is already being connected. Finish it before connecting this one.",
-        );
+        throw new Error(t("settings.community_connect_busy"));
       }
     });
   };
@@ -417,7 +416,7 @@ export function HostedCommunitiesSettingsCard() {
   return (
     <section className="space-y-6" data-testid="hosted-communities-settings">
       <SettingsSectionHeader
-        title="Hosted communities"
+        title={t("settings.hosted_communities")}
         description="Buzz works with any relay. This page is only for relay hosting provided by Block — sign in with a Builderlab account to create and manage Block-hosted communities. Builderlab sign-in is used on this page alone."
       />
 
@@ -449,7 +448,7 @@ export function HostedCommunitiesSettingsCard() {
             ) : (
               <ExternalLink className="h-4 w-4" />
             )}
-            {action ?? "Sign in with Builderlab"}
+            {action ?? t("settings.sign_in_builderlab")}
           </Button>
         </div>
       ) : (
@@ -457,7 +456,7 @@ export function HostedCommunitiesSettingsCard() {
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 p-4">
             <div>
               <p className="text-sm font-medium">
-                {auth.name || auth.email || "Builderlab account"}
+                {auth.name || auth.email || t("settings.builderlab_account")}
               </p>
               {auth.name && auth.email ? (
                 <p className="text-xs text-muted-foreground">{auth.email}</p>
@@ -492,7 +491,7 @@ export function HostedCommunitiesSettingsCard() {
                 {action ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
-                {action ?? "Connect Buzz identity"}
+                {action ?? t("settings.connect_identity")}
               </Button>
             </div>
           ) : identityMismatch ? (
@@ -531,7 +530,7 @@ export function HostedCommunitiesSettingsCard() {
                 {action ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
-                {action ?? "Switch to this device's identity"}
+                {action ?? t("settings.switch_to_device_identity")}
               </Button>
             </div>
           ) : (
@@ -626,7 +625,7 @@ export function HostedCommunitiesSettingsCard() {
             ) : null}
             <div className="flex max-w-xl items-center gap-2">
               <Input
-                aria-label="Community address"
+                aria-label={t("settings.community_address")}
                 autoComplete="off"
                 disabled={
                   !identity || identityMismatch || busy || atCommunityLimit
@@ -676,7 +675,7 @@ export function HostedCommunitiesSettingsCard() {
               {action ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : null}
-              {action ?? "Create and connect"}
+              {action ?? t("settings.create_and_connect")}
             </Button>
           </form>
         </>
@@ -746,12 +745,14 @@ function CommunityRow({
   onTransfer: (npub: string) => Promise<boolean>;
   showIconPicker: boolean;
 }) {
+  const { t } = useTranslation();
   const [confirmArchive, setConfirmArchive] = React.useState(false);
   const [confirmUnarchive, setConfirmUnarchive] = React.useState(false);
   const [transferOpen, setTransferOpen] = React.useState(false);
   const url = relayUrl(community);
   const archived = Boolean(community.archived_at);
-  const displayName = community.name ?? community.slug ?? "Hosted community";
+  const displayName =
+    community.name ?? community.slug ?? t("settings.hosted_community");
 
   return (
     <li
@@ -881,6 +882,7 @@ function TransferOwnershipDialog({
   busy: boolean;
   onTransfer: (npub: string) => Promise<boolean>;
 }) {
+  const { t } = useTranslation();
   const [npub, setNpub] = React.useState("");
   const npubIsValid = npub.startsWith("npub1") && npub.length >= 50;
 
@@ -907,7 +909,7 @@ function TransferOwnershipDialog({
         </DialogHeader>
         <div className="space-y-2">
           <Input
-            aria-label="Recipient npub"
+            aria-label={t("settings.recipient_npub")}
             autoComplete="off"
             className="font-mono text-sm"
             placeholder="npub1…"

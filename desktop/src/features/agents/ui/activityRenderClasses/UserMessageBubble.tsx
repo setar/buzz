@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   resolveUserLabel,
@@ -29,6 +30,7 @@ export function UserMessageBubble({
   item: Extract<TranscriptItem, { type: "message" }>;
   profiles?: UserProfileLookup;
 }) {
+  const { t } = useTranslation();
   const variant = useAgentSessionTranscriptVariant();
   const { goChannel } = useAppNavigation();
   const { openProfilePanel } = useProfilePanel();
@@ -50,7 +52,7 @@ export function UserMessageBubble({
         fallbackName: item.title,
         profiles,
       })
-    : item.title || "User";
+    : item.title || t("agents.user");
   const handleBubbleClick = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       if (!messageLink || isNestedInteractiveTarget(event)) return;

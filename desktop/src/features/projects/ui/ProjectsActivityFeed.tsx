@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   resolveUserLabel,
   type UserProfileLookup,
@@ -82,10 +83,11 @@ function buildActivityItems({
   projects,
   pullRequests,
   snapshots,
+  t,
 }: Pick<
   ProjectsActivityFeedProps,
   "issues" | "projects" | "pullRequests" | "snapshots"
->) {
+> & { t: (key: string) => string }) {
   const items: ProjectActivityItem[] = [];
 
   for (const project of projects) {
@@ -189,9 +191,9 @@ function buildActivityItems({
         body: contentPreview(comment.content),
         detail:
           kind === "approval"
-            ? "Approved"
+            ? t("projects.approved")
             : kind === "changes-requested"
-              ? "Changes requested"
+              ? t("projects.changes_requested")
               : null,
         target,
       });
@@ -370,7 +372,8 @@ function ActivityCard({
 
 /** Mixed GitHub-style workspace activity shown beneath the overview callouts. */
 export function ProjectsActivityFeed(props: ProjectsActivityFeedProps) {
-  const items = buildActivityItems(props);
+  const { t } = useTranslation();
+  const items = buildActivityItems({ ...props, t });
 
   if (props.isLoading && items.length === 0) {
     return (

@@ -1,5 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   useAvailableAcpRuntimes,
@@ -51,6 +52,7 @@ export function AddTeamToChannelDialog({
   onOpenChange,
   onDeployed,
 }: AddTeamToChannelDialogProps) {
+  const { t } = useTranslation();
   const { globalConfig } = useGlobalAgentConfig();
   const channelsQuery = useChannelsQuery();
   const providersQuery = useAvailableAcpRuntimes();
@@ -167,7 +169,7 @@ export function AddTeamToChannelDialog({
       <DialogContent className="max-w-xl overflow-hidden p-0">
         <div className="flex max-h-[85vh] flex-col">
           <DialogHeader className="shrink-0 border-b border-border/60 px-6 py-5 pr-14">
-            <DialogTitle>Deploy team to channel</DialogTitle>
+            <DialogTitle>{t("agents.deploy_team_to_channel")}</DialogTitle>
             <DialogDescription>
               Create and attach one agent per member of{" "}
               <strong>{team?.name ?? "this team"}</strong> to the selected
@@ -213,7 +215,7 @@ export function AddTeamToChannelDialog({
                 value={channelId}
               >
                 {channels.length === 0 ? (
-                  <option value="">No channels available</option>
+                  <option value="">{t("channel.no_channels")}</option>
                 ) : null}
                 {channels.map((channel) => (
                   <option key={channel.id} value={channel.id}>
@@ -312,7 +314,7 @@ export function AddTeamToChannelDialog({
               type="button"
             >
               {deployMutation.isPending
-                ? "Deploying..."
+                ? t("agents.deploying")
                 : `Deploy ${resolved.length} ${resolved.length === 1 ? "agent" : "agents"}`}
             </Button>
           </div>

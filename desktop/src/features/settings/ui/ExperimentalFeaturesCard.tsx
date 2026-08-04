@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { setAgentManagedProfiles } from "@/shared/api/tauri";
 import { desktopFeatures, useFeatureToggle } from "@/shared/features";
 import type { FeatureDefinition } from "@/shared/features";
@@ -5,6 +6,7 @@ import { Switch } from "@/shared/ui/switch";
 import { SettingsSectionHeader } from "./SettingsSectionHeader";
 
 function FeatureRow({ feature }: { feature: FeatureDefinition }) {
+  const { t } = useTranslation();
   const [enabled, toggle] = useFeatureToggle(feature.id);
   const switchId = `feature-toggle-${feature.id}`;
 
@@ -24,10 +26,7 @@ function FeatureRow({ feature }: { feature: FeatureDefinition }) {
           toggle(value);
           if (feature.id === "agentManagedProfiles") {
             void setAgentManagedProfiles(value).catch((error) => {
-              console.error(
-                "Failed to apply agent-managed profiles setting:",
-                error,
-              );
+              console.error(t("settings.failed_apply_profiles"), error);
             });
           }
         }}

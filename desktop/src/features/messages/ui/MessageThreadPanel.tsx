@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ArrowDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useKnownAgentPubkeys } from "@/features/agents/useKnownAgentPubkeys";
 import { HuddleTranscriptIntro } from "@/features/huddle/components/HuddleTranscriptIntro";
@@ -238,6 +239,7 @@ export function MessageThreadPanel({
   autoSendDraftKey = null,
   onAutoSubmitComplete,
 }: MessageThreadPanelProps) {
+  const { t } = useTranslation();
   const threadBodyRef = React.useRef<HTMLDivElement>(null);
   const threadContentRef = React.useRef<HTMLDivElement>(null);
   const threadComposerWrapperRef = React.useRef<HTMLDivElement>(null);
@@ -453,8 +455,8 @@ export function MessageThreadPanel({
               depth: ancestor.message.depth,
               label:
                 ancestor.message.id === threadHead.id
-                  ? "Collapse thread"
-                  : "Collapse replies",
+                  ? t("messages.collapse_thread")
+                  : t("messages.collapse_replies"),
               message: ancestor.message,
             }))
           : undefined;
@@ -494,6 +496,7 @@ export function MessageThreadPanel({
     hoveredCollapseBranchId,
     isHuddleTranscript,
     threadHead,
+    t,
   ]);
 
   const {
@@ -710,7 +713,9 @@ export function MessageThreadPanel({
                       <MessageRow
                         channelId={channelId}
                         collapseDepthGuideActions={collapseDepthGuideActions}
-                        collapseDescendantsLabel="Collapse replies"
+                        collapseDescendantsLabel={t(
+                          "messages.collapse_replies",
+                        )}
                         connectDescendants={
                           shouldShowThreadBranchGuides && connectsToVisibleChild
                         }
@@ -813,7 +818,7 @@ export function MessageThreadPanel({
             )
           ) : repliesRenderState === "empty" && !isHuddleTranscript ? (
             // Only show the empty state when the thread is GENUINELY empty.
-            // Keying off `deferredThreadReplies` would flash "No replies" for a
+            // Keying off `deferredThreadReplies` would flash t("messages.no_replies") for a
             // frame while a non-empty list streams in on the deferred commit.
             <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 px-4 py-6 text-center">
               <p className="text-sm font-medium text-foreground/80">
@@ -847,7 +852,7 @@ export function MessageThreadPanel({
             <ArrowDown aria-hidden />
             {newMessageCount > 0
               ? `${newMessageCount} new message${newMessageCount === 1 ? "" : "s"}`
-              : "Jump to latest"}
+              : t("messages.jump_to_latest")}
           </Button>
         </div>
       ) : null}
@@ -940,7 +945,7 @@ export function MessageThreadPanel({
   const threadHeaderContent = (
     <>
       <AuxiliaryPanelHeaderGroup
-        backButtonAriaLabel="Back to conversation"
+        backButtonAriaLabel={t("messages.back_to_conversation")}
         backButtonTestId="message-thread-back"
         // A focus drawer only sets `isSinglePanelView` to fill its container's
         // width — it isn't the narrow single-column view, and it has the scrimmed

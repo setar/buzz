@@ -8,10 +8,6 @@
  * JSX in the component.
  */
 
-/** Curly quotes, so the caption matches the typography used elsewhere in chat. */
-const OPEN_QUOTE = "“";
-const CLOSE_QUOTE = "”";
-
 export type ChannelTextField = "topic" | "purpose";
 
 /**
@@ -31,12 +27,13 @@ export type ChannelTextField = "topic" | "purpose";
 export function describeChannelTextFieldChange(
   field: ChannelTextField,
   value: string | null | undefined,
+  t: (key: string, opts?: Record<string, string>) => string,
 ): string {
   const trimmed = value?.trim();
   if (!trimmed) {
-    return `cleared the ${field}`;
+    return t("messages.cleared_field", { field });
   }
-  return `changed the ${field} to ${OPEN_QUOTE}${trimmed}${CLOSE_QUOTE}`;
+  return t("messages.changed_field_to", { field, value: trimmed });
 }
 
 /**
@@ -54,6 +51,10 @@ export function describeChannelTextFieldChange(
  * Every name that isn't the reader's own is a proper noun and is returned
  * untouched.
  */
-export function toInlineName(label: string, isSelf: boolean): string {
-  return isSelf ? "you" : label;
+export function toInlineName(
+  label: string,
+  isSelf: boolean,
+  t: (key: string) => string,
+): string {
+  return isSelf ? t("messages.you_inline") : label;
 }

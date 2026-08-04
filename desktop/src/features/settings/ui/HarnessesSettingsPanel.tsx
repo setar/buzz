@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { ExternalLink, Plus, RefreshCw } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
@@ -22,6 +23,7 @@ function GitBashCard({
     ReturnType<typeof useGitBashPrerequisiteQuery>["data"]
   >;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -47,7 +49,9 @@ function GitBashCard({
                   : "bg-amber-500/15 text-amber-600 dark:text-amber-400",
               )}
             >
-              {prerequisite.available ? "Available" : "Action needed"}
+              {prerequisite.available
+                ? "Available"
+                : t("settings.action_needed")}
             </span>
           </div>
           {!prerequisite.available ? (
@@ -72,9 +76,9 @@ function GitBashCard({
 }
 
 /**
- * Consolidated "Agent runtimes" surface for Settings → Agents.
+ * Consolidated t("settings.agent_runtimes") surface for Settings → Agents.
  *
- * Replaces the old "Agent runtimes" (DoctorSettingsPanel) + "Bring your own
+ * Replaces the old t("settings.agent_runtimes") (DoctorSettingsPanel) + "Bring your own
  * harness" (HarnessManagementCard) pair with one operational area:
  *
  * - **Your runtimes** — stable rows for ready (or one-click-ready) runtimes
@@ -84,10 +88,11 @@ function GitBashCard({
  *   needs multi-step setup, plus the custom-harness form.
  */
 export function HarnessesSettingsPanel() {
+  const { t } = useTranslation();
   const runtimesQuery = useAcpRuntimesQuery();
   const gitBashQuery = useGitBashPrerequisiteQuery();
   const [catalogOpen, setCatalogOpen] = React.useState(false);
-  // Incremented each time the user clicks "Check again" so HarnessRow
+  // Incremented each time the user clicks t("settings.check_again") so HarnessRow
   // useEffect clears stale install results from before the refresh.
   const [resetEpoch, setResetEpoch] = React.useState(0);
 
@@ -113,8 +118,8 @@ export function HarnessesSettingsPanel() {
     <section className="min-w-0 space-y-4" data-testid="settings-harnesses">
       <SectionHeader
         className="items-center"
-        title="Agent runtimes"
-        description="Choose which agent tools Buzz can use on this device."
+        title={t("settings.agent_runtimes")}
+        description={t("settings.agent_tools_desc")}
         action={
           <Button
             disabled={isRefreshing}
@@ -150,7 +155,7 @@ export function HarnessesSettingsPanel() {
           </section>
         ) : null}
 
-        <section aria-label="Your runtimes">
+        <section aria-label={t("settings.your_runtimes")}>
           {/* The sub-header only earns its keep when another section (System
               prerequisites, Windows-only) shares the page; otherwise it just
               restates the page header. */}

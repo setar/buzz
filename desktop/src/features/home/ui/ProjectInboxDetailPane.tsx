@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import * as React from "react";
 
@@ -37,6 +38,7 @@ export function ProjectInboxDetailPane({
   profiles,
   workItem,
 }: ProjectInboxDetailPaneProps) {
+  const { t } = useTranslation();
   const { activeCommunity } = useCommunities();
   const [detailContentRef, detailContentWidth] =
     useElementWidth<HTMLDivElement>();
@@ -59,7 +61,7 @@ export function ProjectInboxDetailPane({
       targetBranch: string;
     }) => {
       if (workItem.type !== "pull-request") {
-        throw new Error("Merge recovery is only available for pull requests.");
+        throw new Error(t("home.merge_recovery_pr_only"));
       }
       const targetCloneUrl = workItem.project.cloneUrls[0];
       if (!targetCloneUrl) {
@@ -72,7 +74,7 @@ export function ProjectInboxDetailPane({
         targetCloneUrl,
       });
     },
-    [activeCommunity?.reposDir, workItem],
+    [activeCommunity?.reposDir, workItem, t],
   );
 
   return (
@@ -86,7 +88,7 @@ export function ProjectInboxDetailPane({
             <div className="flex min-w-0 items-center gap-1">
               {isSinglePanelView && onBack ? (
                 <Button
-                  aria-label="Back to Inbox"
+                  aria-label={t("home.back_to_inbox")}
                   onClick={onBack}
                   size="icon"
                   type="button"
@@ -110,16 +112,16 @@ export function ProjectInboxDetailPane({
               </h2>
             </div>
             <Button
-              aria-label="Open project"
+              aria-label={t("home.open_project")}
               className="shrink-0"
               onClick={onOpenProject}
               size={showSideRail ? "sm" : "icon"}
-              title="Open project"
+              title={t("home.open_project")}
               type="button"
               variant="ghost"
             >
               <ExternalLink className="h-4 w-4" />
-              {showSideRail ? "Open project" : null}
+              {showSideRail ? t("home.open_project") : null}
             </Button>
           </div>
         </div>

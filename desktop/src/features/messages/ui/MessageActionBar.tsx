@@ -11,9 +11,11 @@ import {
   MailOpen,
   Pencil,
   SmilePlus,
+  Star,
   Trash2,
 } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { buildMessageLink } from "@/features/messages/lib/messageLink";
 import { EmojiPicker } from "@/features/custom-emoji/ui/EmojiPicker";
@@ -26,7 +28,11 @@ import type {
   TimelineReaction,
 } from "@/features/messages/types";
 import {
+  isReactionEmojiPinned,
+  pinReactionEmoji,
   recordQuickReactionEmoji,
+  unpinReactionEmoji,
+  usePinnedReactionEmojis,
   useQuickReactionEmojis,
 } from "@/features/messages/ui/useQuickReactionEmojis";
 import { reactionEmojiUrl } from "@/shared/api/customEmoji";
@@ -66,7 +72,7 @@ function MoreActionsMenu({
   isFollowingThread,
   isUnread,
 }: {
-  /** Channel UUID for the "Copy link" action. When null/undefined, the
+  /** Channel UUID for the t("messages.copy_link") action. When null/undefined, the
    *  Copy link entry is hidden (e.g. inbox preview rows that don't have it). */
   channelId?: string | null;
   message: TimelineMessage;
@@ -84,7 +90,8 @@ function MoreActionsMenu({
 }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = React.useState(false);
-  // Set true the moment the user picks "Edit message". The
+  const { t } = useTranslation();
+  // Set true the moment the user picks t("messages.edit_message"). The
   // `onCloseAutoFocus` handler on `DropdownMenuContent` reads it to
   // suppress Radix's default focus-restoration (which would yank focus
   // back to the trigger and steal it from the composer's editor — the
@@ -112,7 +119,7 @@ function MoreActionsMenu({
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <Button
-                aria-label="More actions"
+                aria-label={t("messages.more_actions")}
                 className={ACTION_BUTTON_CLASS}
                 data-testid={`more-actions-${message.id}`}
                 size="sm"
@@ -123,7 +130,7 @@ function MoreActionsMenu({
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent>More actions</TooltipContent>
+          <TooltipContent>{t("messages.more_actions")}</TooltipContent>
         </Tooltip>
         <DropdownMenuContent
           align="end"
@@ -165,7 +172,7 @@ function MoreActionsMenu({
               ) : (
                 <MailOpen className="h-4 w-4" />
               )}
-              {isUnread ? "Mark read" : "Mark unread"}
+              {isUnread ? t("messages.mark_read") : t("messages.mark_unread")}
             </DropdownMenuItem>
           ) : null}
 
@@ -184,17 +191,16 @@ function MoreActionsMenu({
               ) : (
                 <BellRing className="h-4 w-4" />
               )}
-              {isFollowingThread ? "Unfollow thread" : "Follow thread"}
+              {isFollowingThread
+                ? t("messages.unfollow_thread")
+                : t("messages.follow_thread")}
             </DropdownMenuItem>
           ) : null}
 
           {hasCopyActions ? (
             <DropdownMenuItem
               onClick={() => {
-                copyTextToClipboard(
-                  message.body,
-                  "Message copied to clipboard",
-                );
+                copyTextToClipboard(message.body, t("messages.copied"));
               }}
             >
               <Copy className="h-4 w-4" />
@@ -223,7 +229,7 @@ function MoreActionsMenu({
                   messageId: message.id,
                   threadRootId: rootId,
                 });
-                copyTextToClipboard(link, "Link copied to clipboard");
+                copyTextToClipboard(link, t("messages.link_copied"));
               }}
             >
               <Link2 className="h-4 w-4" />
@@ -290,41 +296,144 @@ function MoreActionsMenu({
 function QuickReactionButton({
   customEmojiUrl,
   emoji,
+  isPinned,
+  onPin,
   onSelect,
 }: {
   customEmojiUrl?: string;
   emoji: string;
+  isPinned: boolean;
+  onPin: (emoji: string) => void;
   onSelect: (emoji: string) => void;
 }) {
   const displayName = emojiDisplayName(emoji);
   const mediaUrl = customEmojiUrl ? rewriteRelayUrl(customEmojiUrl) : null;
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          aria-label={`React with ${displayName}`}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-base leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
-          onClick={() => onSelect(emoji)}
-          title={displayName}
-          type="button"
-        >
-          {mediaUrl ? (
-            <img
-              alt={emoji}
-              className="h-5 w-5 object-contain"
-              draggable={false}
-              src={mediaUrl}
-            />
-          ) : (
-            <span aria-hidden="true" className="translate-y-px">
-              {emoji}
-            </span>
-          )}
-        </button>
-      </TooltipTrigger>
-      <TooltipContent>{displayName}</TooltipContent>
-    </Tooltip>
+    <div className="group/qr relative">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            aria-label={`React with ${displayName}`}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-base leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+            onClick={() => onSelect(emoji)}
+            title={displayName}
+            type="button"
+          >
+            {mediaUrl ? (
+              <img
+                alt={emoji}
+                className="h-5 w-5 object-contain"
+                draggable={false}
+                src={mediaUrl}
+              />
+            ) : (
+              <span aria-hidden="true" className="translate-y-px">
+                {emoji}
+              </span>
+            )}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{displayName}</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            aria-label={
+              isPinned ? `Unpin ${displayName}` : `Pin ${displayName}`
+            }
+            className={cn(
+              "absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border border-border bg-background text-muted-foreground opacity-0 transition-opacity group-hover/qr:opacity-100 focus-visible:opacity-100 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring",
+              isPinned && "opacity-100 text-amber-400",
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              onPin(emoji);
+            }}
+            type="button"
+          >
+            <Star className={cn("h-2 w-2", isPinned && "fill-amber-400")} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>
+          {isPinned ? "Unpin from quick reactions" : "Pin to quick reactions"}
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
+
+function PinnedEmojiManageStrip({
+  onSelectPinned,
+}: {
+  onSelectPinned: (emoji: string) => void;
+}) {
+  const pinned = usePinnedReactionEmojis();
+  const [isAdding, setIsAdding] = React.useState(false);
+
+  if (pinned.length === 0 && !isAdding) {
+    return (
+      <div className="flex items-center gap-2 border-b border-border/50 px-3 py-2">
+        <Star className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+        <span className="text-xs text-muted-foreground">
+          No pinned reactions.{" "}
+          <button
+            className="text-foreground underline-offset-2 hover:underline focus-visible:outline-hidden"
+            onClick={() => setIsAdding(true)}
+            type="button"
+          >
+            Add one
+          </button>
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-1 border-b border-border/50 px-2 py-1.5">
+      <Star className="mr-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+      {pinned.map((emoji) => (
+        <div key={emoji} className="group/pin relative">
+          <button
+            aria-label={`React with pinned ${emojiDisplayName(emoji)}`}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-sm transition-colors hover:bg-muted"
+            onClick={() => onSelectPinned(emoji)}
+            type="button"
+          >
+            {emoji}
+          </button>
+          <button
+            aria-label={`Unpin ${emojiDisplayName(emoji)}`}
+            className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full border border-border bg-background text-muted-foreground opacity-0 transition-opacity group-hover/pin:opacity-100 focus-visible:opacity-100"
+            onClick={() => unpinReactionEmoji(emoji)}
+            type="button"
+          >
+            <span className="text-[9px] leading-none">×</span>
+          </button>
+        </div>
+      ))}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            aria-label="Add pinned reaction"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+            onClick={() => setIsAdding(true)}
+            type="button"
+          >
+            <SmilePlus className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>Add to pinned reactions</TooltipContent>
+      </Tooltip>
+      {isAdding ? (
+        <EmojiPicker
+          onSelect={(emoji) => {
+            pinReactionEmoji(emoji);
+            setIsAdding(false);
+          }}
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -350,7 +459,7 @@ export const MessageActionBar = React.memo(function MessageActionBar({
   isFollowingThread,
   isUnread,
 }: {
-  /** Channel UUID — required for the "Copy link" action; when omitted the
+  /** Channel UUID — required for the t("messages.copy_link") action; when omitted the
    *  action is hidden (callers like the home inbox that lack the context). */
   channelId?: string | null;
   message: TimelineMessage;
@@ -373,6 +482,7 @@ export const MessageActionBar = React.memo(function MessageActionBar({
 }) {
   const [isReactionPickerOpen, setIsReactionPickerOpen] = React.useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const { t } = useTranslation();
   const customEmoji = useCustomEmoji();
   const quickReactionEmojis = useQuickReactionEmojis(4, customEmoji);
   const quickReactionItems = React.useMemo(
@@ -457,7 +567,15 @@ export const MessageActionBar = React.memo(function MessageActionBar({
                   <QuickReactionButton
                     customEmojiUrl={customEmojiUrl}
                     emoji={emoji}
+                    isPinned={isReactionEmojiPinned(emoji)}
                     key={emoji}
+                    onPin={(e) => {
+                      if (isReactionEmojiPinned(e)) {
+                        unpinReactionEmoji(e);
+                      } else {
+                        pinReactionEmoji(e);
+                      }
+                    }}
                     onSelect={handleReactionSelection}
                   />
                 ))}
@@ -475,7 +593,7 @@ export const MessageActionBar = React.memo(function MessageActionBar({
                 <TooltipTrigger asChild>
                   <PopoverTrigger asChild>
                     <Button
-                      aria-label="Open reactions"
+                      aria-label={t("messages.open_reactions")}
                       className={ACTION_BUTTON_CLASS}
                       data-testid={`react-message-${message.id}`}
                       size="sm"
@@ -486,11 +604,11 @@ export const MessageActionBar = React.memo(function MessageActionBar({
                     </Button>
                   </PopoverTrigger>
                 </TooltipTrigger>
-                <TooltipContent>React</TooltipContent>
+                <TooltipContent>{t("messages.react")}</TooltipContent>
               </Tooltip>
               <PopoverContent
                 align="end"
-                className="w-auto p-0 rounded-2xl overflow-hidden border-0 bg-transparent shadow-none"
+                className="w-auto p-0 rounded-2xl overflow-hidden border border-border bg-background shadow-md"
                 side="top"
                 sideOffset={10}
               >
@@ -501,6 +619,11 @@ export const MessageActionBar = React.memo(function MessageActionBar({
                     </p>
                   </div>
                 ) : null}
+                <PinnedEmojiManageStrip
+                  onSelectPinned={(value) => {
+                    handleReactionSelection(value, true);
+                  }}
+                />
                 <EmojiPicker
                   autoFocus
                   onSelect={(value) => {
@@ -517,7 +640,7 @@ export const MessageActionBar = React.memo(function MessageActionBar({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  aria-label="Reply"
+                  aria-label={t("messages.reply")}
                   className={ACTION_BUTTON_CLASS}
                   data-testid={`reply-message-${message.id}`}
                   onClick={() => {
@@ -530,7 +653,7 @@ export const MessageActionBar = React.memo(function MessageActionBar({
                   <CornerUpLeft className={ACTION_ICON_CLASS} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Reply</TooltipContent>
+              <TooltipContent>{t("messages.reply")}</TooltipContent>
             </Tooltip>
           ) : null}
 

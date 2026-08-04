@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ChevronDown, ClockFading, Hash } from "lucide-react";
 import * as React from "react";
 
@@ -20,7 +21,7 @@ export function ChannelTypePicker({
   onTemporaryChange,
   open,
   temporary,
-  temporaryOptionAriaLabel = "Temporary channel",
+  temporaryOptionAriaLabel,
   testId,
 }: {
   align?: React.ComponentProps<typeof DropdownMenuContent>["align"];
@@ -34,6 +35,7 @@ export function ChannelTypePicker({
   temporaryOptionAriaLabel?: string;
   testId?: string;
 }) {
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = React.useState(false);
   const pickerOpen = open ?? internalOpen;
   const setPickerOpen = onOpenChange ?? setInternalOpen;
@@ -75,11 +77,16 @@ export function ChannelTypePicker({
           onValueChange={selectType}
           value={temporary ? "temporary" : "ongoing"}
         >
-          <DropdownMenuRadioItem aria-label="Ongoing channel" value="ongoing">
+          <DropdownMenuRadioItem
+            aria-label={t("channel.ongoing_channel")}
+            value="ongoing"
+          >
             Ongoing
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem
-            aria-label={temporaryOptionAriaLabel}
+            aria-label={
+              temporaryOptionAriaLabel ?? t("channel.temporary_channel")
+            }
             value="temporary"
           >
             Temporary

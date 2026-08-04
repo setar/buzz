@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/shared/ui/badge";
 import type { ManagedAgent, PresenceStatus } from "@/shared/api/types";
@@ -17,6 +18,7 @@ export function AgentStatusBadge({
   presenceStatus: PresenceStatus | undefined;
   status: ManagedAgent["status"];
 }) {
+  const { t } = useTranslation();
   const [inGracePeriod, setInGracePeriod] = React.useState(true);
 
   React.useEffect(() => {
@@ -40,9 +42,9 @@ export function AgentStatusBadge({
         : "secondary";
 
   const label = isWorking
-    ? "Working"
+    ? t("agents.working")
     : isStarting
-      ? "Starting\u2026"
+      ? t("agents.starting")
       : status.replace(/_/g, " ");
 
   return (

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/shared/ui/button";
@@ -25,6 +26,7 @@ export function WorkflowWebhookHeadersEditor({
   onChange,
   stepId,
 }: WorkflowWebhookHeadersEditorProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -72,7 +74,7 @@ export function WorkflowWebhookHeadersEditor({
                     ),
                   )
                 }
-                placeholder="Header name"
+                placeholder={t("workflows.header_name")}
                 value={header.key}
               />
               <Input
@@ -89,11 +91,11 @@ export function WorkflowWebhookHeadersEditor({
                     ),
                   )
                 }
-                placeholder="Header value"
+                placeholder={t("workflows.header_value")}
                 value={header.value}
               />
               <Button
-                aria-label="Remove header"
+                aria-label={t("workflows.remove_header")}
                 className="h-9 w-9 shrink-0"
                 disabled={disabled}
                 onClick={() =>

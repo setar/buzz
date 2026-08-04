@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 import type {
   AcpRuntimeCatalogEntry,
@@ -87,7 +88,7 @@ import { buildRuntimeModelProviderPayload } from "./agentDefinitionSubmitPayload
 import { AgentDefinitionDialogFooter } from "./AgentDefinitionDialogFooter";
 import { AddCustomHarnessDialog } from "./AddCustomHarnessDialog";
 import {
-  ADD_CUSTOM_HARNESS_OPTION,
+  makeAddCustomHarnessOption,
   runtimeDropdownAction,
   usePendingHarnessSelection,
 } from "./addCustomHarness";
@@ -109,7 +110,7 @@ type AgentDefinitionDialogProps = {
   ) => Promise<unknown>;
   /** Publishes saved changes when the edited agent is shared in the catalog. */
   publishCatalogUpdatesOnSave?: boolean;
-  /** Rendered below the form fields in create mode only ("Where to run"). */
+  /** Rendered below the form fields in create mode only (t("agents.where_to_run")). */
   createRunSection?: React.ReactNode;
   /** Extra create-mode submit gate (e.g. incomplete provider config). */
   createSubmitBlocked?: boolean;
@@ -135,6 +136,7 @@ export function AgentDefinitionDialog({
   createRunSection,
   createSubmitBlocked = false,
 }: AgentDefinitionDialogProps) {
+  const { t } = useTranslation();
   const runtimesLoading = runtimeCatalogStatus === "loading";
   const [displayName, setDisplayName] = React.useState("");
   const [aiDefaultsOpen, setAiDefaultsOpen] = React.useState(false);
@@ -163,7 +165,7 @@ export function AgentDefinitionDialog({
   // canonical runtime is null — the sync would revert it anyway.
   const isRuntimeAutoSeededRef = React.useRef(false);
   // Guards the seeding effect so it fires at most once per dialog-open.
-  // Without this, clearing runtime back to "" via "No preference" would re-
+  // Without this, clearing runtime back to "" via t("agents.no_preference") would re-
   // trigger the effect (the `runtime` dep would pass the length guard) and
   // snap the dropdown back to the default — an edit-mode regression.
   const hasSeededForOpenRef = React.useRef(false);
@@ -530,8 +532,12 @@ export function AgentDefinitionDialog({
       : "",
     selectedRuntime,
   });
-  const staticModelOptions = getPersonaModelOptions(runtime, effectiveProvider);
-  const runtimeModelOptions = getRuntimePersonaModelOptions(runtime);
+  const staticModelOptions = getPersonaModelOptions(
+    runtime,
+    effectiveProvider,
+    t,
+  );
+  const runtimeModelOptions = getRuntimePersonaModelOptions(runtime, t);
   const {
     isCustom: isModelCustom,
     isRelayMesh,
@@ -546,6 +552,7 @@ export function AgentDefinitionDialog({
     model,
     modelFieldVisible,
     provider: effectiveProvider,
+    t,
   });
   // On internal Block builds, BUZZ_AGENT_PROVIDER is baked in and a boot
   // migration rewrites any persisted Databricks v1 values → v2. Hide the v1
@@ -565,6 +572,7 @@ export function AgentDefinitionDialog({
       ? inheritedProviderDefault.value
       : "",
     hideProviderIds,
+    t,
   );
   const providerSelectValue = isCustomProviderEditing
     ? CUSTOM_PROVIDER_DROPDOWN_VALUE
@@ -573,17 +581,20 @@ export function AgentDefinitionDialog({
     llmProviderFieldVisible && isCustomProviderEditing;
   const runtimeDropdownValue = runtime.trim() || NO_RUNTIME_DROPDOWN_VALUE;
   const { blankRuntimeOptionLabel, runtimeDropdownOptions } =
-    buildPersonaRuntimeDropdownOptions({
-      defaultRuntimeId: defaultRuntime?.id,
-      isCreateMode,
-      runtime,
-      runtimes,
-      runtimesLoading,
-    });
-  runtimeDropdownOptions.push(ADD_CUSTOM_HARNESS_OPTION);
+    buildPersonaRuntimeDropdownOptions(
+      {
+        defaultRuntimeId: defaultRuntime?.id,
+        isCreateMode,
+        runtime,
+        runtimes,
+        runtimesLoading,
+      },
+      t,
+    );
+  runtimeDropdownOptions.push(makeAddCustomHarnessOption(t));
   const runtimeSummaryLabel = selectedRuntime
-    ? formatRuntimeOptionLabel(selectedRuntime)
-    : runtime.trim() || "Not configured";
+    ? formatRuntimeOptionLabel(selectedRuntime, t)
+    : runtime.trim() || t("agents.not_configured");
   const providerDropdownOptions: PersonaDropdownOption[] = [
     ...providerOptions
       .filter((option) => option.id.trim().length > 0)
@@ -591,7 +602,10 @@ export function AgentDefinitionDialog({
         label: option.label,
         value: option.id,
       })),
-    { label: "Custom provider...", value: CUSTOM_PROVIDER_DROPDOWN_VALUE },
+    {
+      label: t("agents.custom_provider"),
+      value: CUSTOM_PROVIDER_DROPDOWN_VALUE,
+    },
   ];
   const modelDropdownOptions: PersonaDropdownOption[] =
     buildModelDropdownOptions({
@@ -606,17 +620,17 @@ export function AgentDefinitionDialog({
       )
       .map((option) =>
         isRelayMesh && option.value === AUTO_MODEL_DROPDOWN_VALUE
-          ? { ...option, label: "Automatic" }
+          ? { ...option, label: t("agents.automatic") }
           : option,
       );
-  const previewLabel = displayName.trim() || "Agent name";
+  const previewLabel = displayName.trim() || t("agents.agent_name");
   const previewAvatarUrl = avatarUrl.trim() || null;
   const runtimeWarningText = selectedRuntime
     ? runtimeAvailabilityWarning(selectedRuntime)
     : null;
   const runtimeWarning = runtimeWarningText ? (
     <p className="text-xs text-warning">
-      {runtimeWarningText} Visit Settings &gt; Agents to set it up.
+      {runtimeWarningText} {t("agents.visit_settings_agents")}
     </p>
   ) : null;
   const advancedFieldsTransition = shouldReduceMotion
@@ -782,7 +796,7 @@ export function AgentDefinitionDialog({
                 className="text-sm font-medium text-foreground"
                 htmlFor="persona-display-name"
               >
-                Agent name
+                {t("agents.agent_name")}
               </label>
               <div
                 className={cn(
@@ -810,7 +824,7 @@ export function AgentDefinitionDialog({
                 className="text-sm font-medium text-foreground"
                 htmlFor="persona-system-prompt"
               >
-                Agent instructions
+                {t("agents.agent_instructions")}
               </label>
               <div className={PERSONA_FIELD_SHELL_CLASS}>
                 <Textarea
@@ -821,7 +835,7 @@ export function AgentDefinitionDialog({
                   disabled={isPending}
                   id="persona-system-prompt"
                   onChange={(event) => setSystemPrompt(event.target.value)}
-                  placeholder="Describe what this agent should do."
+                  placeholder={t("agents.describe_agent_placeholder")}
                   value={systemPrompt}
                 />
               </div>
@@ -856,10 +870,10 @@ export function AgentDefinitionDialog({
                     htmlFor="persona-llm-provider"
                     isRequired={providerIsRequired}
                   >
-                    LLM provider
+                    {t("agents.llm_provider")}
                     {!providerIsRequired ? (
                       <span className={PERSONA_LABEL_OPTIONAL_CLASS}>
-                        Optional
+                        {t("common.optional")}
                       </span>
                     ) : null}
                   </RequiredFieldLabel>
@@ -868,7 +882,7 @@ export function AgentDefinitionDialog({
                     id="persona-llm-provider"
                     onValueChange={handleProviderDropdownChange}
                     options={providerDropdownOptions}
-                    placeholder="Choose a provider"
+                    placeholder={t("agents.choose_provider")}
                     value={providerSelectValue}
                   />
                   {showCustomProviderInput ? (
@@ -879,7 +893,7 @@ export function AgentDefinitionDialog({
                       )}
                     >
                       <Input
-                        aria-label="Custom provider ID"
+                        aria-label={t("agents.custom_provider_id")}
                         autoCorrect="off"
                         className={cn(
                           "h-8 px-0 py-0 leading-6",
@@ -888,7 +902,7 @@ export function AgentDefinitionDialog({
                         disabled={isPending}
                         id="persona-custom-provider"
                         onChange={(event) => setProvider(event.target.value)}
-                        placeholder="Custom provider ID"
+                        placeholder={t("agents.custom_provider_id")}
                         value={provider}
                       />
                     </div>
@@ -972,7 +986,7 @@ export function AgentDefinitionDialog({
                 onClick={() => setShowAdvancedFields((current) => !current)}
                 type="button"
               >
-                <span>Advanced</span>
+                <span>{t("agents.advanced")}</span>
                 {localModeGate.missingEnvKeys.some((key) =>
                   advancedRequiredEnvKeys.includes(key),
                 ) ? (
@@ -981,7 +995,7 @@ export function AgentDefinitionDialog({
                     className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs text-destructive"
                     data-testid="persona-advanced-required-badge"
                   >
-                    Required
+                    {t("common.required")}
                   </span>
                 ) : null}
                 <ChevronDown

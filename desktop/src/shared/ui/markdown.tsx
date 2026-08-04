@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { createPortal } from "react-dom";
 import type { Components } from "react-markdown";
@@ -192,6 +193,7 @@ function ImageZoomOverlay({
   sourceScope?: Element | null;
   src: string | undefined;
 }) {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
   const prefersReducedMotion = shouldReduceMotion === true;
   const fallbackGalleryItems = React.useMemo<ImageGalleryItem[]>(
@@ -703,7 +705,7 @@ function ImageZoomOverlay({
     ((zoom - IMAGE_LIGHTBOX_MIN_ZOOM) /
       (IMAGE_LIGHTBOX_MAX_ZOOM - IMAGE_LIGHTBOX_MIN_ZOOM)) *
     100;
-  const label = currentItem.alt?.trim() || "Image preview";
+  const label = currentItem.alt?.trim() || t("shared.image_preview");
   const handleImageContextMenu = React.useCallback(
     (event: React.MouseEvent<HTMLImageElement>) => {
       event.preventDefault();
@@ -873,7 +875,7 @@ function ImageZoomOverlay({
       </div>
       {hasPreviousImage ? (
         <button
-          aria-label="Previous image"
+          aria-label={t("shared.previous_image")}
           className={cn(
             "absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-muted text-muted-foreground shadow-sm backdrop-blur-xl backdrop-saturate-150 transition-[background-color,color,opacity] duration-150 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/70 sm:left-6",
             isOpen ? "opacity-100" : "pointer-events-none opacity-0",
@@ -890,7 +892,7 @@ function ImageZoomOverlay({
       ) : null}
       {hasNextImage ? (
         <button
-          aria-label="Next image"
+          aria-label={t("shared.next_image")}
           className={cn(
             "absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-muted text-muted-foreground shadow-sm backdrop-blur-xl backdrop-saturate-150 transition-[background-color,color,opacity] duration-150 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/70 sm:right-6",
             isOpen ? "opacity-100" : "pointer-events-none opacity-0",
@@ -916,7 +918,7 @@ function ImageZoomOverlay({
         }}
       >
         <div
-          aria-label="Image controls"
+          aria-label={t("shared.image_controls")}
           className="relative isolate flex min-h-11 max-w-[calc(100vw-2rem)] items-center gap-2 rounded-xl px-2 py-1.5 text-muted-foreground"
           data-image-lightbox-controls=""
           role="toolbar"
@@ -926,7 +928,7 @@ function ImageZoomOverlay({
             className="pointer-events-none absolute inset-0 -z-10 rounded-[inherit] bg-muted shadow-sm backdrop-blur-xl backdrop-saturate-150"
           />
           <button
-            aria-label="Download image"
+            aria-label={t("shared.download_image")}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-muted-foreground/10 hover:text-foreground outline-hidden focus-visible:ring-2 focus-visible:ring-ring/70 disabled:pointer-events-none disabled:opacity-45"
             disabled={!canActOnCurrentImage}
             type="button"
@@ -943,7 +945,7 @@ function ImageZoomOverlay({
           />
           <ZoomOut aria-hidden="true" className="h-4 w-4 shrink-0 opacity-80" />
           <input
-            aria-label="Image zoom"
+            aria-label={t("shared.image_zoom")}
             className="image-zoom-slider h-3 w-32 cursor-pointer sm:w-44"
             max={IMAGE_LIGHTBOX_MAX_ZOOM}
             min={IMAGE_LIGHTBOX_MIN_ZOOM}
@@ -983,8 +985,8 @@ function ImageZoomOverlay({
             "data-image-lightbox-controls",
           ]}
           items={[
-            { label: "Copy image", onSelect: handleMenuCopy },
-            { label: "Download image", onSelect: handleMenuDownload },
+            { label: t("shared.copy_image"), onSelect: handleMenuCopy },
+            { label: t("shared.download_image"), onSelect: handleMenuDownload },
           ]}
           portalContainer={dialogRef.current ?? undefined}
           position={menu}
@@ -1005,6 +1007,7 @@ function ImageZoomOverlay({
  * React state avoids that repaint.
  */
 function ImageBlock({ alt, dim, resolvedSrc, src, thumbSrc }: ImageBlockProps) {
+  const { t } = useTranslation();
   const [lightboxState, setLightboxState] = React.useState<{
     galleryIndex: number;
     galleryItems?: ImageGalleryItem[];
@@ -1157,18 +1160,22 @@ function ImageBlock({ alt, dim, resolvedSrc, src, thumbSrc }: ImageBlockProps) {
     }
   };
 
-  const handleCopyImage = React.useCallback((copySrc: string | undefined) => {
-    setMenu(null);
-    if (!copySrc) return;
-    invokeTauri("copy_image_to_clipboard", { url: copySrc })
-      .then(() => {
-        toast.success("Copied to clipboard");
-      })
-      .catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : "Copy failed";
-        toast.error(msg);
-      });
-  }, []);
+  const handleCopyImage = React.useCallback(
+    (copySrc: string | undefined) => {
+      setMenu(null);
+      if (!copySrc) return;
+      invokeTauri("copy_image_to_clipboard", { url: copySrc })
+        .then(() => {
+          toast.success(t("shared.copied_to_clipboard"));
+        })
+        .catch((err: unknown) => {
+          const msg =
+            err instanceof Error ? err.message : t("shared.copy_failed");
+          toast.error(msg);
+        });
+    },
+    [t],
+  );
 
   const handleDownload = React.useCallback(
     (downloadSrc: string | undefined) => {
@@ -1176,19 +1183,20 @@ function ImageBlock({ alt, dim, resolvedSrc, src, thumbSrc }: ImageBlockProps) {
       if (!downloadSrc) return;
       invokeTauri("download_image", { url: downloadSrc }).catch(
         (err: unknown) => {
-          const msg = err instanceof Error ? err.message : "Download failed";
+          const msg =
+            err instanceof Error ? err.message : t("shared.download_failed");
           toast.error(msg);
         },
       );
     },
-    [],
+    [t],
   );
 
   return (
     <>
       <button
         aria-hidden={isHiddenInSpoiler ? true : undefined}
-        aria-label={alt?.trim() ? `Zoom image: ${alt}` : "Zoom image"}
+        aria-label={alt?.trim() ? `Zoom image: ${alt}` : t("shared.zoom_image")}
         className={cn(
           "mt-1 inline-block min-w-0 max-w-full cursor-zoom-in overflow-hidden rounded-2xl border-0 bg-transparent p-0 text-left align-top focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/50",
           lightboxState && "opacity-0",
@@ -1223,8 +1231,14 @@ function ImageBlock({ alt, dim, resolvedSrc, src, thumbSrc }: ImageBlockProps) {
         <MediaContextMenu
           dataAttributes={["data-image-context-menu"]}
           items={[
-            { label: "Copy image", onSelect: () => handleCopyImage(src) },
-            { label: "Download image", onSelect: () => handleDownload(src) },
+            {
+              label: t("shared.copy_image"),
+              onSelect: () => handleCopyImage(src),
+            },
+            {
+              label: t("shared.download_image"),
+              onSelect: () => handleDownload(src),
+            },
           ]}
           position={menu}
         />
@@ -1277,8 +1291,8 @@ function ImageMosaic({ children }: { children: React.ReactNode[] }) {
  *
  * Buzz renders inside a native webview whose default context menu has no
  * useful link actions, so a plain right-click on a link is a no-op. This adds
- * an in-app menu with "Open link" (via the OS opener, matching the anchor's
- * left-click `target="_blank"` behavior) and "Copy link" (the real href, not
+ * an in-app menu with t("shared.open_link") (via the OS opener, matching the anchor's
+ * left-click `target="_blank"` behavior) and t("shared.copy_link") (the real href, not
  * the masked display text).
  */
 function ExternalLinkAnchor({
@@ -1294,6 +1308,7 @@ function ExternalLinkAnchor({
   isLinearLink: boolean;
   label: string;
 }) {
+  const { t } = useTranslation();
   const [menu, setMenu] = React.useState<MediaContextMenuPosition | null>(null);
   const closeMenu = React.useCallback(() => setMenu(null), []);
   useDismissMediaContextMenu(Boolean(menu), closeMenu);
@@ -1328,19 +1343,19 @@ function ExternalLinkAnchor({
           dataAttributes={["data-link-context-menu"]}
           items={[
             {
-              label: "Open link",
+              label: t("shared.open_link"),
               onSelect: () => {
                 closeMenu();
                 void openUrl(href).catch(() => {
-                  toast.error("Failed to open link");
+                  toast.error(t("shared.failed_open_link"));
                 });
               },
             },
             {
-              label: "Copy link",
+              label: t("shared.copy_link"),
               onSelect: () => {
                 closeMenu();
-                copyTextToClipboard(href, "Link copied to clipboard");
+                copyTextToClipboard(href, t("shared.link_copied"));
               },
             },
           ]}
@@ -1568,11 +1583,14 @@ function createMarkdownComponents(
     ),
     hr: () => <hr className="border-border/80" />,
     img: function MarkdownImage({ alt, src }) {
+      const { t } = useTranslation();
       const { imetaByUrl } = useMarkdownRuntime();
       const entry = src ? imetaByUrl?.get(src) : undefined;
       const isVideo = src ? isVideoMedia(src, entry?.m) : false;
       if (!interactive) {
-        const fallbackLabel = isVideo ? "Video attachment" : "Image attachment";
+        const fallbackLabel = isVideo
+          ? t("shared.video_attachment")
+          : t("shared.image_attachment");
         return <span>{alt?.trim() || fallbackLabel}</span>;
       }
 

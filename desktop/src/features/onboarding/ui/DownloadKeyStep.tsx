@@ -133,7 +133,11 @@ export function DownloadKeyStep({
           type="button"
           variant="ghost"
         >
-          {hasVerifiedBackup ? t("onboarding.download.finish") : hasCreated ? t("common.skip_for_now") : t("common.back")}
+          {hasVerifiedBackup
+            ? t("onboarding.download.finish")
+            : hasCreated
+              ? t("common.skip_for_now")
+              : t("common.back")}
         </Button>
       </OnboardingFooter>
     </OnboardingSlideTransition>

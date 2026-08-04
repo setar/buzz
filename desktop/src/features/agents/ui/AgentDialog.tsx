@@ -50,7 +50,7 @@ type AgentDialogInstanceEditProps = {
   onUpdated?: (agent: ManagedAgent) => void;
   initialFocus?: EditAgentFocusTarget;
   /**
-   * Called when the user clicks "Edit avatar" inside the instance-edit dialog.
+   * Called when the user clicks t("agents.edit_avatar") inside the instance-edit dialog.
    * Caller (UserProfilePanel) is responsible for closing this dialog and
    * opening the definition-edit dialog. Only passed when the linked definition
    * is editable (non-built-in, resolved).
@@ -138,7 +138,7 @@ function AgentCreateDialogRouter({
 
   return (
     // The create flow is the one surface that knows where the agent will run,
-    // because it owns the "Run on" draft.
+    // because it owns the t("agents.run_on") draft.
     <AgentRunLocationProvider runLocation={runLocationForRunOn(runDraft.runOn)}>
       <AgentDefinitionDialog
         createRunSection={

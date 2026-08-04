@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bot, UserRoundPlus, X } from "lucide-react";
@@ -140,6 +141,7 @@ export function MembersSidebar({
   onViewActivity,
   relayUrl,
 }: MembersSidebarProps) {
+  const { t } = useTranslation();
   const channelId = channel?.id ?? null;
   const managedAgentRuntimesQuery = useManagedAgentRuntimesQuery({
     enabled: open,
@@ -158,7 +160,7 @@ export function MembersSidebar({
   const addMembersMutation = useAddChannelMembersMutation(channelId);
   const changeRoleMutation = useMutation({
     mutationFn: async ({ pubkey, role }: { pubkey: string; role: string }) => {
-      if (!channelId) throw new Error("No channel selected.");
+      if (!channelId) throw new Error(t("channel.no_channel_selected_dot"));
       await changeChannelMemberRole(channelId, pubkey, role);
     },
     onSettled: async () => {
@@ -566,7 +568,9 @@ export function MembersSidebar({
             {
               pubkey: user.pubkey,
               error:
-                error instanceof Error ? error.message : "Failed to add agent.",
+                error instanceof Error
+                  ? error.message
+                  : t("channel.failed_add_agent"),
             },
           ]);
         }
@@ -714,8 +718,8 @@ export function MembersSidebar({
                 }}
                 placeholder={
                   canAddMembers
-                    ? "Add people and agents"
-                    : "Search people and agents"
+                    ? t("channel.add_people_agents")
+                    : t("channel.search_people_agents")
                 }
                 ref={searchInputRef}
                 spellCheck={false}
@@ -790,10 +794,10 @@ export function MembersSidebar({
                 ) : (
                   <p className="px-4 py-3 text-sm text-muted-foreground">
                     {membersQuery.isLoading
-                      ? "Loading members..."
+                      ? t("channel.loading_members")
                       : normalizedSearchQuery
-                        ? "No members match your search."
-                        : "No members found."}
+                        ? t("channel.no_members_match")
+                        : t("channel.no_members_found")}
                   </p>
                 )}
               </div>

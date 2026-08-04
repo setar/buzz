@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -150,6 +151,7 @@ export function HuddleBar({
   onOpenHuddleWindow,
   onVisibilityChange,
 }: HuddleBarProps) {
+  const { t } = useTranslation();
   const {
     leaveHuddle,
     micConnected,
@@ -467,14 +469,20 @@ export function HuddleBar({
         await relayClient.publishEvent(
           event,
           "Timed out while sending huddle reaction.",
-          "Failed to send huddle reaction.",
+          t("huddle.failed_reaction"),
         );
       })().catch((error) => {
-        setReactionError("Reaction failed");
+        setReactionError(t("huddle.reaction_failed"));
         console.error("[huddle] Failed to send reaction:", error);
       });
     },
-    [burstHuddleReaction, customEmoji, reactionChannelId, reactionSenderName],
+    [
+      burstHuddleReaction,
+      customEmoji,
+      reactionChannelId,
+      reactionSenderName,
+      t,
+    ],
   );
 
   if (!barState) {
@@ -516,7 +524,7 @@ export function HuddleBar({
     } catch (e) {
       locallyLeavingChannelRef.current = null;
       stateGenerationRef.current += 1;
-      console.error("Failed to leave huddle:", e);
+      console.error(t("huddle.failed_leave"), e);
     } finally {
       setIsLeaving(false);
     }
@@ -533,7 +541,7 @@ export function HuddleBar({
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       setTranscriptError(`Transcript failed: ${message}`);
-      console.error("Failed to toggle huddle transcript:", e);
+      console.error(t("huddle.failed_transcript"), e);
     }
   }
 
@@ -574,7 +582,7 @@ export function HuddleBar({
           >
             <span className="max-w-[220px] truncate">{huddleError}</span>
             <button
-              aria-label="Dismiss error"
+              aria-label={t("huddle.dismiss_error")}
               className="ml-1 opacity-60 hover:opacity-100"
               onClick={clearHuddleError}
               type="button"
@@ -674,7 +682,7 @@ export function HuddleBar({
                 const s = await invoke<HuddleState>("get_huddle_state");
                 setState(s);
               } catch (e) {
-                console.error("Failed to toggle TTS:", e);
+                console.error(t("huddle.failed_tts"), e);
               }
             }}
             outputDevices={outputDevices}
@@ -742,7 +750,7 @@ export function HuddleBar({
               <TooltipTrigger asChild>
                 <PopoverTrigger asChild>
                   <Button
-                    aria-label="Emoji reactions"
+                    aria-label={t("huddle.emoji_reactions")}
                     aria-pressed={isReactionPickerOpen}
                     className={cn(
                       "buzz-huddle-control-button h-12 w-12 shrink-0 rounded-md",
@@ -794,7 +802,7 @@ export function HuddleBar({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                aria-label="Add agent to huddle"
+                aria-label={t("huddle.add_agent")}
                 className="buzz-huddle-control-button h-12 w-12 shrink-0 rounded-md"
                 onClick={() => setShowAddAgent(true)}
                 size="icon"
@@ -866,9 +874,7 @@ export function HuddleBar({
 
       {/* Screen reader announcements for huddle state changes */}
       <output aria-live="polite" className="sr-only">
-        {hasAvailableMic
-          ? "In huddle, microphone connected"
-          : "In huddle, no microphone"}
+        {hasAvailableMic ? t("huddle.mic_connected") : t("huddle.mic_missing")}
         {`, voice input: ${isPttMode ? "push to talk, press Ctrl+Space to transmit" : "voice activity detection"}`}
         {modelStatus &&
           transcriptionEnabled &&

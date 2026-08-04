@@ -6,6 +6,7 @@ import {
   SquareArrowOutUpRight,
 } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { ForumComposer } from "@/features/forum/ui/ForumComposer";
 import { useUserProfileQuery } from "@/features/profile/hooks";
@@ -55,6 +56,7 @@ function ReplyParentContext({
   parentId: string;
   profiles: Record<string, UserProfileSummary>;
 }) {
+  const { t } = useTranslation();
   const parentNoteQuery = useNoteByIdQuery(parentId);
   const parentNote = parentNoteQuery.data ?? null;
   const cachedProfile = parentNote
@@ -85,7 +87,7 @@ function ReplyParentContext({
               <UserAvatar
                 avatarUrl={parentAvatarUrl}
                 className="!h-4 !w-4 shrink-0"
-                displayName={parentDisplayName ?? "Parent note author"}
+                displayName={parentDisplayName ?? t("pulse.parent_author")}
               />
             </button>
           </UserProfilePopover>
@@ -101,13 +103,13 @@ function ReplyParentContext({
                 {parentDisplayName}
               </button>
             </UserProfilePopover>
-            : {parentSnippet || "No text"}
+            : {parentSnippet || t("pulse.no_text")}
           </span>
         </div>
       ) : parentNoteQuery.isLoading ? (
         "Loading reply context…"
       ) : (
-        "Replying to an unavailable note"
+        t("pulse.replying_unavailable")
       )}
     </div>
   );
@@ -143,6 +145,7 @@ export function NoteCard({
   members = [],
   actions,
 }: NoteCardProps) {
+  const { t } = useTranslation();
   const displayName = profile?.displayName ?? truncatePubkey(note.pubkey);
   const avatarUrl = profile?.avatarUrl ?? null;
   const [isReplyComposerOpen, setIsReplyComposerOpen] = React.useState(false);
@@ -274,7 +277,7 @@ export function NoteCard({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                    aria-label="Start direct message"
+                    aria-label={t("pulse.start_dm")}
                     className={actionButtonClass}
                     onClick={() => actions?.startDm?.(note.pubkey)}
                     type="button"
@@ -282,7 +285,7 @@ export function NoteCard({
                     <PenSquare className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>Start direct message</TooltipContent>
+                <TooltipContent>{t("pulse.start_dm")}</TooltipContent>
               </Tooltip>
             ) : null}
           </div>
@@ -315,7 +318,7 @@ export function NoteCard({
                     setIsReplyComposerOpen(false);
                   })
               }
-              placeholder="Post your reply"
+              placeholder={t("pulse.post_reply")}
               profiles={composerProfiles}
             />
           </div>

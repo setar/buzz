@@ -1,5 +1,6 @@
 import * as React from "react";
 import { AlertCircle, Upload } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type {
   TeamSnapshotImportPreview,
@@ -45,6 +46,7 @@ export function TeamSnapshotImportDialog({
   onConfirm,
   onOpenChange,
 }: TeamSnapshotImportDialogProps) {
+  const { t } = useTranslation();
   const [keepAllowlist, setKeepAllowlist] = React.useState(false);
 
   // Reset choice whenever the dialog opens with new data.
@@ -67,7 +69,9 @@ export function TeamSnapshotImportDialog({
         <DialogHeader className="space-y-0">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle>
-              {phase === "result" ? "Team imported" : "Import team snapshot"}
+              {phase === "result"
+                ? t("agents.team_imported")
+                : t("agents.import_team_snapshot")}
             </DialogTitle>
             <div className="flex items-center gap-2">
               {phase === "preview" ? (
@@ -81,7 +85,7 @@ export function TeamSnapshotImportDialog({
                     variant="default"
                   >
                     <Upload className="h-4 w-4" />
-                    Import
+                    {t("agents.import_short")}
                   </Button>
                   <DialogClose asChild>
                     <Button
@@ -90,14 +94,14 @@ export function TeamSnapshotImportDialog({
                       type="button"
                       variant="ghost"
                     >
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                   </DialogClose>
                 </>
               ) : (
                 <DialogClose asChild>
                   <Button size="sm" type="button" variant="ghost">
-                    Close
+                    {t("common.close")}
                   </Button>
                 </DialogClose>
               )}
@@ -126,7 +130,7 @@ export function TeamSnapshotImportDialog({
           </div>
         ) : phase === "confirming" ? (
           <div className="py-4 text-center text-sm text-muted-foreground">
-            Creating team…
+            {t("agents.creating_team")}
           </div>
         ) : result !== null ? (
           <ResultBody result={result} />
@@ -147,6 +151,7 @@ function PreviewBody({
   keepAllowlist: boolean;
   onKeepAllowlistChange: (v: boolean) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4 py-1">
       {/* Team identity */}
@@ -163,15 +168,14 @@ function PreviewBody({
       </div>
 
       <p className="text-sm text-muted-foreground">
-        A new team will be created with fresh keypairs for all members. The
-        imported team is independent of the source — identity never travels.
+        {t("agents.import_team_fresh_keypairs")}
       </p>
 
       {/* Member list */}
       {preview.members.length > 0 ? (
         <div className="space-y-1">
           <p className="text-sm font-medium">
-            Members ({preview.members.length})
+            {t("agents.members_count", { count: preview.members.length })}
           </p>
           <div className="max-h-36 space-y-1 overflow-y-auto rounded-md border border-border p-2">
             {preview.members.map((member, idx) => (
@@ -195,10 +199,11 @@ function PreviewBody({
           className="space-y-2 rounded-md border border-border p-3"
           data-testid="team-snapshot-import-allowlist-section"
         >
-          <p className="text-sm font-medium">Respond-to allowlist</p>
+          <p className="text-sm font-medium">
+            {t("agents.respond_to_allowlist")}
+          </p>
           <p className="text-xs text-muted-foreground">
-            This snapshot includes source-environment pubkey allowlists for one
-            or more members. Those identities are not meaningful on your relay.
+            {t("agents.allowlist_source_not_meaningful")}
           </p>
           <div className="flex flex-col gap-1.5">
             <label className="flex cursor-pointer items-center gap-2">
@@ -210,7 +215,8 @@ function PreviewBody({
                 type="radio"
               />
               <span className="text-sm">
-                <strong>Clear</strong> — start with empty allowlists (safer)
+                <strong>{t("agents.allowlist_clear")}</strong> —{" "}
+                {t("agents.allowlist_clear_desc")}
               </span>
             </label>
             <label className="flex cursor-pointer items-center gap-2">
@@ -222,7 +228,8 @@ function PreviewBody({
                 type="radio"
               />
               <span className="text-sm">
-                <strong>Keep</strong> — copy source allowlists to new members
+                <strong>{t("agents.allowlist_keep")}</strong> —{" "}
+                {t("agents.allowlist_keep_desc")}
               </span>
             </label>
           </div>
@@ -235,6 +242,7 @@ function PreviewBody({
 // ── Result body ───────────────────────────────────────────────────────────────
 
 function ResultBody({ result }: { result: TeamSnapshotImportResult }) {
+  const { t } = useTranslation();
   const totalMemoryErrors = result.members.reduce(
     (sum, m) => sum + m.memoryErrors.length,
     0,
@@ -254,10 +262,14 @@ function ResultBody({ result }: { result: TeamSnapshotImportResult }) {
   return (
     <div className="space-y-3 py-1">
       <p className="text-sm">
-        <span className="font-medium">{result.team.name}</span> was created
+        <span className="font-medium">{result.team.name}</span>{" "}
         {profileSyncFailures.length > 0
-          ? `, but ${profileSyncFailures.length} member${profileSyncFailures.length === 1 ? "" : "s"} failed to publish ${profileSyncFailures.length === 1 ? "a profile" : "profiles"}.`
-          : ` successfully with ${result.members.length} member${result.members.length === 1 ? "" : "s"}.`}
+          ? t("agents.team_imported_with_failures", {
+              count: profileSyncFailures.length,
+            })
+          : t("agents.team_imported_success", {
+              count: result.members.length,
+            })}
       </p>
 
       {profileSyncFailures.length > 0 ? (
@@ -267,7 +279,7 @@ function ResultBody({ result }: { result: TeamSnapshotImportResult }) {
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <div className="flex flex-col gap-1">
-            <p>Profile sync failed for:</p>
+            <p>{t("agents.profile_sync_failed")}</p>
             <ul className="mt-1 max-h-32 space-y-0.5 overflow-y-auto text-xs">
               {profileSyncFailures.map((m) => (
                 <li key={m.pubkey} className="break-all font-mono">

@@ -1,5 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useBackendProvidersQuery } from "@/features/agents/hooks";
 import { probeBackendProvider } from "@/shared/api/tauri";
@@ -21,6 +22,7 @@ export function WhereToRunSection({
   isPending: boolean;
   onDraftChange: (next: WhereToRunDraft) => void;
 }) {
+  const { t } = useTranslation();
   const backendProviders = useBackendProvidersQuery().data ?? [];
   const [probeError, setProbeError] = React.useState<string | null>(null);
   const isProviderMode = draft.runOn !== "local";
@@ -78,7 +80,7 @@ export function WhereToRunSection({
     <div className="space-y-4">
       <div className="space-y-1.5">
         <label className="text-sm font-medium" htmlFor="agent-run-on">
-          Run on
+          {t("agents.run_on")}
         </label>
         <select
           className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs"
@@ -92,7 +94,7 @@ export function WhereToRunSection({
           }
           value={draft.runOn}
         >
-          <option value="local">This computer</option>
+          <option value="local">{t("agents.this_computer")}</option>
           {backendProviders.map((provider) => (
             <option key={provider.id} value={provider.id}>
               {provider.id}

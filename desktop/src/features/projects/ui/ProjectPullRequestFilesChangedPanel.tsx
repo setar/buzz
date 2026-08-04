@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Braces,
   CodeXml,
@@ -452,6 +453,7 @@ function DiffPreview({
   focusedAnchor?: ProjectPullRequestCommentAnchor | null;
   inlineComments?: InlineCommentControls;
 }) {
+  const { t } = useTranslation();
   const rows = diffRows(file);
   const focusedRowRef = React.useRef<HTMLDivElement | null>(null);
   const [highlightedAnchor, setHighlightedAnchor] =
@@ -556,7 +558,7 @@ function DiffPreview({
                     )}
                     data-testid="project-diff-add-comment"
                     onClick={() => inlineComments.onStart(anchor)}
-                    title="Add line comment"
+                    title={t("projects.add_line_comment")}
                     type="button"
                   >
                     <MessageSquarePlus className="h-3.5 w-3.5" />
@@ -669,6 +671,7 @@ export function ProjectPullRequestFilesChangedPanel({
   project: Project;
   pullRequest: ProjectPullRequest | null;
 }) {
+  const { t } = useTranslation();
   const identityQuery = useIdentityQuery();
   const [activeAnchor, setActiveAnchor] =
     React.useState<ProjectPullRequestCommentAnchor | null>(null);
@@ -690,7 +693,7 @@ export function ProjectPullRequestFilesChangedPanel({
       mediaTags?: string[][],
       decision?: "request-changes",
     ) => {
-      if (!pullRequest) throw new Error("No pull request selected.");
+      if (!pullRequest) throw new Error(t("projects.no_pr_selected"));
       try {
         await postComment({
           anchor,
@@ -703,19 +706,19 @@ export function ProjectPullRequestFilesChangedPanel({
         setActiveAnchor(null);
         toast.success(
           decision === "request-changes"
-            ? "Changes requested."
-            : "Line comment posted.",
+            ? t("projects.changes_requested_dot")
+            : t("projects.line_comment_posted"),
         );
       } catch (error) {
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to post line comment.",
+            : t("projects.failed_post_line_comment"),
         );
         throw error;
       }
     },
-    [postComment, pullRequest],
+    [postComment, pullRequest, t],
   );
 
   return (
@@ -773,6 +776,7 @@ export function ProjectDiffFilesPanel({
   inlineComments?: InlineCommentControls;
   subjectLabel: string;
 }) {
+  const { t } = useTranslation();
   const outerBorderClass = embedded ? "" : PROJECT_DETAIL_PANEL_CLASS;
   const [query, setQuery] = React.useState("");
   const [selectedPath, setSelectedPath] = React.useState<string | null>(null);
@@ -834,7 +838,9 @@ export function ProjectDiffFilesPanel({
         )}
         data-project-detail-panel={embedded ? undefined : true}
       >
-        <p>Could not load changed files for this {subjectLabel}.</p>
+        <p>
+          {t("projects.could_not_load_changed_files", { label: subjectLabel })}
+        </p>
         {message ? (
           <p className="font-mono text-xs text-muted-foreground/80">
             {message}

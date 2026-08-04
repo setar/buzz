@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useAgentManagement } from "@/features/agents/useAgentManagement";
 import { AgentCardDialogs } from "./AgentCardViewerDialog";
 import { AgentDialog } from "./AgentDialog";
@@ -5,6 +6,7 @@ import { SecretRevealDialog } from "./SecretRevealDialog";
 
 /** Global review surfaces opened by owned agents through the Buzz harness. */
 export function AgentManagementDialogs() {
+  const { t } = useTranslation();
   const management = useAgentManagement();
 
   return (
@@ -52,8 +54,8 @@ export function AgentManagementDialogs() {
           open
           runtimes={management.runtimes}
           runtimeCatalogStatus={management.runtimeCatalogStatus}
-          submitLabel="Save changes"
-          title="Edit agent"
+          submitLabel={t("agents.save_changes")}
+          title={t("agents.edit_agent")}
         />
       ) : null}
       <AgentCardDialogs />

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   resolveUserLabel,
@@ -33,12 +34,13 @@ export function ToolItem({
   item: Extract<TranscriptItem, { type: "tool" }>;
   profiles?: UserProfileLookup;
 }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const hasArgs = Object.keys(item.args).length > 0;
   const hasResult = item.result.trim().length > 0;
   const canonicalToolName = item.buzzToolName ?? item.toolName;
   const buzzTool = getBuzzToolInfo(canonicalToolName);
-  const compactSummary = buildCompactToolSummary(item);
+  const compactSummary = buildCompactToolSummary(item, t);
   const duration = getToolDurationDisplay(item);
   const messageLink = getSentMessageLink(item);
   const timestampTitle = formatTranscriptTimestampTitle(item.timestamp);

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   AgentDefaultsEditor,
@@ -32,6 +33,7 @@ export function AgentDefaultsDialog({
   onOpenChange: (open: boolean) => void;
   returnFocusRef: React.RefObject<HTMLButtonElement | null>;
 }) {
+  const { t } = useTranslation();
   const [dirty, setDirty] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [confirmDiscard, setConfirmDiscard] = React.useState(false);
@@ -86,7 +88,7 @@ export function AgentDefaultsDialog({
           }}
         >
           <DialogHeader>
-            <DialogTitle>Agent defaults</DialogTitle>
+            <DialogTitle>{t("agents.agent_defaults")}</DialogTitle>
             <DialogDescription>
               These settings apply to all agents unless you override them.
               Agent-specific settings always take priority. Changes may restart
@@ -109,7 +111,7 @@ export function AgentDefaultsDialog({
                 type="button"
                 variant="outline"
               >
-                {restartFailures > 0 ? "Done" : "Cancel"}
+                {restartFailures > 0 ? t("common.done") : t("common.cancel")}
               </Button>
             }
           />

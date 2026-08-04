@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Check,
   GitPullRequest,
@@ -50,6 +51,7 @@ export function PullRequestReviewCard({
   project: Project;
   pullRequest: ProjectPullRequest;
 }) {
+  const { t } = useTranslation();
   const identityQuery = useIdentityQuery();
   const { isPending: isUpdatingStatus, mutateAsync: updatePullRequestStatus } =
     useUpdateProjectPullRequestStatusMutation(project);
@@ -90,20 +92,22 @@ export function PullRequestReviewCard({
         });
         toast.success(
           status === "draft"
-            ? "Converted to draft."
+            ? t("projects.converted_to_draft")
             : status === "closed"
-              ? "Pull request closed."
+              ? t("projects.pr_closed")
               : pullRequest.status === "Closed"
-                ? "Pull request reopened."
-                : "Marked as ready for review.",
+                ? t("projects.pr_reopened")
+                : t("projects.marked_ready_review"),
         );
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to update status.",
+          error instanceof Error
+            ? error.message
+            : t("projects.failed_update_status"),
         );
       }
     },
-    [isManagedAgentOwner, isOwner, pullRequest, updatePullRequestStatus],
+    [isManagedAgentOwner, isOwner, pullRequest, updatePullRequestStatus, t],
   );
 
   const runReviewDecision = React.useCallback(
@@ -147,15 +151,15 @@ export function PullRequestReviewCard({
   const handleApprove = React.useCallback(async () => {
     const approved = await runReviewDecision(
       approvePullRequest,
-      "Pull request approved.",
-      "Failed to approve.",
+      t("projects.pr_approved"),
+      t("projects.failed_approve"),
       approvalSummary,
     );
     if (approved) {
       setApproveDialogOpen(false);
       setApprovalSummary("");
     }
-  }, [approvalSummary, approvePullRequest, runReviewDecision]);
+  }, [approvalSummary, approvePullRequest, runReviewDecision, t]);
 
   const reviewDecisionPending = isApproving;
   const canMarkReady = canChangeStatus && pullRequest.status === "Draft";
@@ -241,7 +245,7 @@ export function PullRequestReviewCard({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  aria-label="More pull request actions"
+                  aria-label={t("projects.more_pr_actions")}
                   className="ml-auto h-8 w-8"
                   disabled={isUpdatingStatus}
                   size="icon-xs"
@@ -288,16 +292,16 @@ export function PullRequestReviewCard({
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Approve pull request</DialogTitle>
+            <DialogTitle>{t("projects.approve_pr")}</DialogTitle>
             <DialogDescription>
               Add an optional summary for the author and other reviewers.
             </DialogDescription>
           </DialogHeader>
           <Textarea
-            aria-label="Approval summary"
+            aria-label={t("projects.approval_summary")}
             disabled={isApproving}
             onChange={(event) => setApprovalSummary(event.target.value)}
-            placeholder="What looks good?"
+            placeholder={t("projects.prompt_what_looks_good")}
             value={approvalSummary}
           />
           <DialogFooter>

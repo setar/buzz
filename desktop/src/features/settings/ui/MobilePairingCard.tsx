@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Check,
@@ -39,7 +40,7 @@ type PairingStep =
   | "done"
   | "error";
 
-function pairingErrorMessage(error: unknown) {
+function pairingErrorMessage(error: unknown, t: (key: string) => string) {
   const message =
     error instanceof Error
       ? error.message
@@ -48,10 +49,10 @@ function pairingErrorMessage(error: unknown) {
         : "";
 
   if (message.toLowerCase().includes("timeout waiting for eose")) {
-    return "Pairing took too long. Try again.";
+    return t("settings.pairing_timeout");
   }
 
-  return message || "We couldn't start pairing. Try again.";
+  return message || t("settings.could_not_start_pairing");
 }
 
 function isPairingSessionTimeout(message: string) {
@@ -71,6 +72,7 @@ function PairingStatusDialog({
   sasCode: string | null;
   step: PairingStep;
 }) {
+  const { t } = useTranslation();
   const open = step === "sas" || step === "transferring" || step === "done";
 
   return (
@@ -89,10 +91,10 @@ function PairingStatusDialog({
             <DialogTitle>Pair mobile device</DialogTitle>
             <DialogDescription>
               {step === "sas"
-                ? "Verify the security code matches your mobile device."
+                ? t("settings.verify_security_code")
                 : step === "done"
-                  ? "Your mobile device is now paired."
-                  : "Securely sending your identity to the mobile app."}
+                  ? t("settings.device_paired")
+                  : t("settings.sending_identity")}
             </DialogDescription>
           </DialogHeader>
 
@@ -174,6 +176,7 @@ export function MobilePairingCard({
 }: {
   currentPubkey?: string;
 }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<PairingStep>("idle");
   const [qrUri, setQrUri] = useState<string | null>(null);
   const [sasCode, setSasCode] = useState<string | null>(null);
@@ -201,12 +204,12 @@ export function MobilePairingCard({
       (err) => {
         if (requestId === requestIdRef.current) {
           pairingActiveRef.current = false;
-          setError(pairingErrorMessage(err));
+          setError(pairingErrorMessage(err, t));
           setStep("error");
         }
       },
     );
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     ++requestIdRef.current;
@@ -265,7 +268,7 @@ export function MobilePairingCard({
           return;
         }
 
-        setError(pairingErrorMessage(event.payload.message));
+        setError(pairingErrorMessage(event.payload.message, t));
         setStep("error");
       }
     }).then((fn) => {
@@ -282,12 +285,12 @@ export function MobilePairingCard({
         cancelPairing().catch(() => {});
       }
     };
-  }, [currentPubkey]);
+  }, [currentPubkey, t]);
 
   async function handleCopy() {
     if (!qrUri) return;
     await writeTextToClipboard(qrUri);
-    toast.success("Copied to clipboard");
+    toast.success(t("settings.copied_to_clipboard"));
   }
 
   async function handleConfirmSas() {
@@ -298,7 +301,7 @@ export function MobilePairingCard({
       setError(
         err instanceof Error
           ? err.message
-          : "We couldn't send your identity. Try again.",
+          : t("settings.could_not_send_identity"),
       );
       pairingActiveRef.current = false;
       setStep("error");
@@ -308,7 +311,7 @@ export function MobilePairingCard({
   function handleDenySas() {
     pairingActiveRef.current = false;
     cancelPairing().catch(() => {});
-    setError("The codes didn't match. Pairing was canceled.");
+    setError(t("settings.codes_mismatch"));
     setStep("error");
   }
 
@@ -323,7 +326,7 @@ export function MobilePairingCard({
     }
 
     cancelPairing().catch(() => {});
-    setError("Pairing was canceled.");
+    setError(t("settings.pairing_canceled"));
     setStep("error");
   }
 
@@ -355,7 +358,7 @@ export function MobilePairingCard({
                 centerImageSrc="/app-icon@2x.png"
                 data-testid="mobile-pairing-qr"
                 size={240}
-                title="Mobile pairing QR code"
+                title={t("settings.pairing_qr")}
                 value={qrUri}
               />
             ) : step === "expired" ? (
@@ -378,7 +381,7 @@ export function MobilePairingCard({
               <div className="flex max-w-52 flex-col items-center gap-3 text-center">
                 <TriangleAlert className="h-6 w-6 text-destructive" />
                 <p className="text-sm text-destructive">
-                  {error ?? "Pairing session ended."}
+                  {error ?? t("settings.pairing_ended")}
                 </p>
                 <Button
                   data-testid="retry-pairing-button"

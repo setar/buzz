@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { EmojiPicker } from "@/features/custom-emoji/ui/EmojiPicker";
@@ -13,13 +14,15 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 
-const PRESETS = [
-  { text: "In a meeting", emoji: "\uD83D\uDDE3\uFE0F" },
-  { text: "Commuting", emoji: "\uD83D\uDE8C" },
-  { text: "Out sick", emoji: "\uD83E\uDD12" },
-  { text: "Vacationing", emoji: "\uD83C\uDFD6\uFE0F" },
-  { text: "Working remotely", emoji: "\uD83C\uDFE0" },
-] as const;
+function buildPresets(t: (key: string) => string) {
+  return [
+    { text: t("user_status.in_meeting"), emoji: "\uD83D\uDDE3\uFE0F" },
+    { text: t("user_status.commuting"), emoji: "\uD83D\uDE8C" },
+    { text: t("user_status.out_sick"), emoji: "\uD83E\uDD12" },
+    { text: t("user_status.vacationing"), emoji: "\uD83C\uDFD6\uFE0F" },
+    { text: t("user_status.remote"), emoji: "\uD83C\uDFE0" },
+  ] as const;
+}
 
 type SetStatusDialogProps = {
   open: boolean;
@@ -40,6 +43,7 @@ export function SetStatusDialog({
   onClear,
   hasExistingStatus,
 }: SetStatusDialogProps) {
+  const { t } = useTranslation();
   const [text, setText] = React.useState(initialText);
   const [emoji, setEmoji] = React.useState(initialEmoji);
   const [pickerOpen, setPickerOpen] = React.useState(false);
@@ -97,7 +101,7 @@ export function SetStatusDialog({
               <div className="relative shrink-0">
                 <PopoverTrigger asChild>
                   <button
-                    aria-label="Choose status emoji"
+                    aria-label={t("user_status.choose_emoji")}
                     className="flex h-9 w-9 items-center justify-center rounded-md border border-input text-lg transition-colors hover:bg-accent"
                     type="button"
                   >
@@ -110,7 +114,7 @@ export function SetStatusDialog({
                 </PopoverTrigger>
                 {emoji ? (
                   <button
-                    aria-label="Clear status emoji"
+                    aria-label={t("user_status.clear_emoji")}
                     className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border border-background bg-muted text-2xs leading-none text-muted-foreground hover:bg-accent hover:text-foreground"
                     onClick={(event) => {
                       event.stopPropagation();
@@ -141,7 +145,7 @@ export function SetStatusDialog({
           </div>
 
           <div className="flex flex-wrap gap-1.5">
-            {PRESETS.map((preset) => (
+            {buildPresets(t).map((preset) => (
               <button
                 className="rounded-full border border-input px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 data-testid={`set-status-preset-${preset.text.toLowerCase().replace(/\s+/g, "-")}`}

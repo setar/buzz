@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -79,12 +80,14 @@ function writeDraft(key: string, value: string): void {
 /**
  * Settings → Compute → Share compute.
  *
- * One toggle, one model field, an "Already installed" picklist, an Advanced
+ * One toggle, one model field, an t("mesh_compute.already_installed") picklist, an Advanced
  * group. User-facing copy describes the shared-compute behavior without
  * exposing implementation protocols or raw mesh controls.
  */
 export function MeshComputeSettingsCard() {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
+
   const { status, error, refresh } = useMeshNodeStatus();
   const [installedModels, setInstalledModels] = React.useState<
     MeshModelOption[]
@@ -226,7 +229,7 @@ export function MeshComputeSettingsCard() {
   return (
     <section className="min-w-0" data-testid="settings-mesh-share-compute">
       <SettingsSectionHeader
-        title="Share compute"
+        title={t("mesh_compute.share")}
         description="Share this machine with members of this relay so they can run agents here."
       />
 
@@ -450,12 +453,16 @@ function DownloadProgressBar({
   );
 }
 
-const FIT_LABEL: Record<MeshCatalogEntry["fit"], string> = {
-  comfortable: "Fits well",
-  tight: "Tight fit",
-  tradeoff: "Trade-off",
-  too_large: "Too large",
-};
+function buildFitLabel(
+  t: (key: string) => string,
+): Record<MeshCatalogEntry["fit"], string> {
+  return {
+    comfortable: t("mesh_compute.fits_well"),
+    tight: t("mesh_compute.tight_fit"),
+    tradeoff: t("mesh_compute.tradeoff"),
+    too_large: t("mesh_compute.too_large"),
+  };
+}
 
 const FIT_CLASS: Record<MeshCatalogEntry["fit"], string> = {
   comfortable: "text-green-600 dark:text-green-400",
@@ -537,6 +544,7 @@ function MeshModelPicker({
     onModelChange(next);
   }
 
+
   return (
     <div className="space-y-1.5" data-testid="mesh-share-compute-catalog">
       <label className="text-sm font-medium" htmlFor="mesh-share-compute-model">
@@ -582,12 +590,14 @@ function MeshModelPicker({
 }
 
 function MeshModelOptionLabel({ entry }: { entry: MeshCatalogEntry }) {
+  const { t } = useTranslation();
+  const fitLabel = buildFitLabel(t);
   return (
     <div className="flex min-w-0 items-center gap-2">
       <span className="min-w-0 flex-1 truncate font-medium">{entry.name}</span>
       <span className="shrink-0 text-muted-foreground">{entry.size}</span>
       <span className={cn("shrink-0", FIT_CLASS[entry.fit])}>
-        {FIT_LABEL[entry.fit]}
+        {fitLabel[entry.fit]}
       </span>
       {entry.recommended ? (
         <span className="shrink-0 rounded bg-primary/15 px-1.5 text-2xs font-medium text-primary">

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -76,6 +77,7 @@ export function HostedCommunityOnboarding({
   onReady,
   stageHidden = false,
 }: HostedCommunityOnboardingProps) {
+  const { t } = useTranslation();
   const onboarding = useCommunityOnboarding();
   const shouldReduceMotion = useReducedMotion();
   const localPubkey = useIdentityQuery().data?.pubkey ?? null;
@@ -187,7 +189,7 @@ export function HostedCommunityOnboarding({
           hostedCommunityErrorMessage(
             response.error,
             response.correlation_id,
-            "Could not connect the Buzz identity.",
+            t("communities.could_not_connect"),
           ),
         );
       }
@@ -212,7 +214,7 @@ export function HostedCommunityOnboarding({
           hostedCommunityErrorMessage(
             released.error,
             released.correlation_id,
-            "Could not disconnect the account's previous Buzz identity.",
+            t("communities.could_not_disconnect"),
           ),
         );
       }
@@ -221,11 +223,11 @@ export function HostedCommunityOnboarding({
         await loadAccount();
         throw new Error(
           bound.error.code === "pubkey_already_bound"
-            ? "This device's Buzz identity belongs to a different Builderlab account and can't be moved from here. Sign out, then sign in with the account that already owns this identity."
+            ? t("communities.identity_other_account_locked")
             : hostedCommunityErrorMessage(
                 bound.error,
                 bound.correlation_id,
-                "Could not connect this device's Buzz identity.",
+                t("communities.could_not_connect_device"),
               ),
         );
       }
@@ -273,7 +275,7 @@ export function HostedCommunityOnboarding({
 
   const connect = (community: HostedCommunity, created = false) => {
     const relayUrl = hostedCommunityRelayUrl(community);
-    const retryPrefix = created ? "The community was created, but " : "";
+    const retryPrefix = created ? t("communities.created_but") : "";
     if (!relayUrl) {
       throw new Error(
         `${retryPrefix}Builderlab did not return its relay address. Try connecting it again, or contact support if it does not appear in your communities.`,
@@ -304,7 +306,7 @@ export function HostedCommunityOnboarding({
           hostedCommunityErrorMessage(
             available.error,
             available.correlation_id,
-            "That Buzz address is already taken.",
+            t("communities.buzz_address_taken"),
           ),
         );
       }
@@ -314,7 +316,7 @@ export function HostedCommunityOnboarding({
           hostedCommunityErrorMessage(
             response.error,
             response.correlation_id,
-            "Could not create the community.",
+            t("communities.could_not_create"),
           ),
         );
       }
@@ -359,9 +361,9 @@ export function HostedCommunityOnboarding({
       : checkingName
         ? "Checking availability…"
         : availability === false
-          ? "That address is already taken."
+          ? t("communities.address_taken")
           : availability === true
-            ? "That address is available."
+            ? t("communities.address_available")
             : null;
 
   // The composed `<name>.<suffix>` line renders at text-4xl, but a valid name
@@ -385,7 +387,7 @@ export function HostedCommunityOnboarding({
       aria-describedby={
         creationFeedback ? "hosted-community-feedback" : undefined
       }
-      aria-label="Community name"
+      aria-label={t("communities.name")}
       autoComplete="off"
       className={
         inline
@@ -400,7 +402,9 @@ export function HostedCommunityOnboarding({
         setName(event.target.value.toLowerCase());
         setAvailability(null);
       }}
-      placeholder={inline ? "Community name here" : "your-community"}
+      placeholder={
+        inline ? t("communities.name_placeholder") : "your-community"
+      }
       spellCheck={false}
       style={
         inline
@@ -530,7 +534,7 @@ export function HostedCommunityOnboarding({
                 {busy ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                 ) : null}
-                {busy ? action : "Connect and continue"}
+                {busy ? action : t("communities.connect_continue")}
               </Button>
             </>
           ) : (
@@ -581,12 +585,14 @@ export function HostedCommunityOnboarding({
   return (
     <div className="flex min-h-[calc(100dvh-15.625rem)] w-full max-w-[920px] flex-col items-center text-center">
       <h1 className="max-w-[620px] text-title font-normal leading-[1.18] tracking-[-0.025em]">
-        {hasCommunities ? "Choose a community" : "Create a community"}
+        {hasCommunities
+          ? t("communities.choose_community")
+          : t("communities.create_community")}
       </h1>
       <p className="mx-auto mt-2 max-w-[560px] text-sm leading-6 text-foreground">
         {hasCommunities
-          ? "Connect one you own, or start something new."
-          : "Claim a Buzz address to get started."}
+          ? t("communities.connect_or_start")
+          : t("communities.claim_address")}
       </p>
 
       <div className="flex w-full flex-1 flex-col justify-center text-left">
@@ -621,7 +627,7 @@ export function HostedCommunityOnboarding({
                             <p className="truncate text-sm">
                               {community.name ??
                                 community.slug ??
-                                "Hosted community"}
+                                t("communities.hosted_community")}
                             </p>
                             <p className="mt-1 truncate text-sm text-foreground/55">
                               {community.normalized_host}
@@ -711,7 +717,7 @@ export function HostedCommunityOnboarding({
                   }`}
                   id="hosted-community-feedback"
                 >
-                  {creationFeedback ?? "Community address status"}
+                  {creationFeedback ?? t("communities.address_status")}
                 </p>
               </>
             ) : (
@@ -728,7 +734,7 @@ export function HostedCommunityOnboarding({
                   }`}
                   id="hosted-community-feedback"
                 >
-                  {creationFeedback ?? "Community address status"}
+                  {creationFeedback ?? t("communities.address_status")}
                 </p>
               </>
             )}

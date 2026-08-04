@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, Eye, EyeOff, RefreshCw } from "lucide-react";
 import * as React from "react";
 
@@ -20,14 +21,7 @@ const MIN_GENERATED_WORDS = 3;
 const MAX_GENERATED_WORDS = 10;
 const DEFAULT_GENERATED_WORDS = 3;
 
-const SEPARATOR_OPTIONS = [
-  { label: "Spaces", value: " " },
-  { label: "Hyphens", value: "-" },
-  { label: "Periods", value: "." },
-  { label: "Commas", value: "," },
-] as const;
-
-const DEFAULT_SEPARATOR = SEPARATOR_OPTIONS[0].value;
+const DEFAULT_SEPARATOR = " ";
 
 /**
  * Indeterminate KDF progress. Scrypt does not expose intermediate progress,
@@ -35,6 +29,7 @@ const DEFAULT_SEPARATOR = SEPARATOR_OPTIONS[0].value;
  * distance. The bar moves quickly at first and can never reach completion.
  */
 function FakeKdfProgressBar() {
+  const { t } = useTranslation();
   const [progress, setProgress] = React.useState(0);
 
   React.useEffect(() => {
@@ -57,7 +52,7 @@ function FakeKdfProgressBar() {
 
   return (
     <div
-      aria-label="Encrypting your key"
+      aria-label={t("settings.encrypting_key")}
       aria-valuemax={100}
       aria-valuemin={0}
       aria-valuenow={Math.round(progress)}
@@ -91,6 +86,13 @@ function PassphraseGeneratorPopover({
   onRequestGenerate?: () => void;
   onGenerated: (value: string) => void;
 }) {
+  const { t } = useTranslation();
+  const separatorOptions = [
+    { label: t("settings.word_sep_spaces"), value: " " },
+    { label: t("settings.word_sep_hyphens"), value: "-" },
+    { label: t("settings.word_sep_periods"), value: "." },
+    { label: t("settings.word_sep_commas"), value: "," },
+  ];
   const [open, setOpen] = React.useState(false);
   const [words, setWords] = React.useState(DEFAULT_GENERATED_WORDS);
   const [separator, setSeparator] = React.useState<string>(DEFAULT_SEPARATOR);
@@ -114,21 +116,26 @@ function PassphraseGeneratorPopover({
     };
   }, []);
 
-  const generate = React.useCallback(async (wordCount: number, sep: string) => {
-    setError(null);
-    try {
-      const passphrase = await generateBackupPassphrase({
-        words: wordCount,
-        separator: sep,
-      });
-      if (mountedRef.current) onGeneratedRef.current(passphrase);
-    } catch (err) {
-      if (!mountedRef.current) return;
-      setError(
-        err instanceof Error ? err.message : "Failed to generate a password.",
-      );
-    }
-  }, []);
+  const generate = React.useCallback(
+    async (wordCount: number, sep: string) => {
+      setError(null);
+      try {
+        const passphrase = await generateBackupPassphrase({
+          words: wordCount,
+          separator: sep,
+        });
+        if (mountedRef.current) onGeneratedRef.current(passphrase);
+      } catch (err) {
+        if (!mountedRef.current) return;
+        setError(
+          err instanceof Error
+            ? err.message
+            : t("settings.failed_generate_password"),
+        );
+      }
+    },
+    [t],
+  );
 
   // Fill the password field on every open and whenever a control changes.
   React.useEffect(() => {
@@ -142,7 +149,7 @@ function PassphraseGeneratorPopover({
           open. Only click-outside or Esc closes it. */}
       <PopoverAnchor asChild>
         <Button
-          aria-label="Generate a password"
+          aria-label={t("settings.generate_password")}
           className="absolute right-9 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           data-testid="backup-passphrase-generate"
           disabled={disabled}
@@ -217,8 +224,8 @@ function PassphraseGeneratorPopover({
             onChange={(event) => setSeparator(event.target.value)}
             value={separator}
           >
-            {SEPARATOR_OPTIONS.map((option) => (
-              <option key={option.label} value={option.value}>
+            {separatorOptions.map((option) => (
+              <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
@@ -258,6 +265,7 @@ export function EncryptedBackupCreator({
   onOpenChange: (open: boolean) => void;
   open: boolean;
 }) {
+  const { t } = useTranslation();
   const { state, dispatch, isSaving, saveError } = useEncryptedBackup();
   const [isRevealed, setIsRevealed] = React.useState(false);
 
@@ -275,10 +283,9 @@ export function EncryptedBackupCreator({
     <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent className="max-w-lg" data-testid="encrypted-backup-dialog">
         <DialogHeader className="pr-8">
-          <DialogTitle>Create a key backup</DialogTitle>
+          <DialogTitle>{t("settings.create_key_backup")}</DialogTitle>
           <DialogDescription>
-            You can close this window while Buzz finishes the backup in the
-            background.
+            {t("settings.close_while_finishing")}
           </DialogDescription>
         </DialogHeader>
         <div
@@ -290,7 +297,7 @@ export function EncryptedBackupCreator({
           ) : !state.savedPassword ? (
             <div className="relative">
               <Input
-                aria-label="Encryption password"
+                aria-label={t("settings.encryption_password")}
                 autoComplete="new-password"
                 className="h-10 bg-background pr-19"
                 data-testid="backup-passphrase-input"
@@ -300,12 +307,19 @@ export function EncryptedBackupCreator({
                     value: event.target.value,
                   })
                 }
-                placeholder={`Password (min ${MIN_PASSPHRASE_LEN} characters)`}
+                placeholder={t(
+                  "onboarding.encrypted_backup.password_placeholder",
+                  { min: MIN_PASSPHRASE_LEN },
+                )}
                 type={isRevealed ? "text" : "password"}
                 value={state.passphrase}
               />
               <Button
-                aria-label={isRevealed ? "Hide password" : "Reveal password"}
+                aria-label={
+                  isRevealed
+                    ? t("settings.hide_password")
+                    : t("settings.reveal_password")
+                }
                 className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 data-testid="backup-passphrase-reveal-toggle"
                 onClick={() => setIsRevealed((revealed) => !revealed)}
@@ -331,9 +345,7 @@ export function EncryptedBackupCreator({
 
           {!state.downloadPending && !state.savedPassword ? (
             <p className="text-xs leading-5 text-muted-foreground">
-              Keep the file private and save its password somewhere safe — Buzz
-              cannot reset it. Once ready, the backup remains available to
-              download for 5 minutes.
+              {t("settings.backup_keep_safe")}
             </p>
           ) : null}
 
@@ -364,7 +376,7 @@ export function EncryptedBackupCreator({
                 onClick={() => dispatch({ type: "download-clicked" })}
                 type="button"
               >
-                Backup key
+                {t("onboarding.encrypted_backup.backup_key")}
               </Button>
             </div>
           ) : null}

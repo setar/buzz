@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import * as React from "react";
 
@@ -140,6 +141,7 @@ export function ForumThreadPanel({
   isDeletingPost,
   targetEventId,
 }: ForumThreadPanelProps) {
+  const { t } = useTranslation();
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const { channels } = useChannelNavigation();
   const channelNames = React.useMemo(
@@ -295,7 +297,7 @@ export function ForumThreadPanel({
           channelId={channelId}
           isSending={isSendingReply}
           onSubmit={onReply}
-          placeholder="Reply to this post..."
+          placeholder={t("forum.reply_placeholder")}
           profiles={profiles}
         />
       </div>

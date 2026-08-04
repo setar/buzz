@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useAppNavigation } from "@/app/navigation/useAppNavigation";
 import {
@@ -27,6 +28,7 @@ import {
  * lives in an attached popover instead of taking over the message area.
  */
 export function NewMessageScreen() {
+  const { t } = useTranslation();
   const identityQuery = useIdentityQuery();
   const currentPubkey = identityQuery.data?.pubkey;
   const openDmMutation = useOpenDmMutation();
@@ -213,9 +215,7 @@ export function NewMessageScreen() {
         return directMessage;
       } catch (error) {
         setSubmitErrorMessage(
-          error instanceof Error
-            ? error.message
-            : "Failed to open direct message.",
+          error instanceof Error ? error.message : t("messages.failed_open_dm"),
         );
         return null;
       }
@@ -226,6 +226,7 @@ export function NewMessageScreen() {
       openDmMutation.mutateAsync,
       selectedUsers,
       sendMessageMutation.isPending,
+      t,
     ],
   );
 
@@ -253,7 +254,7 @@ export function NewMessageScreen() {
           : await openDirectMessage();
       if (!directMessage) {
         throw new Error(
-          submitErrorMessage ?? "Choose at least one recipient first.",
+          submitErrorMessage ?? t("messages.choose_recipient_first"),
         );
       }
 
@@ -271,7 +272,7 @@ export function NewMessageScreen() {
       } catch (error) {
         preparedDirectMessageRef.current = null;
         const message =
-          error instanceof Error ? error.message : "Failed to send message.";
+          error instanceof Error ? error.message : t("messages.failed_send");
         setSubmitErrorMessage(message);
         throw error;
       }
@@ -292,12 +293,13 @@ export function NewMessageScreen() {
       sendMessageMutation,
       submitErrorMessage,
       upsertCachedChannel,
+      t,
     ],
   );
 
   const composerPlaceholder =
     selectedUsers.length === 0
-      ? "Choose a recipient to start a message"
+      ? t("messages.choose_recipient")
       : selectedUsers.length === 1
         ? `Message ${formatRecipientName(selectedUsers[0])}`
         : `Message ${selectedUsers.length} people`;
@@ -529,7 +531,7 @@ export function NewMessageScreen() {
                 ) : isDirectoryLoading || isSearchTransitionPending ? (
                   <div
                     aria-busy="true"
-                    aria-label="Loading people and agents"
+                    aria-label={t("messages.loading_people")}
                     className="space-y-3 px-4 py-3"
                     data-testid="new-dm-loading"
                     role="status"
@@ -550,8 +552,8 @@ export function NewMessageScreen() {
                     data-testid="new-dm-empty"
                   >
                     {deferredSearchQuery.length === 0
-                      ? "No people or agents available to message."
-                      : "No matching users."}
+                      ? t("messages.no_recipients")
+                      : t("messages.no_matching_users")}
                   </p>
                 )}
               </div>

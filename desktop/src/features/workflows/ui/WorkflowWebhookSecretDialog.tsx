@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CopyButton } from "@/features/agents/ui/CopyButton";
 import {
   Dialog,
@@ -22,6 +23,7 @@ export function WorkflowWebhookSecretDialog({
   webhookSecret,
   workflowId,
 }: WorkflowWebhookSecretDialogProps) {
+  const { t } = useTranslation();
   const webhookUrl = `${relayHttpUrl}/hooks/${workflowId}`;
 
   return (
@@ -43,7 +45,7 @@ export function WorkflowWebhookSecretDialog({
             <pre className="overflow-x-auto rounded-md bg-muted/50 p-3 font-mono text-xs">
               {webhookUrl}
             </pre>
-            <CopyButton label="Copy URL" value={webhookUrl} />
+            <CopyButton label={t("workflows.copy_url")} value={webhookUrl} />
           </div>
 
           <div className="space-y-1.5">
@@ -53,7 +55,10 @@ export function WorkflowWebhookSecretDialog({
             <pre className="overflow-x-auto rounded-md bg-muted/50 p-3 font-mono text-xs">
               {webhookSecret}
             </pre>
-            <CopyButton label="Copy Secret" value={webhookSecret} />
+            <CopyButton
+              label={t("workflows.copy_secret")}
+              value={webhookSecret}
+            />
           </div>
         </div>
       </DialogContent>

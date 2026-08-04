@@ -1,6 +1,7 @@
 import * as React from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Pencil, Unlink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   Dialog,
@@ -68,6 +69,7 @@ type LinkCardState = {
  * - `card`/`dialog` — render once inside the composer tree.
  */
 export function useLinkEditor(richText: UseRichTextEditorResult) {
+  const { t } = useTranslation();
   const { getLinkSelectionInfo, applyLink, removeLink } = richText;
   const { goChannel } = useAppNavigation();
   const [draft, setDraft] = React.useState<DraftState | null>(null);
@@ -346,7 +348,7 @@ export function useLinkEditor(richText: UseRichTextEditorResult) {
             </a>
             <div className="flex items-center justify-end gap-0.5">
               <Button
-                aria-label="Edit link"
+                aria-label={t("messages.edit_link")}
                 onClick={editFromCard}
                 size="icon-xs"
                 type="button"
@@ -380,7 +382,9 @@ export function useLinkEditor(richText: UseRichTextEditorResult) {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {draft?.isExistingLink ? "Edit link" : "Add link"}
+            {draft?.isExistingLink
+              ? t("messages.edit_link")
+              : t("messages.add_link")}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -398,7 +402,7 @@ export function useLinkEditor(richText: UseRichTextEditorResult) {
             <Input
               id={textId}
               autoFocus={draft?.initialFocus === "text"}
-              placeholder="Text to display"
+              placeholder={t("messages.text_to_display")}
               value={draft?.text ?? ""}
               onChange={(event) =>
                 setDraft((prev) =>

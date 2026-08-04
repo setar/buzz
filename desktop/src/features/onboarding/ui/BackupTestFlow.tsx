@@ -190,7 +190,7 @@ function VerificationConnector({
 }
 
 /**
- * "Test your backup" flow: the user drops a backup file onto a large
+ * t("onboarding.test_your_backup") flow: the user drops a backup file onto a large
  * dropzone, then enters its password. Verification is a real NIP-49 decrypt
  * in Rust — the submitted password is cleared immediately after the result
  * and only the derived public identity ever comes back.
@@ -281,7 +281,8 @@ export function BackupTestFlow({
       try {
         text = (await file.text()).trim();
       } catch {
-        if (mountedRef.current) setError(t("onboarding.backup_test.error_read_file"));
+        if (mountedRef.current)
+          setError(t("onboarding.backup_test.error_read_file"));
         return;
       }
       if (!mountedRef.current) return;
@@ -306,7 +307,7 @@ export function BackupTestFlow({
         result: null,
       });
     },
-    [expectedNcryptsec, onProgressChange],
+    [expectedNcryptsec, onProgressChange, t],
   );
 
   const handleVerify = React.useCallback(async () => {
@@ -331,13 +332,15 @@ export function BackupTestFlow({
     } catch (err) {
       if (mountedRef.current && requestId === requestRef.current)
         setError(
-          err instanceof Error ? err.message : t("onboarding.backup_test.error_verify"),
+          err instanceof Error
+            ? err.message
+            : t("onboarding.backup_test.error_verify"),
         );
     } finally {
       if (mountedRef.current && requestId === requestRef.current)
         setIsVerifying(false);
     }
-  }, [attempt, isVerifying, ncryptsec, onProgressChange, onVerified]);
+  }, [attempt, isVerifying, ncryptsec, onProgressChange, onVerified, t]);
 
   const toggleSuccessNsec = React.useCallback(async () => {
     if (isSuccessNsecRevealed) {
@@ -358,12 +361,14 @@ export function BackupTestFlow({
     } catch (err) {
       if (!mountedRef.current) return;
       setSuccessNsecError(
-        err instanceof Error ? err.message : t("onboarding.backup_test.error_retrieve_key"),
+        err instanceof Error
+          ? err.message
+          : t("onboarding.backup_test.error_retrieve_key"),
       );
     } finally {
       if (mountedRef.current) setIsLoadingSuccessNsec(false);
     }
-  }, [isSuccessNsecRevealed, successNsec]);
+  }, [isSuccessNsecRevealed, successNsec, t]);
 
   const isSpotlight = variant === "spotlight";
 
@@ -531,7 +536,9 @@ export function BackupTestFlow({
             onClick={() => fileInputRef.current?.click()}
             type="button"
           >
-            <span className="font-medium text-sm">{t("onboarding.backup_test.select_file")}</span>
+            <span className="font-medium text-sm">
+              {t("onboarding.backup_test.select_file")}
+            </span>
           </Button>
           {isWindowDragging ? (
             /*
@@ -646,7 +653,11 @@ export function BackupTestFlow({
                   value={attempt}
                 />
                 <Button
-                  aria-label={isRevealed ? t("onboarding.backup_test.hide_password") : t("onboarding.backup_test.reveal_password")}
+                  aria-label={
+                    isRevealed
+                      ? t("onboarding.backup_test.hide_password")
+                      : t("onboarding.backup_test.reveal_password")
+                  }
                   className={cn(
                     "absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground",
                     isSpotlight &&

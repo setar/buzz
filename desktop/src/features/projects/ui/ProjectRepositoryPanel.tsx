@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Braces,
   ChevronRight,
@@ -628,6 +629,7 @@ export function RepositoryFilesPanel({
   /** Branch picker + remote/local toggle rendered in the panel header. */
   sourceControls?: RepoSourceHeaderControls;
 }) {
+  const { t } = useTranslation();
   const [currentPath, setCurrentPath] = React.useState("");
   const [selectedFile, setSelectedFile] =
     React.useState<ProjectRepoFile | null>(null);
@@ -684,9 +686,9 @@ export function RepositoryFilesPanel({
   const stateMessage = isLoading
     ? "Loading repository files…"
     : error
-      ? "Could not load the repository file tree."
+      ? t("projects.could_not_load_file_tree")
       : files.length === 0
-        ? "No files have been pushed yet."
+        ? t("projects.no_files_pushed")
         : null;
   if (stateMessage) {
     if (!sourceControls) {

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { ArrowLeft, ChevronRight, Link2, Plus } from "lucide-react";
 
@@ -32,6 +33,7 @@ export function AddCommunityDialog({
   open,
   onOpenChange,
 }: AddCommunityDialogProps) {
+  const { t } = useTranslation();
   const communityOnboarding = useCommunityOnboarding();
   const [mode, setMode] = React.useState<AddCommunityMode>("choose");
   const [joinError, setJoinError] = React.useState<string | null>(null);
@@ -71,29 +73,27 @@ export function AddCommunityDialog({
         token,
       });
       if (!started) {
-        setJoinError(
-          "Finish connecting the community already in progress, then try again.",
-        );
+        setJoinError(t("communities.finish_connecting"));
         return;
       }
       handleClose();
     },
-    [communityOnboarding, handleClose, prefill?.name],
+    [communityOnboarding, handleClose, prefill?.name, t],
   );
 
   const title =
     mode === "create"
-      ? "Create a new community"
+      ? t("communities.create_new")
       : mode === "join"
-        ? "Join an existing community"
-        : "Add community";
+        ? t("communities.join_existing")
+        : t("communities.add_community");
 
   const description =
     mode === "create"
-      ? "Opens Builderlab in your browser."
+      ? t("communities.opens_builderlab")
       : mode === "join"
         ? "Use the community URL or invite link you received."
-        : "Create a new community or join one you already have.";
+        : t("communities.create_or_join");
 
   return (
     <Dialog
@@ -111,7 +111,7 @@ export function AddCommunityDialog({
           <div className="flex min-w-0 items-center gap-2">
             {mode !== "choose" ? (
               <button
-                aria-label="Back to add community options"
+                aria-label={t("communities.back_to_options")}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-accent-foreground focus:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
                 data-testid="add-community-back"
                 onClick={() => {

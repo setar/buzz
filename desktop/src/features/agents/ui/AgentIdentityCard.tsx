@@ -13,7 +13,7 @@ type AgentIdentityCardProps = {
   label: string;
   modelLabel?: string | null;
   onClick: () => void;
-  /** Optional badge rendered below the label (e.g. "Restart required"). */
+  /** Optional badge rendered below the label (e.g. t("agents.restart_required")). */
   statusBadge?: ReactNode;
 };
 

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Smartphone, Webcam } from "lucide-react";
 
 import type { CameraSource } from "@/features/profile/ui/AnimatedAvatarCapture.helpers";
@@ -20,19 +21,20 @@ export function AnimatedAvatarCameraPicker({
   onSelectSource,
   testIdPrefix,
 }: AnimatedAvatarCameraPickerProps) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-2 gap-3">
       {[
         {
           disabled: iphoneDisabled,
           icon: Smartphone,
-          label: "Use iPhone",
+          label: t("profile.use_iphone"),
           source: "iphone" as const,
         },
         {
           disabled: computerDisabled,
           icon: Webcam,
-          label: "Use this computer",
+          label: t("profile.use_this_computer"),
           source: "computer" as const,
         },
       ].map((option) => {

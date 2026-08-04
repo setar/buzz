@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { AlertCircle, ExternalLink, LoaderCircle } from "lucide-react";
 
@@ -38,6 +39,7 @@ type HostedCommunityCreateFlowProps = {
 export function HostedCommunityCreateFlow({
   onComplete,
 }: HostedCommunityCreateFlowProps) {
+  const { t } = useTranslation();
   const onboarding = useCommunityOnboarding();
   const localPubkey = useIdentityQuery().data?.pubkey ?? null;
   const [auth, setAuth] = React.useState<BuilderlabAuth | null>(null);
@@ -131,7 +133,7 @@ export function HostedCommunityCreateFlow({
           hostedCommunityErrorMessage(
             response.error,
             response.correlation_id,
-            "Could not connect the Buzz identity.",
+            t("communities.could_not_connect"),
           ),
         );
       }
@@ -164,7 +166,7 @@ export function HostedCommunityCreateFlow({
           hostedCommunityErrorMessage(
             released.error,
             released.correlation_id,
-            "Could not disconnect the account's previous Buzz identity.",
+            t("communities.could_not_disconnect"),
           ),
         );
       }
@@ -173,11 +175,11 @@ export function HostedCommunityCreateFlow({
         await loadAccount();
         throw new Error(
           bound.error.code === "pubkey_already_bound"
-            ? "This device's Buzz identity belongs to a different Builderlab account. Sign in with the account that already owns this identity."
+            ? t("communities.identity_other_account")
             : hostedCommunityErrorMessage(
                 bound.error,
                 bound.correlation_id,
-                "Could not connect this device's Buzz identity.",
+                t("communities.could_not_connect_device"),
               ),
         );
       }
@@ -231,7 +233,7 @@ export function HostedCommunityCreateFlow({
           hostedCommunityErrorMessage(
             available.error,
             available.correlation_id,
-            "That Buzz address is already taken.",
+            t("communities.buzz_address_taken"),
           ),
         );
       }
@@ -241,15 +243,13 @@ export function HostedCommunityCreateFlow({
           hostedCommunityErrorMessage(
             response.error,
             response.correlation_id,
-            "Could not create the community.",
+            t("communities.could_not_create"),
           ),
         );
       }
       const relayUrl = hostedCommunityRelayUrl(response.community);
       if (!relayUrl) {
-        throw new Error(
-          "The community was created, but Builderlab did not return its community URL. Try connecting it again from settings.",
-        );
+        throw new Error(t("communities.created_no_url"));
       }
       const started = onboarding.start({
         source: "add-community",
@@ -257,9 +257,7 @@ export function HostedCommunityCreateFlow({
         communityName: response.community.name ?? response.community.slug,
       });
       if (!started) {
-        throw new Error(
-          "Finish connecting the community already in progress, then try again.",
-        );
+        throw new Error(t("communities.finish_connecting"));
       }
       onComplete();
     });
@@ -297,7 +295,7 @@ export function HostedCommunityCreateFlow({
             {action === "Signing in…" ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />
             ) : null}
-            {action ?? "Continue to Builderlab"}
+            {action ?? t("communities.continue_builderlab")}
             {action ? null : <ExternalLink className="h-4 w-4" />}
           </Button>
         </div>
@@ -328,7 +326,7 @@ export function HostedCommunityCreateFlow({
             type="button"
           >
             {action ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {action ?? "Connect and continue"}
+            {action ?? t("communities.connect_continue")}
           </Button>
         </div>
       </div>
@@ -378,9 +376,9 @@ export function HostedCommunityCreateFlow({
       : checkingName
         ? "Checking availability…"
         : availability === false
-          ? "That address is already taken."
+          ? t("communities.address_taken")
           : availability === true
-            ? "That address is available."
+            ? t("communities.address_available")
             : "You can’t change this address after creating the community.";
 
   return (
@@ -449,7 +447,7 @@ export function HostedCommunityCreateFlow({
           type="submit"
         >
           {action ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-          {action ?? "Create community"}
+          {action ?? t("communities.create_btn")}
         </Button>
       </div>
     </form>

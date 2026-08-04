@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { EllipsisVertical, ExternalLink } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
@@ -46,16 +47,19 @@ import { deleteConfirmState } from "./harnessGalleryLogic";
 /** Link label for the row's install-instructions URL. Distinct from the
  * catalog's `installLinkLabel` — rows spell out what the guide covers
  * (adapter vs CLI) because the row lacks the catalog's setup context. */
-function runtimeInstallGuideLabel(runtime: AcpRuntimeCatalogEntry) {
+function runtimeInstallGuideLabel(
+  runtime: AcpRuntimeCatalogEntry,
+  t: (key: string) => string,
+) {
   if (
     runtime.availability === "adapter_missing" ||
     runtime.availability === "adapter_outdated"
   ) {
-    return "Adapter install guide";
+    return t("settings.adapter_install_guide");
   }
   return isDownloadPageUrl(runtime.installInstructionsUrl)
-    ? "Download page"
-    : "CLI setup guide";
+    ? t("settings.download_page")
+    : t("settings.cli_setup_guide");
 }
 
 function RuntimeLogo({ runtime }: { runtime: AcpRuntimeCatalogEntry }) {
@@ -91,6 +95,7 @@ function RuntimeOverflowMenu({
   onEdit?: () => void;
   runtime: AcpRuntimeCatalogEntry;
 }) {
+  const { t } = useTranslation();
   const hasInstructions =
     runtime.installInstructionsUrl.trim().length > 0 &&
     (runtime.availability !== "available" ||
@@ -146,7 +151,7 @@ function RuntimeOverflowMenu({
             onSelect={() => void openUrl(runtime.installInstructionsUrl)}
           >
             <ExternalLink className="h-4 w-4" />
-            {runtimeInstallGuideLabel(runtime)}
+            {runtimeInstallGuideLabel(runtime, t)}
           </DropdownMenuItem>
         ) : null}
         {onEdit ? (
@@ -288,7 +293,7 @@ function RuntimeStatusChip({ runtime }: { runtime: AcpRuntimeCatalogEntry }) {
 }
 
 /**
- * One row in "Your runtimes".
+ * One row in t("settings.your_runtimes").
  *
  * Carries the full operational surface for a ready (or one-click-ready)
  * harness: logo, status chip, auth/overflow menu, install/connect flows, and
@@ -301,6 +306,7 @@ export function HarnessRow({
   resetEpoch: number;
   runtime: AcpRuntimeCatalogEntry;
 }) {
+  const { t } = useTranslation();
   const isCustom = runtime.source === "custom";
   const [terminalLaunchMethodId, setTerminalLaunchMethodId] = React.useState<
     string | null
@@ -357,7 +363,10 @@ export function HarnessRow({
       onError: (error) => {
         setInstallResult({
           success: false,
-          error: error instanceof Error ? error.message : "Install failed.",
+          error:
+            error instanceof Error
+              ? error.message
+              : t("settings.install_failed"),
         });
       },
     });
@@ -377,13 +386,13 @@ export function HarnessRow({
     ? `Couldn't connect ${runtime.label}: ${
         connectMutation.error instanceof Error
           ? connectMutation.error.message
-          : "Connection failed."
+          : t("settings.connection_failed")
       }`
     : authMethodsQuery.error
       ? `Couldn't load sign-in options: ${
           authMethodsQuery.error instanceof Error
             ? authMethodsQuery.error.message
-            : "Request failed."
+            : t("settings.request_failed")
         }`
       : null;
 
@@ -466,7 +475,7 @@ export function HarnessRow({
                 type="button"
               >
                 <ExternalLink className="h-4 w-4" />
-                {runtimeInstallGuideLabel(runtime)}
+                {runtimeInstallGuideLabel(runtime, t)}
               </button>
             ) : null}
           </div>

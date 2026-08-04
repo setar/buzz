@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Bell, Clock, Ellipsis, ExternalLink, MailOpen } from "lucide-react";
 import * as React from "react";
 
@@ -42,27 +43,35 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { UserAvatar } from "@/shared/ui/UserAvatar";
 import { VirtualizedList } from "@/shared/ui/VirtualizedList";
 
-const INBOX_EMPTY_STATE_TITLES: Record<InboxFilter, string> = {
-  all: "No activity yet",
-  project: "No project work found",
-  mention: "No mentions found",
-  thread: "No threads found",
-  needs_action: "Nothing needs action",
-  agent_activity: "No agent updates found",
-  reminders: "No reminders",
-  drafts: "No drafts",
-};
+function buildInboxEmptyStateTitles(
+  t: (key: string) => string,
+): Record<InboxFilter, string> {
+  return {
+    all: t("home.no_activity_yet"),
+    project: t("home.no_project_work"),
+    mention: t("home.no_mentions"),
+    thread: t("home.no_threads"),
+    needs_action: t("home.nothing_needs_action"),
+    agent_activity: t("home.no_agent_updates"),
+    reminders: t("home.no_reminders"),
+    drafts: t("home.no_drafts"),
+  };
+}
 
-const INBOX_UNREAD_EMPTY_STATE_TITLES: Record<InboxFilter, string> = {
-  all: "No unread activity",
-  project: "No unread project work",
-  mention: "No unread mentions",
-  thread: "No unread threads",
-  needs_action: "No unread items needing action",
-  agent_activity: "No unread agent updates",
-  reminders: "No unread reminders",
-  drafts: "No unread drafts",
-};
+function buildInboxUnreadEmptyStateTitles(
+  t: (key: string) => string,
+): Record<InboxFilter, string> {
+  return {
+    all: t("home.no_unread_activity"),
+    project: t("home.no_unread_project"),
+    mention: t("home.no_unread_mentions"),
+    thread: t("home.no_unread_threads"),
+    needs_action: t("home.no_unread_needs_action"),
+    agent_activity: t("home.no_unread_agent_updates"),
+    reminders: t("home.no_unread_reminders"),
+    drafts: t("home.no_unread_drafts"),
+  };
+}
 
 const INBOX_HEADER_ICON_BUTTON_CLASS =
   "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring data-[state=open]:bg-muted/70 data-[state=open]:text-foreground disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
@@ -106,11 +115,14 @@ function InboxLabel({
   );
 }
 
-function formatReminderStatus(notBefore: number | undefined) {
+function formatReminderStatus(
+  notBefore: number | undefined,
+  t: (key: string) => string,
+) {
   if (notBefore === undefined) return "Pending";
   const secondsUntil = notBefore - Math.floor(Date.now() / 1_000);
-  if (secondsUntil <= 0) return "Reminder due";
-  if (secondsUntil < 60) return "Reminder in less than a minute";
+  if (secondsUntil <= 0) return t("home.reminder_due");
+  if (secondsUntil < 60) return t("home.reminder_soon");
   if (secondsUntil < 3_600) {
     return `Reminder in ${Math.floor(secondsUntil / 60)}m`;
   }
@@ -226,6 +238,7 @@ export function InboxListPane({
   selectedReminderId,
   unreadOnly,
 }: InboxListPaneProps) {
+  const { t } = useTranslation();
   const isReminders = filter === "reminders";
   const isDrafts = filter === "drafts";
   const isMixedInboxView = filter === "all";
@@ -421,14 +434,14 @@ export function InboxListPane({
         <div className="pointer-events-none absolute right-3 top-2 z-10 flex items-center gap-0.5 rounded-full bg-[var(--inbox-row-highlight-bg)] p-1 opacity-0 transition-opacity duration-150 ease-out group-hover/inbox-item:pointer-events-auto group-hover/inbox-item:opacity-100 group-focus-within/inbox-item:pointer-events-auto group-focus-within/inbox-item:opacity-100">
           {isDone ? (
             <InboxRowActionButton
-              label="Mark unread"
+              label={t("home.mark_unread")}
               onClick={() => onMarkUnread(item.id)}
             >
               <MailOpen className="!h-4 !w-4" />
             </InboxRowActionButton>
           ) : (
             <InboxRowActionButton
-              label="Mark as read"
+              label={t("home.mark_as_read")}
               onClick={() => onMarkRead(item.id)}
             >
               <MailOpen className="!h-4 !w-4" />
@@ -436,7 +449,11 @@ export function InboxListPane({
           )}
           <InboxRowActionButton
             disabled={!hasChannelTarget}
-            label={hasChannelTarget ? "Open in channel" : "No channel link"}
+            label={
+              hasChannelTarget
+                ? t("home.open_in_channel")
+                : t("home.no_channel_link")
+            }
             onClick={() => onOpenDirect(item)}
           >
             <ExternalLink className="!h-4 !w-4" />
@@ -447,9 +464,9 @@ export function InboxListPane({
             label={
               hasChannelTarget
                 ? hasActiveReminder
-                  ? "Reminder set"
-                  : "Remind me later"
-                : "Cannot remind without a channel"
+                  ? t("home.reminder_set")
+                  : t("home.remind_later")
+                : t("home.cannot_remind")
             }
             onClick={() => onRemindLater(item)}
           >
@@ -484,7 +501,9 @@ export function InboxListPane({
             }}
           >
             <ExternalLink className="h-4 w-4" />
-            {hasChannelTarget ? "Open in channel" : "No channel link"}
+            {hasChannelTarget
+              ? t("home.open_in_channel")
+              : t("home.no_channel_link")}
           </ContextMenuItem>
           <ContextMenuItem
             disabled={!hasChannelTarget}
@@ -495,7 +514,9 @@ export function InboxListPane({
             }}
           >
             <Clock className="h-4 w-4" />
-            {hasActiveReminder ? "Reminder set" : "Remind me later"}
+            {hasActiveReminder
+              ? t("home.reminder_set")
+              : t("home.remind_later")}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
@@ -516,7 +537,7 @@ export function InboxListPane({
               <Popover>
                 <PopoverTrigger asChild>
                   <button
-                    aria-label="Inbox options"
+                    aria-label={t("home.inbox_options")}
                     className={cn(INBOX_HEADER_ICON_BUTTON_CLASS, "-mr-4")}
                     data-testid="inbox-options-trigger"
                     type="button"
@@ -641,7 +662,7 @@ export function InboxListPane({
                       "Reminder"
                     }
                     selected={selectedReminderId === row.reminder.id}
-                    status={formatReminderStatus(row.reminder.notBefore)}
+                    status={formatReminderStatus(row.reminder.notBefore, t)}
                   />
                 );
               }}
@@ -652,14 +673,14 @@ export function InboxListPane({
               <div>
                 <p className="text-sm font-medium text-foreground">
                   {unreadOnly
-                    ? INBOX_UNREAD_EMPTY_STATE_TITLES[filter]
-                    : INBOX_EMPTY_STATE_TITLES[filter]}
+                    ? buildInboxUnreadEmptyStateTitles(t)[filter]
+                    : buildInboxEmptyStateTitles(t)[filter]}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {unreadOnly
                     ? "Turn off Show unread only to see read activity."
                     : filter === "all"
-                      ? "New activity will appear here."
+                      ? t("home.new_activity_hint")
                       : "Switch back to All to see other activity."}
                 </p>
               </div>

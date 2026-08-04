@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Eye, MessageSquare } from "lucide-react";
 
 import type {
@@ -41,11 +42,14 @@ type ProjectsIssuesListProps = {
   viewMode: "grid" | "list";
 };
 
-function nextStepLabel(status: ProjectIssue["status"]) {
-  if (status === "Done" || status === "Closed") return "View issue";
-  if (status === "In Review") return "Review issue";
-  if (status === "Triage") return "Triage issue";
-  return "Open issue";
+function nextStepLabel(
+  status: ProjectIssue["status"],
+  t: (key: string) => string,
+) {
+  if (status === "Done" || status === "Closed") return t("projects.view_issue");
+  if (status === t("projects.in_review")) return t("projects.review_issue");
+  if (status === "Triage") return t("projects.triage_issue");
+  return t("projects.open_issue");
 }
 
 function IssueHeader({
@@ -102,6 +106,7 @@ function IssueGridCard({
   profiles?: UserProfileLookup;
   project: Project;
 }) {
+  const { t } = useTranslation();
   return (
     <Card
       className="group relative flex min-h-40 flex-col overflow-hidden border-border/60 bg-transparent p-4 shadow-none transition-colors duration-150 hover:bg-muted/20"
@@ -128,7 +133,7 @@ function IssueGridCard({
             type="button"
             variant="outline"
           >
-            {nextStepLabel(issue.status)}
+            {nextStepLabel(issue.status, t)}
           </Button>
         </div>
 
@@ -167,6 +172,7 @@ function IssueListRow({
   profiles?: UserProfileLookup;
   project: Project;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className={PROJECT_LIST_ROW_CLASS}
@@ -207,7 +213,7 @@ function IssueListRow({
           <ProjectListRowMenu label={`More options for ${issue.title}`}>
             <DropdownMenuItem onSelect={() => onOpen(project, issue)}>
               <Eye className="h-4 w-4" />
-              {nextStepLabel(issue.status)}
+              {nextStepLabel(issue.status, t)}
             </DropdownMenuItem>
           </ProjectListRowMenu>
         </div>

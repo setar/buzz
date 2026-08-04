@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import * as React from "react";
 
@@ -55,6 +56,7 @@ export function AvatarCustomColorPanel({
   testIdPrefix,
   className,
 }: AvatarCustomColorPanelProps) {
+  const { t } = useTranslation();
   const hueDragUserSelectRef = React.useRef<string | null>(null);
 
   const unlockHueDragSelection = React.useCallback(() => {
@@ -224,7 +226,7 @@ export function AvatarCustomColorPanel({
       </div>
 
       <div
-        aria-label="Choose custom avatar color hue"
+        aria-label={t("profile.avatar_color_hue")}
         aria-valuemax={360}
         aria-valuemin={0}
         aria-valuenow={hue}

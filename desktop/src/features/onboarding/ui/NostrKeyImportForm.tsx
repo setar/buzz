@@ -294,7 +294,7 @@ export function NostrKeyImportForm({
       ) : null}
 
       {/* Hidden file input shared by both variants: the default drop zone and
-          the spotlight "Choose a backup file" button both open it. Accepts the
+          the spotlight t("onboarding.choose_backup_file") button both open it. Accepts the
           .ncryptsec backups our own save flow emits alongside raw .key files. */}
       <input
         accept=".key,.ncryptsec,text/plain"

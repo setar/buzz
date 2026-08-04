@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { LayoutGrid, List } from "lucide-react";
 
 import type {
@@ -22,11 +23,12 @@ export function ProjectsViewModeToggle({
   viewMode: ProjectsViewMode;
   onViewModeChange: (viewMode: ProjectsViewMode) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <fieldset className="flex items-center rounded-lg bg-muted/30 p-0.5">
       <legend className="sr-only">Project layout</legend>
       <Button
-        aria-label="Grid layout"
+        aria-label={t("projects.grid_layout")}
         aria-pressed={viewMode === "grid"}
         className="h-7 w-7 px-0"
         onClick={() => onViewModeChange("grid")}
@@ -37,7 +39,7 @@ export function ProjectsViewModeToggle({
         <LayoutGrid className="h-3.5 w-3.5" />
       </Button>
       <Button
-        aria-label="List layout"
+        aria-label={t("projects.list_layout")}
         aria-pressed={viewMode === "list"}
         className="h-7 w-7 px-0"
         onClick={() => onViewModeChange("list")}
@@ -55,13 +57,14 @@ export function ProjectsToolbar({
   filter,
   onFilterChange,
 }: ProjectsToolbarProps) {
+  const { t } = useTranslation();
   const filterOptions: Array<{
     label: string;
     value: ProjectsFilter;
   }> = [
     { label: "Overview", value: "all" },
     { label: "Repositories", value: "repositories" },
-    { label: "Pull Requests", value: "prs" },
+    { label: t("projects.pull_requests_title"), value: "prs" },
     { label: "Issues", value: "issues" },
   ];
 

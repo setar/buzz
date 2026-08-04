@@ -1,4 +1,5 @@
 import { CornerUpLeft, Pencil, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
@@ -7,7 +8,7 @@ const BANNER_CLASS =
   "relative z-0 -mb-4 flex transform-gpu gap-2 rounded-t-2xl border border-b-0 border-border/60 bg-muted/55 px-4 pb-6 pt-2.5 text-sm leading-5 text-muted-foreground backdrop-blur-sm transition-colors";
 
 /**
- * The "Editing message" / "Replying to …" banner that sits above the composer
+ * The t("messages.editing_message") / "Replying to …" banner that sits above the composer
  * input. Edit takes precedence over reply (matching the composer's own
  * `editTarget ? … : replyTarget ? …` ordering). Rendered as a sibling so
  * MessageComposer stays under the file-size guard; purely presentational.
@@ -23,6 +24,7 @@ export function ComposerReplyEditBanner({
   onCancelEdit?: () => void;
   onCancelReply?: () => void;
 }) {
+  const { t } = useTranslation();
   if (isEditing) {
     return (
       <div
@@ -37,7 +39,7 @@ export function ComposerReplyEditBanner({
         </div>
         {onCancelEdit ? (
           <Button
-            aria-label="Cancel edit"
+            aria-label={t("messages.cancel_edit")}
             className="-mr-1 h-7 w-7 shrink-0 px-0 text-muted-foreground hover:text-foreground"
             onClick={onCancelEdit}
             size="icon"
@@ -70,7 +72,7 @@ export function ComposerReplyEditBanner({
         </div>
         {onCancelReply ? (
           <Button
-            aria-label="Cancel reply"
+            aria-label={t("messages.cancel_reply")}
             className="-mr-1 h-7 w-7 shrink-0 px-0 text-muted-foreground hover:text-foreground"
             onClick={onCancelReply}
             size="icon"

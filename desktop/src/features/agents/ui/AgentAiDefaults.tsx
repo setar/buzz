@@ -1,4 +1,5 @@
 import type * as React from "react";
+import { useTranslation } from "react-i18next";
 import type { InheritedDefault } from "./bakedEnvHelpers";
 import { getPersonaProviderOptions } from "./agentConfigOptions";
 import { Button } from "@/shared/ui/button";
@@ -13,16 +14,18 @@ function providerLabel(providerId: string) {
 export function formatAiDefaultsSummary({
   provider,
   model,
+  t,
 }: {
   provider: InheritedDefault;
   model: InheritedDefault;
+  t: (key: string) => string;
 }) {
   const parts = [
     provider.value ? providerLabel(provider.value) : null,
     model.value || null,
   ].filter((value): value is string => Boolean(value));
 
-  return parts.length > 0 ? parts.join(" · ") : "Not configured";
+  return parts.length > 0 ? parts.join(" · ") : t("agents.not_configured");
 }
 
 export function AgentAiDefaultsNotice({
@@ -44,6 +47,7 @@ export function AgentAiDefaultsNotice({
   inheritedModel: InheritedDefault;
   inheritedProvider: InheritedDefault;
 }) {
+  const { t } = useTranslation();
   const provider = explicitProvider.trim() || inheritedProvider.value;
   const model = explicitModel.trim() || inheritedModel.value;
 
@@ -54,7 +58,7 @@ export function AgentAiDefaultsNotice({
         data-testid="agent-ai-defaults-notice"
       >
         <p className="text-sm font-medium text-foreground">
-          Global defaults not set
+          {t("agents.global_defaults_not_set")}
         </p>
         <Button
           className="shrink-0"
@@ -65,7 +69,7 @@ export function AgentAiDefaultsNotice({
           type="button"
           variant="outline"
         >
-          Set
+          {t("agents.set")}
         </Button>
       </div>
     );
@@ -76,19 +80,19 @@ export function AgentAiDefaultsNotice({
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 text-sm">
         {harness !== undefined ? (
           <>
-            <dt className="text-muted-foreground">Harness</dt>
+            <dt className="text-muted-foreground">{t("agents.harness")}</dt>
             <dd className="truncate text-foreground">
-              {harness || "Not configured"}
+              {harness || t("agents.not_configured")}
             </dd>
           </>
         ) : null}
-        <dt className="text-muted-foreground">Provider</dt>
+        <dt className="text-muted-foreground">{t("agents.provider")}</dt>
         <dd className="truncate text-foreground">
-          {provider ? providerLabel(provider) : "Not configured"}
+          {provider ? providerLabel(provider) : t("agents.not_configured")}
         </dd>
-        <dt className="text-muted-foreground">Model</dt>
+        <dt className="text-muted-foreground">{t("agents.model")}</dt>
         <dd className="truncate text-foreground">
-          {model || "Not configured"}
+          {model || t("agents.not_configured")}
         </dd>
       </dl>
       <Button

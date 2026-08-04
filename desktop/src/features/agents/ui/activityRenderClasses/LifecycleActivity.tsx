@@ -29,7 +29,7 @@ function splitPermissionText(text: string): {
 /**
  * Derive the visual tone and icon for a resolved permission outcome string.
  * Outcome strings come from describePermissionOutcome:
- *   "Approved (...)" | "Denied (...)" | "Cancelled"
+ *   t("agents.approved_ellipsis") | t("agents.denied_ellipsis") | "Cancelled"
  */
 function permissionOutcomeTone(outcome: string): "approve" | "deny" | "cancel" {
   if (outcome.startsWith("Approved")) return "approve";

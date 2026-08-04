@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import * as React from "react";
 
@@ -23,6 +24,7 @@ export function ChannelFindBar({
   onQueryChange,
   query,
 }: ChannelFindBarProps) {
+  const { t } = useTranslation();
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -51,7 +53,7 @@ export function ChannelFindBar({
     query.length >= 2
       ? matchCount > 0
         ? `${matchIndex + 1} of ${matchCount}`
-        : "No results"
+        : t("search.no_results")
       : null;
 
   return (
@@ -71,7 +73,7 @@ export function ChannelFindBar({
           )}
           onChange={(event) => onQueryChange(event.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Find in channel"
+          placeholder={t("search.find_in_channel")}
           spellCheck={false}
           type="text"
           value={query}
@@ -84,7 +86,7 @@ export function ChannelFindBar({
       </div>
 
       <Button
-        aria-label="Previous match"
+        aria-label={t("search.previous_match")}
         className="h-7 w-7"
         disabled={matchCount === 0}
         onClick={onPrevious}
@@ -95,7 +97,7 @@ export function ChannelFindBar({
       </Button>
 
       <Button
-        aria-label="Next match"
+        aria-label={t("search.next_match")}
         className="h-7 w-7"
         disabled={matchCount === 0}
         onClick={onNext}
@@ -106,7 +108,7 @@ export function ChannelFindBar({
       </Button>
 
       <Button
-        aria-label="Close find bar"
+        aria-label={t("search.close_find_bar")}
         className="h-7 w-7"
         onClick={onClose}
         size="icon"

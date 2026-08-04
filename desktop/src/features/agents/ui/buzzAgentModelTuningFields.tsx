@@ -6,6 +6,7 @@
  * PersonaAdvancedFields and EditAgentAdvancedFields.
  */
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/shared/ui/input";
 import { cn } from "@/shared/lib/cn";
 import type { EnvVarsValue } from "./EnvVarsEditor";
@@ -75,12 +76,12 @@ export function EffortSelectField({
    *
    * Defaults to `"Inherit"`.
    *
-   * Per-agent callers (BuzzAgentModelTuningFields) pass `"Inherit (agent default)"`
+   * Per-agent callers (BuzzAgentModelTuningFields) pass `t("agents.inherit_agent_default")`
    * to preserve the label that appeared before this component was extracted.
    *
    * The global-defaults card (AgentDefaultsSettingsCard) passes
    * `"Default (<effort>)"` when a semantic default exists and nothing is baked
-   * in — so OSS users see "Default (medium)" rather than bare "Inherit".
+   * in — so OSS users see t("agents.default_medium") rather than bare "Inherit".
    */
   inheritFallbackLabel?: string;
   /** Label text for the dropdown. */
@@ -100,11 +101,12 @@ export function EffortSelectField({
   /** Render the polished app dropdown instead of the native select. */
   useCustomSelect?: boolean;
 }) {
+  const { t } = useTranslation();
   const inheritLabel = inheritedEffort
-    ? `Inherit (${inheritedEffort})`
+    ? t("agents.inherit_value", { value: inheritedEffort })
     : effortDefault === null
-      ? "Inherit (default)"
-      : (inheritFallbackLabel ?? "Inherit");
+      ? t("agents.inherit_default")
+      : (inheritFallbackLabel ?? t("agents.inherit"));
   const effortOptions: AgentDropdownOption[] = [
     { label: emptyOptionLabel ?? inheritLabel, value: "" },
     ...BUZZ_AGENT_THINKING_EFFORT_VALUES.flatMap((v) => {
@@ -114,7 +116,7 @@ export function EffortSelectField({
       return [
         {
           disabled: !isValid,
-          label: isDefault ? `${v} (default)` : v,
+          label: isDefault ? `${v}${t("agents.suffix_default")}` : v,
           value: v,
         },
       ];
@@ -307,6 +309,7 @@ export function BuzzAgentModelTuningFields({
   /** Active LLM provider id (optional) — used for effort filtering + default labels. */
   provider?: string;
 }) {
+  const { t } = useTranslation();
   const effortConfig = getProviderEffortConfig(provider ?? "", model);
   const { validValues: effortValid, defaultValue: effortDefault } =
     effortConfig;
@@ -321,7 +324,7 @@ export function BuzzAgentModelTuningFields({
   return (
     <div className="space-y-4">
       <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
-        buzz-agent model tuning
+        {t("agents.buzz_agent_model_tuning")}
       </p>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -333,8 +336,8 @@ export function BuzzAgentModelTuningFields({
             effortValid={effortValid}
             htmlFor="ba-thinking-effort"
             inheritedEffort={inheritedEnvVars[BUZZ_AGENT_THINKING_EFFORT]}
-            inheritFallbackLabel="Inherit (agent default)"
-            label="Thinking / Effort"
+            inheritFallbackLabel={t("agents.inherit_agent_default")}
+            label={t("agents.thinking_effort")}
             onChange={(value) =>
               onEnvVarChange(BUZZ_AGENT_THINKING_EFFORT, value)
             }
@@ -344,8 +347,7 @@ export function BuzzAgentModelTuningFields({
             className="text-xs text-muted-foreground"
             id="help-ba-thinking-effort"
           >
-            Controls how much reasoning effort the LLM applies per turn. Leave
-            blank to inherit from the global or persona default.
+            {t("agents.thinking_effort_help")}
           </p>
         </div>
       </div>

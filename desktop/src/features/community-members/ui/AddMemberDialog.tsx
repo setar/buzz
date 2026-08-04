@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ChevronDown, Search } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import * as React from "react";
@@ -58,13 +59,14 @@ export function DirectAddMemberForm({
   isOwner,
   onAdded,
   showLabel = true,
-  submitLabel = "Add member",
+  submitLabel,
 }: {
   isOwner: boolean;
   onAdded?: () => void;
   showLabel?: boolean;
   submitLabel?: string;
 }) {
+  const { t } = useTranslation();
   const addMutation = useAddRelayMemberMutation();
   const membersQuery = useRelayMembersQuery();
   const [query, setQuery] = React.useState("");
@@ -179,11 +181,11 @@ export function DirectAddMemberForm({
       toast.success(
         selectedUsers.length === 1
           ? role === "admin"
-            ? "Admin added"
-            : "Member added"
+            ? t("community_members.admin_added")
+            : t("community_members.member_added")
           : role === "admin"
-            ? "Admins added"
-            : "Members added",
+            ? t("community_members.admins_added")
+            : t("community_members.members_added"),
       );
       reset();
       onAdded?.();
@@ -272,7 +274,7 @@ export function DirectAddMemberForm({
                       }}
                       placeholder={
                         selectedUsers.length === 0
-                          ? "Search people or paste an npub"
+                          ? t("search.people_or_npub")
                           : ""
                       }
                       ref={searchInputRef}
@@ -293,7 +295,7 @@ export function DirectAddMemberForm({
                         <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
                             <button
-                              aria-label="Choose member role"
+                              aria-label={t("community_members.choose_role")}
                               className="inline-flex items-center gap-1.5 bg-transparent text-sm text-muted-foreground outline-hidden transition-colors hover:text-foreground focus-visible:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                               data-testid="member-role"
                               disabled={addMutation.isPending}
@@ -463,6 +465,7 @@ export function AddMemberDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent
@@ -471,7 +474,7 @@ export function AddMemberDialog({
       >
         <div className="flex max-h-[85vh] flex-col">
           <DialogHeader className="border-b border-border/60 px-6 py-5 pr-14">
-            <DialogTitle>Add member</DialogTitle>
+            <DialogTitle>{t("community_members.add_member")}</DialogTitle>
             <DialogDescription>
               Add a person to this community by their public key.
             </DialogDescription>

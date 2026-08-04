@@ -25,6 +25,7 @@ export type FileReadContent = {
 export function buildSkillReadContent(
   item: ToolItem,
   descriptor: AgentActivityDescriptor,
+  t: (key: string) => string,
 ): FileReadContent | null {
   if (descriptor.renderClass !== "skill-read") {
     return null;
@@ -50,7 +51,7 @@ export function buildSkillReadContent(
           kind: "context" as const,
           text: line,
         }))
-      : [{ kind: "meta" as const, text: "No skill content returned." }];
+      : [{ kind: "meta" as const, text: t("agents.no_skill_content") }];
 
   const footerText = skillRef.includes("/") ? skillRef : `${skillRef}/SKILL.md`;
 
@@ -65,6 +66,7 @@ export function buildSkillReadContent(
 export function buildFileReadContent(
   item: ToolItem,
   descriptor: AgentActivityDescriptor,
+  t: (key: string) => string,
 ): FileReadContent | null {
   if (descriptor.renderClass !== "file-read") {
     return null;
@@ -83,7 +85,7 @@ export function buildFileReadContent(
     return null;
   }
 
-  const parsed = parseReadFileOutput(resultText, path);
+  const parsed = parseReadFileOutput(resultText, path, t);
   return {
     footerText: parsed.footerText,
     footerTitle: parsed.footerTitle,
@@ -92,7 +94,11 @@ export function buildFileReadContent(
   };
 }
 
-function parseReadFileOutput(resultText: string, path: string) {
+function parseReadFileOutput(
+  resultText: string,
+  path: string,
+  t: (key: string) => string,
+) {
   const rawLines = trimTrailingEmptyLines(resultText.split(/\r?\n/));
   const firstLine = rawLines[0] ?? "";
   const remainingLines = rawLines.slice(1);
@@ -107,7 +113,7 @@ function parseReadFileOutput(resultText: string, path: string) {
             : ("context" as const),
           text: line,
         }))
-      : [{ kind: "meta" as const, text: "No file content returned." }];
+      : [{ kind: "meta" as const, text: t("agents.no_file_content") }];
 
   return {
     footerText: hasRangeHeader ? firstLine : path,

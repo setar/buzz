@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -39,6 +40,7 @@ export function EncryptedBackupProvider({
   children: React.ReactNode;
   onOpenSettings: () => void;
 }) {
+  const { t } = useTranslation();
   const [state, dispatch] = React.useReducer(
     encryptedBackupReducer,
     initialEncryptedBackupState,
@@ -96,9 +98,7 @@ export function EncryptedBackupProvider({
             type: "encrypt-failed",
             requestId,
             message:
-              err instanceof Error
-                ? err.message
-                : "Failed to encrypt your key.",
+              err instanceof Error ? err.message : t("settings.failed_encrypt"),
           });
         });
     };
@@ -110,12 +110,12 @@ export function EncryptedBackupProvider({
       if (!started) cancelledBeforeStart = true;
       window.clearTimeout(timer);
     };
-  }, [pendingPassphrase, skipDebounce, state.nextRequestId]);
+  }, [pendingPassphrase, skipDebounce, state.nextRequestId, t]);
 
   React.useEffect(() => {
     if (state.downloadPending) {
       toast.loading("Preparing backup…", {
-        description: "You can close this window while Buzz finishes.",
+        description: t("settings.close_while_finishing"),
         duration: Number.POSITIVE_INFINITY,
         id: BACKUP_READY_TOAST_ID,
       });
@@ -136,22 +136,23 @@ export function EncryptedBackupProvider({
     state.downloadPending,
     state.ncryptsec,
     state.passphrase.length,
+    t,
   ]);
 
   const showAvailableToast = React.useCallback(
     (description: string, error = false) => {
       const options = {
         action: {
-          label: "Open settings",
+          label: t("settings.open_settings"),
           onClick: () => onOpenSettingsRef.current(),
         },
         description,
         id: BACKUP_READY_TOAST_ID,
       };
-      if (error) toast.error("Backup ready to download", options);
-      else toast.success("Backup ready to download", options);
+      if (error) toast.error(t("settings.backup_ready"), options);
+      else toast.success(t("settings.backup_ready"), options);
     },
-    [],
+    [t],
   );
 
   const saveBackup = React.useCallback(
@@ -175,7 +176,7 @@ export function EncryptedBackupProvider({
       } catch (err) {
         if (!mountedRef.current) return;
         const message =
-          err instanceof Error ? err.message : "Failed to save your key.";
+          err instanceof Error ? err.message : t("settings.failed_save_key");
         setSaveError(message);
         showAvailableToast(
           `${message} It will be available to download for 5 minutes.`,
@@ -185,7 +186,7 @@ export function EncryptedBackupProvider({
         if (mountedRef.current) setIsSaving(false);
       }
     },
-    [isSaving, showAvailableToast],
+    [isSaving, showAvailableToast, t],
   );
 
   React.useEffect(() => {

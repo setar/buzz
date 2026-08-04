@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/lib/cn";
 
 import {
@@ -27,6 +28,7 @@ export function AnimatedAvatarBackdropPanel({
   onSelectColor,
   testIdPrefix,
 }: AnimatedAvatarBackdropPanelProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -46,7 +48,7 @@ export function AnimatedAvatarBackdropPanel({
           <button
             aria-label={
               isCustomSwatch
-                ? "Choose custom backdrop color"
+                ? t("profile.backdrop_color")
                 : `Use ${swatch} backdrop`
             }
             aria-pressed={isSelected}

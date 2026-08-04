@@ -7,8 +7,10 @@ import {
 import type { CustomEmoji } from "@/shared/lib/remarkCustomEmoji";
 
 const QUICK_REACTION_STORAGE_KEY = "buzz.quick-reaction-emojis.v1";
+const PINNED_REACTION_STORAGE_KEY = "buzz.pinned-reaction-emojis.v1";
 const DEFAULT_QUICK_REACTIONS = ["👍", "❤️", "😂", "🎉"] as const;
 const MAX_STORED_REACTIONS = 24;
+const MAX_PINNED_REACTIONS = 16;
 const sessionQuickReactionEmojis = new Map<string, string[]>();
 
 type QuickReactionEntry = {
@@ -35,6 +37,69 @@ function getActiveCommunityScope() {
   } catch {
     return null;
   }
+}
+
+function pinnedReactionStorageKey(communityScope: string | null): string {
+  return communityScope
+    ? `${PINNED_REACTION_STORAGE_KEY}:${communityScope}`
+    : PINNED_REACTION_STORAGE_KEY;
+}
+
+export function getPinnedReactionEmojis(
+  communityScope?: string | null,
+): string[] {
+  if (!canUseLocalStorage()) return [];
+  const scope =
+    communityScope !== undefined ? communityScope : getActiveCommunityScope();
+  try {
+    const raw = window.localStorage.getItem(pinnedReactionStorageKey(scope));
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (e): e is string => typeof e === "string" && e.trim().length > 0,
+    );
+  } catch {
+    return [];
+  }
+}
+
+export function pinReactionEmoji(emoji: string): void {
+  const trimmed = emoji.trim();
+  if (!trimmed) return;
+  const communityScope = getActiveCommunityScope();
+  const storageKey = pinnedReactionStorageKey(communityScope);
+  const pinned = getPinnedReactionEmojis(communityScope);
+  if (pinned.includes(trimmed)) return;
+  const next = [...pinned, trimmed].slice(0, MAX_PINNED_REACTIONS);
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(next));
+    // Invalidate session cache so hooks re-read on next access
+    sessionQuickReactionEmojis.clear();
+  } catch {}
+}
+
+export function unpinReactionEmoji(emoji: string): void {
+  const trimmed = emoji.trim();
+  if (!trimmed) return;
+  const communityScope = getActiveCommunityScope();
+  const storageKey = pinnedReactionStorageKey(communityScope);
+  const next = getPinnedReactionEmojis(communityScope).filter(
+    (e) => e !== trimmed,
+  );
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(next));
+    sessionQuickReactionEmojis.clear();
+  } catch {}
+}
+
+export function isReactionEmojiPinned(emoji: string): boolean {
+  return getPinnedReactionEmojis().includes(emoji.trim());
+}
+
+/** Reset module-level session cache (call on community switch). */
+export function resetQuickReactionSessionCache(): void {
+  sessionQuickReactionEmojis.clear();
 }
 
 function quickReactionStorageKey(communityScope: string | null) {
@@ -134,6 +199,7 @@ function canRenderQuickReactionEmoji(
 }
 
 function resolveQuickReactionEmojisWithShortcodes(
+  pinnedEmojis: ReadonlyArray<string>,
   entries: ReadonlyArray<Pick<QuickReactionEntry, "emoji">>,
   limit: number,
   customEmojiShortcodes: ReadonlySet<string>,
@@ -141,6 +207,16 @@ function resolveQuickReactionEmojisWithShortcodes(
   const seen = new Set<string>();
   const next: string[] = [];
 
+  // Pinned emojis come first.
+  for (const emoji of pinnedEmojis) {
+    if (seen.has(emoji)) continue;
+    if (!canRenderQuickReactionEmoji(emoji, customEmojiShortcodes)) continue;
+    seen.add(emoji);
+    next.push(emoji);
+    if (next.length >= limit) return next;
+  }
+
+  // Then frequently used.
   for (const entry of entries) {
     if (seen.has(entry.emoji)) continue;
     if (!canRenderQuickReactionEmoji(entry.emoji, customEmojiShortcodes)) {
@@ -151,6 +227,7 @@ function resolveQuickReactionEmojisWithShortcodes(
     if (next.length >= limit) return next;
   }
 
+  // Finally defaults as fallback.
   for (const emoji of DEFAULT_QUICK_REACTIONS) {
     if (seen.has(emoji)) continue;
     seen.add(emoji);
@@ -165,8 +242,10 @@ export function resolveQuickReactionEmojis(
   entries: ReadonlyArray<Pick<QuickReactionEntry, "emoji">>,
   limit: number,
   customEmoji: ReadonlyArray<CustomEmoji> = [],
+  pinnedEmojis: ReadonlyArray<string> = [],
 ) {
   return resolveQuickReactionEmojisWithShortcodes(
+    pinnedEmojis,
     entries,
     limit,
     customEmojiShortcodesFromSignature(customEmojiSignature(customEmoji)),
@@ -179,6 +258,7 @@ function getQuickReactionEmojis(
   customEmojiSignature: string,
 ) {
   return resolveQuickReactionEmojisWithShortcodes(
+    getPinnedReactionEmojis(communityScope),
     readQuickReactionEntries(quickReactionStorageKey(communityScope)),
     limit,
     customEmojiShortcodesFromSignature(customEmojiSignature),
@@ -274,4 +354,31 @@ export function useQuickReactionEmojis(
   }, [customEmojiCacheKey, limit, communityScope]);
 
   return emojis;
+}
+
+/**
+ * Reactive list of pinned reaction emojis for the active community.
+ * Updates when localStorage changes (e.g. pin/unpin from another component).
+ */
+export function usePinnedReactionEmojis(): string[] {
+  const communityScope = getActiveCommunityScope();
+  const [pinned, setPinned] = React.useState(() =>
+    getPinnedReactionEmojis(communityScope),
+  );
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const storageKey = pinnedReactionStorageKey(communityScope);
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === storageKey) {
+        setPinned(getPinnedReactionEmojis(communityScope));
+      }
+    };
+    // Sync on mount in case another component changed pinned state
+    setPinned(getPinnedReactionEmojis(communityScope));
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [communityScope]);
+
+  return pinned;
 }

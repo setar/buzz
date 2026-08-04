@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Activity,
   Ban,
@@ -104,14 +105,19 @@ function formatRoleLabel(member: ChannelMember, memberIsBot: boolean) {
   return null;
 }
 
-function formatRespondToLabel(agent: ManagedAgent) {
+function formatRespondToLabel(
+  agent: ManagedAgent,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+) {
   switch (agent.respondTo) {
     case "anyone":
-      return "Anyone";
+      return t("channel.anyone");
     case "allowlist":
-      return `Selected people (${agent.respondToAllowlist.length})`;
+      return t("channel.selected_people", {
+        count: agent.respondToAllowlist.length,
+      });
     default:
-      return "Only me";
+      return t("channel.only_me");
   }
 }
 
@@ -143,6 +149,7 @@ export function MembersSidebarMemberCard({
   profileAvatarUrl,
   viewerIsOwner,
 }: MembersSidebarMemberCardProps) {
+  const { t } = useTranslation();
   const roleLabel = formatRoleLabel(member, memberIsBot);
   const disabled = isActionPending || isArchived;
   const canViewActivity =
@@ -231,7 +238,7 @@ export function MembersSidebarMemberCard({
             className="sr-only"
             data-testid={`sidebar-managed-agent-respond-to-${member.pubkey}`}
           >
-            {formatRespondToLabel(managedAgent)}
+            {formatRespondToLabel(managedAgent, t)}
           </span>
         ) : null}
       </div>

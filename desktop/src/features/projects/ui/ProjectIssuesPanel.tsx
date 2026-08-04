@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CircleCheck, CircleDot, CircleX, MessageSquare } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -99,6 +100,7 @@ function IssueRow({
   onOpen: () => void;
   profiles?: UserProfileLookup;
 }) {
+  const { t } = useTranslation();
   const authorProfile = profiles?.[normalizePubkey(issue.author)];
   const authorLabel = resolveUserLabel({ profiles, pubkey: issue.author });
   const status = issueStatusVisual(issue.status);
@@ -150,7 +152,7 @@ function IssueRow({
             <ProjectFeedRowMonoCell
               label={`#${issue.id.slice(0, 8)}`}
               onClick={onOpen}
-              title="View issue"
+              title={t("projects.view_issue")}
             />
           </ProjectFeedRowCluster>
         </>
@@ -171,6 +173,7 @@ export function ProjectIssueDetail({
   project: Project;
   stackMetaRail?: boolean;
 }) {
+  const { t } = useTranslation();
   const commentMutation = useCreateProjectIssueCommentMutation(project);
   const authorLabel = resolveUserLabel({ profiles, pubkey: issue.author });
   const members = React.useMemo(
@@ -190,15 +193,17 @@ export function ProjectIssueDetail({
           mediaTags,
           mentionPubkeys,
         });
-        toast.success("Comment posted.");
+        toast.success(t("projects.comment_posted"));
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to post comment.",
+          error instanceof Error
+            ? error.message
+            : t("projects.failed_post_comment"),
         );
         throw error;
       }
     },
-    [commentMutation, issue],
+    [commentMutation, issue, t],
   );
 
   return (
@@ -356,6 +361,7 @@ export function ProjectIssuesPanel({
   project: Project;
   selectedIssueId: string | null;
 }) {
+  const { t } = useTranslation();
   const issuesQuery = useProjectIssuesQuery(project);
   const issues = issuesQuery.data ?? [];
   const selectedIssue =
@@ -369,8 +375,8 @@ export function ProjectIssuesPanel({
     return (
       <p className="p-4 text-sm text-muted-foreground">
         {issuesQuery.error
-          ? "Could not load issues for this repository."
-          : "No issues yet."}
+          ? t("projects.could_not_load_issues")
+          : t("projects.no_issues_yet")}
       </p>
     );
   }

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, X } from "lucide-react";
 import * as React from "react";
 
@@ -11,6 +12,7 @@ type WorkflowApprovalCardProps = {
 };
 
 export function WorkflowApprovalCard({ approval }: WorkflowApprovalCardProps) {
+  const { t } = useTranslation();
   const [note, setNote] = React.useState("");
   const approvalMutation = useApprovalMutation();
 
@@ -27,17 +29,18 @@ export function WorkflowApprovalCard({ approval }: WorkflowApprovalCardProps) {
     >
       <p className="mb-2 text-sm font-medium">Approval Required</p>
       <p className="mb-2 text-xs text-muted-foreground">
-        Approver: {approval.approverSpec}
+        {t("workflows.approver")}: {approval.approverSpec}
       </p>
       <p className="mb-2 text-xs text-muted-foreground">
-        Expires: {new Date(approval.expiresAt).toLocaleString()}
+        {t("workflows.expires")}:{" "}
+        {new Date(approval.expiresAt).toLocaleString()}
       </p>
 
       <Textarea
-        aria-label="Approval note"
+        aria-label={t("workflows.approval_note")}
         className="mb-2 h-16 resize-none text-xs"
         onChange={(event) => setNote(event.target.value)}
-        placeholder="Optional note..."
+        placeholder={t("workflows.optional_note")}
         value={note}
       />
 

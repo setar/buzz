@@ -1,5 +1,6 @@
 import * as React from "react";
 import { AlertTriangle, ChevronDown, Search, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   mergeAllowlist,
   parsePubkeyInput,
@@ -66,11 +67,14 @@ function formatSearchUserSecondary(user: UserSearchResult) {
   return truncatePubkey(user.pubkey);
 }
 
-const RESPOND_TO_OPTIONS: PersonaDropdownOption[] = [
-  { label: "Only me (default)", value: "owner-only" },
-  { label: "Anyone", value: "anyone" },
-  { label: "Selected people", value: "allowlist" },
-];
+function useRespondToOptions(): PersonaDropdownOption[] {
+  const { t } = useTranslation();
+  return [
+    { label: t("agents.respond_only_me_default"), value: "owner-only" },
+    { label: t("agents.respond_anyone"), value: "anyone" },
+    { label: t("agents.respond_selected_people"), value: "allowlist" },
+  ];
+}
 
 export function CreateAgentRespondToField({
   mode,
@@ -102,6 +106,8 @@ export function CreateAgentRespondToField({
    */
   runLocation?: AgentRunLocation | null;
 }) {
+  const { t } = useTranslation();
+  const respondToOptions = useRespondToOptions();
   const [query, setQuery] = React.useState("");
   const [isDirectEntryOpen, setIsDirectEntryOpen] = React.useState(false);
   const [pasteText, setPasteText] = React.useState("");
@@ -192,15 +198,15 @@ export function CreateAgentRespondToField({
         }
         htmlFor="agent-respond-to"
       >
-        Who can send instructions
+        {t("agents.who_can_send_instructions")}
       </label>
       {isPersonaVariant ? (
         <PersonaDropdownField
           disabled={disabled}
           id="agent-respond-to"
           onValueChange={(value) => onModeChange(value as RespondToMode)}
-          options={RESPOND_TO_OPTIONS}
-          placeholder="Only me (default)"
+          options={respondToOptions}
+          placeholder={t("agents.respond_only_me_default")}
           value={mode}
         />
       ) : (
@@ -212,7 +218,7 @@ export function CreateAgentRespondToField({
           onChange={(e) => onModeChange(e.target.value as RespondToMode)}
           value={mode}
         >
-          {RESPOND_TO_OPTIONS.map((option) => (
+          {respondToOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -222,7 +228,7 @@ export function CreateAgentRespondToField({
       {mode === "anyone" ? accessWarning : null}
       {mode === "owner-only" ? (
         <p className="text-xs text-muted-foreground">
-          Only you can send instructions.
+          {t("agents.only_you_can_send_instructions")}
         </p>
       ) : null}
       {mode === "allowlist" ? (
@@ -303,6 +309,7 @@ function AllowlistPicker({
   searchResults: UserSearchResult[];
   variant?: "default" | "persona";
 }) {
+  const { t } = useTranslation();
   const isPersona = variant === "persona";
 
   // Detect if the query is a valid hex pubkey that's not already in the list.
@@ -321,21 +328,23 @@ function AllowlistPicker({
     >
       {!isPersona ? (
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium">Selected people</span>
+          <span className="text-sm font-medium">
+            {t("agents.respond_selected_people")}
+          </span>
           <span className="rounded-full bg-background px-2 py-1 text-2xs font-medium leading-none text-muted-foreground">
-            {allowlist.length} selected
+            {t("agents.selected_count", { count: allowlist.length })}
           </span>
         </div>
       ) : null}
       {!isPersona && ownerPubkey ? (
         <p className="text-xs text-muted-foreground">
-          You (
-          <PubKey pubkey={ownerPubkey} />) can always use this agent. You
-          don&apos;t need to add yourself.
+          {t("agents.owner_pubkey_note", {
+            pubkey: <PubKey pubkey={ownerPubkey} />,
+          })}
         </p>
       ) : !isPersona ? (
         <p className="text-xs text-muted-foreground">
-          You can always use this agent.
+          {t("agents.you_can_always_use_agent")}
         </p>
       ) : null}
       <div className="rounded-lg border border-border/80 bg-background">
@@ -347,7 +356,9 @@ function AllowlistPicker({
             disabled={disabled}
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder={
-              isPersona ? "Search people" : "Search by name or NIP-05."
+              isPersona
+                ? t("agents.search_people")
+                : t("agents.search_by_name_or_nip05")
             }
             value={query}
           />
@@ -367,7 +378,9 @@ function AllowlistPicker({
                 />
                 <PubKey pubkey={pubkey} />
                 <button
-                  aria-label={`Remove ${truncatePubkey(pubkey)}`}
+                  aria-label={t("agents.remove_pubkey", {
+                    pubkey: truncatePubkey(pubkey),
+                  })}
                   className="text-muted-foreground transition-colors hover:text-foreground"
                   disabled={disabled}
                   onClick={() => onRemove(pubkey)}
@@ -383,7 +396,7 @@ function AllowlistPicker({
           <div className="border-t border-border/70 px-2 py-2">
             {searchIsLoading ? (
               <p className="px-2 py-1 text-sm text-muted-foreground">
-                Searching…
+                {t("search.searching")}
               </p>
             ) : searchResults.length > 0 ? (
               <div className="max-h-44 space-y-1 overflow-y-auto">
@@ -410,7 +423,9 @@ function AllowlistPicker({
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs text-muted-foreground">Add</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t("common.add")}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -432,15 +447,17 @@ function AllowlistPicker({
                       {truncatePubkey(deferredQuery)}
                     </p>
                     <p className="truncate text-xs text-muted-foreground">
-                      Add pubkey directly
+                      {t("agents.add_pubkey_directly")}
                     </p>
                   </div>
                 </div>
-                <span className="text-xs text-muted-foreground">Add</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("common.add")}
+                </span>
               </button>
             ) : (
               <p className="px-2 py-1 text-sm text-muted-foreground">
-                No matching users.
+                {t("agents.no_matching_users")}
               </p>
             )}
           </div>
@@ -465,7 +482,7 @@ function AllowlistPicker({
                 isDirectEntryOpen && "rotate-180",
               )}
             />
-            <span>Paste pubkeys</span>
+            <span>{t("agents.paste_pubkeys")}</span>
           </button>
           {isDirectEntryOpen ? (
             <div
@@ -473,8 +490,7 @@ function AllowlistPicker({
               id="agent-respond-to-direct-panel"
             >
               <p className="text-xs text-muted-foreground">
-                One per line, or comma/space-separated. 64-char lowercase hex
-                only — npub decoding is not yet supported here.
+                {t("agents.paste_pubkeys_help")}
               </p>
               <Textarea
                 className="min-h-20 font-mono text-xs"
@@ -486,16 +502,18 @@ function AllowlistPicker({
               />
               {pasteInvalid.length > 0 ? (
                 <p className="text-xs text-destructive">
-                  {pasteInvalid.length} entr
-                  {pasteInvalid.length === 1 ? "y is" : "ies are"} not 64-char
-                  hex and will be ignored.
+                  {t("agents.invalid_paste_entries", {
+                    count: pasteInvalid.length,
+                  })}
                 </p>
               ) : null}
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-muted-foreground">
                   {pasteValidCount > 0
-                    ? `${pasteValidCount} valid pubkey${pasteValidCount === 1 ? "" : "s"} ready.`
-                    : "No valid pubkeys yet."}
+                    ? t("agents.valid_pubkeys_ready", {
+                        count: pasteValidCount,
+                      })
+                    : t("agents.no_valid_pubkeys")}
                 </span>
                 <button
                   className="rounded-md border border-border/80 bg-background px-2.5 py-1 text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50"
@@ -504,7 +522,7 @@ function AllowlistPicker({
                   onClick={onAddFromPaste}
                   type="button"
                 >
-                  Add people
+                  {t("agents.add_people")}
                 </button>
               </div>
             </div>

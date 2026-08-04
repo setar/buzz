@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronRight, Pencil, Play, X } from "lucide-react";
 import * as React from "react";
 
@@ -29,6 +30,7 @@ export function WorkflowDetailPanel({
   onClose,
   onEdit,
 }: WorkflowDetailPanelProps) {
+  const { t } = useTranslation();
   const workflowQuery = useWorkflowQuery(workflowId);
   const runsQuery = useWorkflowRunsQuery(workflowId);
   const triggerMutation = useTriggerWorkflowMutation(workflowId);
@@ -107,7 +109,7 @@ export function WorkflowDetailPanel({
             {triggerMutation.isPending ? "Triggering..." : "Trigger"}
           </Button>
           <Button
-            aria-label="Close detail panel"
+            aria-label={t("workflows.close_detail_panel")}
             onClick={onClose}
             size="icon"
             variant="ghost"

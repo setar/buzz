@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/shared/lib/cn";
 import { Input } from "@/shared/ui/input";
@@ -47,12 +48,13 @@ export function PersonaProviderApiKeyField({
   inheritedLabel: string;
   /** True when the key is required and not satisfied anywhere. */
   isRequired: boolean;
-  /** Display label, e.g. "Anthropic API Key". */
+  /** Display label, e.g. t("agents.anthropic_api_key"). */
   label: string;
   onValueChange: (next: string) => void;
   /** Current agent-local value of the secret env var. */
   value: string;
 }) {
+  const { t } = useTranslation();
   const [showValue, setShowValue] = React.useState(false);
   const uid = React.useId();
   const inputId = `persona-provider-api-key-${uid}`;
@@ -87,12 +89,14 @@ export function PersonaProviderApiKeyField({
           disabled={disabled}
           id={inputId}
           onChange={(event) => onValueChange(event.target.value)}
-          placeholder={isInherited ? inheritedLabel : "Paste API key…"}
+          placeholder={isInherited ? inheritedLabel : t("agents.paste_api_key")}
           type={showValue ? "text" : "password"}
           value={value}
         />
         <button
-          aria-label={showValue ? "Hide API key" : "Show API key"}
+          aria-label={
+            showValue ? t("agents.hide_api_key") : t("agents.show_api_key")
+          }
           className="shrink-0 text-muted-foreground hover:text-foreground"
           onClick={() => setShowValue((v) => !v)}
           type="button"

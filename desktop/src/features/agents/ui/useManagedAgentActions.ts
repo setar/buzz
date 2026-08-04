@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   type AttachManagedAgentToChannelResult,
@@ -37,6 +38,7 @@ import {
 } from "../lib/instanceInputForDefinition";
 
 export function useManagedAgentActions() {
+  const { t } = useTranslation();
   const { globalConfig } = useGlobalAgentConfig();
   const relayAgentsQuery = useRelayAgentsQuery();
   const managedAgentsQuery = useManagedAgentsQuery();
@@ -169,7 +171,7 @@ export function useManagedAgentActions() {
       });
     } catch (error) {
       setActionErrorMessage(
-        error instanceof Error ? error.message : "Failed to start agent.",
+        error instanceof Error ? error.message : t("agents.failed_start_agent"),
       );
     }
   }
@@ -221,7 +223,7 @@ export function useManagedAgentActions() {
       void relayAgentsQuery.refetch();
     } catch (error) {
       setActionErrorMessage(
-        error instanceof Error ? error.message : "Failed to start agent.",
+        error instanceof Error ? error.message : t("agents.failed_start_agent"),
       );
     } finally {
       setPersonaStartPending(persona.id, false);
@@ -257,7 +259,7 @@ export function useManagedAgentActions() {
       }
     } catch (error) {
       setActionErrorMessage(
-        error instanceof Error ? error.message : "Failed to stop agent.",
+        error instanceof Error ? error.message : t("agents.failed_stop_agent"),
       );
     }
   }
@@ -298,7 +300,9 @@ export function useManagedAgentActions() {
       }
     } catch (error) {
       setActionErrorMessage(
-        error instanceof Error ? error.message : "Failed to delete agent.",
+        error instanceof Error
+          ? error.message
+          : t("agents.failed_delete_agent"),
       );
     }
   }

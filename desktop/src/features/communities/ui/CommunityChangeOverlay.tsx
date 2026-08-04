@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { useCommunities } from "../useCommunities";
@@ -12,6 +13,7 @@ export function CommunityChangeOverlay({
   onClose,
   onUpdated,
 }: CommunityChangeOverlayProps) {
+  const { t } = useTranslation();
   const { activeCommunity, updateCommunity } = useCommunities();
   const [error, setError] = React.useState<string | null>(null);
   const overlayRef = React.useRef<HTMLDivElement>(null);
@@ -51,14 +53,14 @@ export function CommunityChangeOverlay({
           // If requiresReinit, the tree remounts — overlay unmounts naturally.
           break;
         case "duplicate-relay":
-          setError("Another community already uses this relay URL.");
+          setError(t("communities.relay_in_use"));
           break;
         case "not-found":
-          setError("Community not found.");
+          setError(t("communities.not_found"));
           break;
       }
     },
-    [activeCommunity, onClose, onUpdated, updateCommunity],
+    [activeCommunity, onClose, onUpdated, updateCommunity, t],
   );
 
   if (!activeCommunity) return null;
@@ -87,7 +89,7 @@ export function CommunityChangeOverlay({
             initialRelayUrl={activeCommunity.relayUrl}
             onCancel={onClose}
             onSubmit={handleSubmit}
-            submitLabel="Save changes"
+            submitLabel={t("communities.save_changes")}
           />
         </div>
         {error ? (

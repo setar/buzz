@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/shared/lib/cn";
 import { useAgentSessionTranscriptVariant } from "../agentSessionTranscriptContext";
@@ -143,6 +144,7 @@ function CompactFileEditSummaryView({
 }: {
   summary: CompactFileEditSummary;
 }) {
+  const { t } = useTranslation();
   return (
     <ActivityRowLabel
       className="max-w-72"
@@ -153,7 +155,7 @@ function CompactFileEditSummaryView({
         deletions: summary.deletions,
       }}
       title={summary.path}
-      verb="Edited"
+      verb={t("agents.edited")}
     />
   );
 }

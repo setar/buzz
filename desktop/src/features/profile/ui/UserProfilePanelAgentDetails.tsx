@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ChevronRight, MessageSquare } from "lucide-react";
 
 import { Markdown } from "@/shared/ui/markdown";
@@ -6,19 +7,22 @@ import {
   ProfileFieldRows,
 } from "@/features/profile/ui/UserProfilePanelFields";
 
-export const AGENT_DETAILS_FIELD_LABELS = new Set([
-  "Runtime",
-  "ACP command",
-  "MCP command",
-]);
+export function buildAgentDetailsFieldLabels(t: (key: string) => string) {
+  return new Set([
+    "Runtime",
+    t("profile.acp_command"),
+    t("profile.mcp_command"),
+  ]);
+}
 
 export function AgentConfigurationFocusedView({
   fields,
 }: {
   fields: ProfileField[];
 }) {
+  const { t } = useTranslation();
   const runtimeConfigurationFields = fields.filter((field) =>
-    AGENT_DETAILS_FIELD_LABELS.has(field.label),
+    buildAgentDetailsFieldLabels(t).has(field.label),
   );
 
   return (

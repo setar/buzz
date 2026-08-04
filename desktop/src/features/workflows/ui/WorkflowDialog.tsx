@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { stringify as yamlStringify } from "yaml";
 
@@ -42,24 +43,6 @@ function getInitialYaml(
   return yamlStringify(def);
 }
 
-const TITLES: Record<DialogMode, string> = {
-  create: "Create Workflow",
-  edit: "Edit Workflow",
-  duplicate: "Duplicate Workflow",
-};
-
-const SUBMIT_LABELS: Record<DialogMode, string> = {
-  create: "Create",
-  edit: "Save",
-  duplicate: "Create Copy",
-};
-
-const PENDING_LABELS: Record<DialogMode, string> = {
-  create: "Creating...",
-  edit: "Saving...",
-  duplicate: "Creating...",
-};
-
 export function WorkflowDialog({
   channels,
   mode,
@@ -67,6 +50,22 @@ export function WorkflowDialog({
   open,
   workflow,
 }: WorkflowDialogProps) {
+  const { t } = useTranslation();
+  const TITLES: Record<DialogMode, string> = {
+    create: t("workflows.create_workflow"),
+    edit: t("workflows.edit_workflow"),
+    duplicate: t("workflows.duplicate_workflow"),
+  };
+  const SUBMIT_LABELS: Record<DialogMode, string> = {
+    create: t("common.create"),
+    edit: t("common.save"),
+    duplicate: t("workflows.create_copy"),
+  };
+  const PENDING_LABELS: Record<DialogMode, string> = {
+    create: t("common.creating"),
+    edit: t("common.saving"),
+    duplicate: t("common.creating"),
+  };
   const channelId =
     mode === "edit" && workflow?.channelId
       ? workflow.channelId
@@ -158,10 +157,10 @@ export function WorkflowDialog({
             <DialogTitle>{TITLES[mode]}</DialogTitle>
             <DialogDescription>
               {mode === "edit"
-                ? "Modify the workflow definition."
+                ? t("workflows.modify_definition")
                 : channels.length === 1
-                  ? "Create a workflow scoped to this channel."
-                  : "Define a workflow and assign it to a channel."}
+                  ? t("workflows.create_scoped_hint")
+                  : t("workflows.define_assign_hint")}
             </DialogDescription>
           </DialogHeader>
 
@@ -182,14 +181,14 @@ export function WorkflowDialog({
                 <p className="text-xs text-muted-foreground">
                   {selectedChannel
                     ? `New workflows will belong to ${selectedChannel.name}.`
-                    : "Join or create a channel before adding a workflow."}
+                    : t("workflows.join_or_create_hint")}
                 </p>
               </div>
             ) : (showChannelInfo || mode === "edit") && selectedChannel ? (
               <p className="text-sm text-muted-foreground">
                 {mode === "edit"
-                  ? "Editing workflow in"
-                  : "This workflow will be created in"}{" "}
+                  ? t("workflows.editing_in")
+                  : t("workflows.created_in")}{" "}
                 <span className="font-medium text-foreground">
                   {selectedChannel.name}
                 </span>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/lib/cn";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
@@ -16,16 +17,19 @@ const LEVEL_CLASSES = [
 ];
 
 // Descriptors matching the thresholds in `levelFor`.
-const LEVEL_LABELS = [
-  "No activity",
-  "1–2 events",
-  "3–5 events",
-  "6–9 events",
-  "10+ events",
-];
+function levelLabels(t: (key: string) => string) {
+  return [
+    t("projects.no_activity"),
+    t("projects.events_1_2"),
+    t("projects.events_3_5"),
+    t("projects.events_6_9"),
+    t("projects.events_10_plus"),
+  ];
+}
 
 /** Activity intensity legend shared with the contribution graph header. */
 export function ProjectsContributionLegend() {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-1.5">
       {LEVEL_CLASSES.map((levelClass, level) => (
@@ -33,7 +37,7 @@ export function ProjectsContributionLegend() {
           <TooltipTrigger asChild>
             <span className={cn("h-2.5 w-2.5 rounded", levelClass)} />
           </TooltipTrigger>
-          <TooltipContent>{LEVEL_LABELS[level]}</TooltipContent>
+          <TooltipContent>{levelLabels(t)[level]}</TooltipContent>
         </Tooltip>
       ))}
     </div>

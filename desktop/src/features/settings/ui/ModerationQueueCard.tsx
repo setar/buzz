@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, ChevronDown, ShieldAlert } from "lucide-react";
 import { useMemo } from "react";
 import { toast } from "sonner";
@@ -88,11 +89,12 @@ function statusForAction(action: ResolutionAction): "resolved" | "dismissed" {
  */
 async function resolveTargetAuthor(
   group: ModerationQueueGroup,
+  t: (key: string) => string,
 ): Promise<string> {
   if (group.targetKind === "pubkey") return group.target;
   const event = await getEventById(group.target);
   if (!event?.pubkey) {
-    throw new Error("Could not resolve the message author.");
+    throw new Error(t("settings.could_not_resolve_author"));
   }
   return event.pubkey;
 }
@@ -110,22 +112,25 @@ async function enforceResolution(
   group: ModerationQueueGroup,
   action: ResolutionAction,
   ban: (input: { pubkey: string; reason?: string }) => Promise<unknown>,
+  t: (key: string) => string,
 ): Promise<void> {
   switch (action) {
     case "delete":
       // Gated to event targets with a channel (resolvableActions).
-      if (group.channelId == null) throw new Error("Report has no channel.");
+      if (group.channelId == null)
+        throw new Error(t("settings.report_no_channel"));
       await deleteMessage(group.channelId, group.target);
       return;
     case "ban":
-      await ban({ pubkey: await resolveTargetAuthor(group) });
+      await ban({ pubkey: await resolveTargetAuthor(group, t) });
       return;
     case "kick":
       // Gated to event targets with a channel (resolvableActions).
-      if (group.channelId == null) throw new Error("Report has no channel.");
+      if (group.channelId == null)
+        throw new Error(t("settings.report_no_channel"));
       await removeChannelMember(
         group.channelId,
-        await resolveTargetAuthor(group),
+        await resolveTargetAuthor(group, t),
       );
       return;
     case "escalate":
@@ -133,46 +138,48 @@ async function enforceResolution(
       return;
     case "timeout":
       // Dropped from one-click until the resolve flow collects a duration.
-      throw new Error("Timeout is not available from the queue yet.");
+      throw new Error(t("settings.timeout_unavailable"));
   }
 }
 
-const RESOLUTION_OPTIONS: {
+function buildResolutionOptions(t: (key: string) => string): {
   action: ResolutionAction;
   label: string;
   description: string;
-}[] = [
-  {
-    action: "delete",
-    label: "Delete content",
-    description: "Remove the reported content and resolve.",
-  },
-  {
-    action: "kick",
-    label: "Kick author",
-    description: "Remove the author from the community.",
-  },
-  {
-    action: "ban",
-    label: "Ban author",
-    description: "Block the author from the community.",
-  },
-  {
-    action: "timeout",
-    label: "Time out author",
-    description: "Temporarily mute the author.",
-  },
-  {
-    action: "escalate",
-    label: "Escalate",
-    description: "Route to the platform-safety lane.",
-  },
-  {
-    action: "dismiss",
-    label: "Dismiss",
-    description: "No violation — close without action.",
-  },
-];
+}[] {
+  return [
+    {
+      action: "delete",
+      label: t("settings.delete_content"),
+      description: t("settings.resolve_remove_content"),
+    },
+    {
+      action: "kick",
+      label: t("settings.kick_author"),
+      description: t("settings.kick_author_desc"),
+    },
+    {
+      action: "ban",
+      label: t("settings.ban_author"),
+      description: t("settings.ban_author_desc"),
+    },
+    {
+      action: "timeout",
+      label: t("settings.timeout_author"),
+      description: t("settings.timeout_author_desc"),
+    },
+    {
+      action: "escalate",
+      label: "Escalate",
+      description: t("settings.route_platform_safety"),
+    },
+    {
+      action: "dismiss",
+      label: "Dismiss",
+      description: "No violation — close without action.",
+    },
+  ];
+}
 
 function formatTimestamp(iso: string): string {
   const date = new Date(iso);
@@ -237,7 +244,8 @@ function ResolveMenu({
   disabled: boolean;
   onResolve: (action: ResolutionAction) => void;
 }) {
-  const options = RESOLUTION_OPTIONS.filter((option) =>
+  const { t } = useTranslation();
+  const options = buildResolutionOptions(t).filter((option) =>
     allowed.includes(option.action),
   );
   return (
@@ -357,6 +365,7 @@ function QueueGroupCard({
 }
 
 function QueueTab() {
+  const { t } = useTranslation();
   const reportsQuery = useModerationReportsQuery({ status: "open" });
   const auditQuery = useModerationAuditQuery();
   const resolveMutation = useResolveReportMutation();
@@ -399,7 +408,7 @@ function QueueTab() {
       // on" — if enforcement fails we must not send that lie, and we leave the
       // report open (retryable, no orphan decision row). Only after the paired
       // 9040/9005/9001 lands do we resolve every open report about this target.
-      await enforceResolution(group, action, banMutation.mutateAsync);
+      await enforceResolution(group, action, banMutation.mutateAsync, t);
       await Promise.all(
         openReports.map((report) =>
           resolveMutation.mutateAsync({
@@ -410,11 +419,15 @@ function QueueTab() {
         ),
       );
       toast.success(
-        status === "dismissed" ? "Report dismissed" : "Report resolved",
+        status === "dismissed"
+          ? t("settings.report_dismissed")
+          : t("settings.report_resolved"),
       );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to resolve the report",
+        error instanceof Error
+          ? error.message
+          : t("settings.failed_resolve_report"),
       );
     }
   }
@@ -541,6 +554,7 @@ function AuditTab() {
 }
 
 export function ModerationQueueCard() {
+  const { t } = useTranslation();
   const membershipQuery = useMyRelayMembershipQuery();
   const role = membershipQuery.data?.role;
   const isModerator = role === "owner" || role === "admin";
@@ -552,7 +566,7 @@ export function ModerationQueueCard() {
     >
       <SettingsSectionHeader
         title="Moderation"
-        description="Review reported content and take action. Visible to community moderators only."
+        description={t("settings.moderation_queue_desc")}
       />
 
       {!isModerator ? (

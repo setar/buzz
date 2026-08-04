@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Activity,
   Bot,
@@ -98,6 +99,7 @@ export function ChatHeader({
   statusBadge,
   transparentChrome = false,
 }: ChatHeaderProps) {
+  const { t } = useTranslation();
   const trimmedDescription = description?.trim() ?? "";
 
   async function handleCopyTitle() {
@@ -106,9 +108,9 @@ export function ChatHeader({
 
     try {
       await writeTextToClipboard(value);
-      toast.success("Channel name copied");
+      toast.success(t("chat.name_copied"));
     } catch {
-      toast.error("Failed to copy channel name");
+      toast.error(t("chat.failed_copy"));
     }
   }
 
@@ -148,7 +150,7 @@ export function ChatHeader({
               className="h-6 w-6 shrink-0 opacity-0 text-muted-foreground transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover/title:opacity-100"
               onClick={() => void handleCopyTitle()}
               size="icon-xs"
-              title="Copy channel name"
+              title={t("chat.copy_name")}
               type="button"
               variant="ghost"
             >

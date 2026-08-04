@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   CreateProjectWorkItemDialog,
   type CreateProjectWorkItemDialogInput,
@@ -18,17 +19,18 @@ export function CreateIssueDialog({
   open: boolean;
   projectName: string;
 }) {
+  const { t } = useTranslation();
   return (
     <CreateProjectWorkItemDialog
-      bodyPlaceholder="Add context, expected behavior, or reproduction steps"
+      bodyPlaceholder={t("projects.issue_body_placeholder")}
       description={`Create an issue in ${projectName}`}
       isCreating={isCreating}
       itemName="issue"
       onCreate={onCreate}
       onOpenChange={onOpenChange}
       open={open}
-      title="Create an issue"
-      titlePlaceholder="Describe the issue"
+      title={t("projects.create_issue")}
+      titlePlaceholder={t("projects.describe_issue")}
     />
   );
 }

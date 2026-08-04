@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
@@ -23,15 +24,19 @@ import type {
   RelayAgent,
 } from "@/shared/api/types";
 
-const RUNTIME_LABELS: Record<string, string> = {
-  goose: "Goose",
-  "claude-code": "Claude Code",
-  "codex-acp": "Codex",
-  aider: "Aider",
-};
+function buildRuntimeLabels(
+  t: (key: string) => string,
+): Record<string, string> {
+  return {
+    goose: "Goose",
+    "claude-code": t("profile.claude_code"),
+    "codex-acp": "Codex",
+    aider: "Aider",
+  };
+}
 
-function runtimeLabel(command: string): string {
-  return RUNTIME_LABELS[command] ?? command;
+function runtimeLabel(command: string, t: (key: string) => string): string {
+  return buildRuntimeLabels(t)[command] ?? command;
 }
 
 export type ProfileField = {
@@ -45,34 +50,43 @@ export type ProfileField = {
   trailingNode?: React.ReactNode;
 };
 
-const AGENT_INFO_LABELS = new Set([
-  "Public key",
-  "Managed by",
-  "NIP-05",
-  "Agent type",
-  "Capabilities",
-  "Backend",
-]);
-const AGENT_SETTINGS_LABELS = new Set([
-  "Runtime",
-  "Agent profile",
-  "Who can send instructions",
-  "ACP command",
-  "MCP command",
-  "Start on launch",
-]);
-const DIAGNOSTICS_LABELS = new Set(["Status", "Last error"]);
+function buildAgentInfoLabels(t: (key: string) => string) {
+  return new Set([
+    t("profile.public_key"),
+    t("profile.managed_by"),
+    "NIP-05",
+    t("profile.agent_type"),
+    "Capabilities",
+    "Backend",
+  ]);
+}
+function buildAgentSettingsLabels(t: (key: string) => string) {
+  return new Set([
+    "Runtime",
+    t("profile.agent_profile"),
+    t("profile.who_can_send"),
+    t("profile.acp_command"),
+    t("profile.mcp_command"),
+    t("profile.start_on_launch"),
+  ]);
+}
+function buildDiagnosticsLabels(t: (key: string) => string) {
+  return new Set(["Status", t("profile.last_error")]);
+}
 
-export function bucketProfileFields(fields: ProfileField[]) {
+export function bucketProfileFields(
+  fields: ProfileField[],
+  t: (key: string) => string,
+) {
   return {
     agentInfoFields: fields.filter((field) =>
-      AGENT_INFO_LABELS.has(field.label),
+      buildAgentInfoLabels(t).has(field.label),
     ),
     agentSettingsFields: fields.filter((field) =>
-      AGENT_SETTINGS_LABELS.has(field.label),
+      buildAgentSettingsLabels(t).has(field.label),
     ),
     diagnosticsFields: fields.filter((field) =>
-      DIAGNOSTICS_LABELS.has(field.label),
+      buildDiagnosticsLabels(t).has(field.label),
     ),
   };
 }
@@ -110,9 +124,10 @@ export function useProfileFieldBuckets({
   pubkey: string | null;
   relayAgent: RelayAgent | undefined;
 }) {
+  const { t } = useTranslation();
   return React.useMemo(() => {
     const metadataFields = [
-      ...buildPublicFields({ pubkey, profile, relayAgent, isBot, persona }),
+      ...buildPublicFields({ pubkey, profile, relayAgent, isBot, persona, t }),
       ...(ownerDisplayName || isOwner === true
         ? buildOwnerFields({
             includeOperationalFields: isOwner === true,
@@ -127,10 +142,11 @@ export function useProfileFieldBuckets({
             presenceLoaded,
             presenceStatus,
             relayAgent,
+            t,
           })
         : []),
     ];
-    return bucketProfileFields(metadataFields);
+    return bucketProfileFields(metadataFields, t);
   }, [
     isBot,
     isOwner,
@@ -147,6 +163,7 @@ export function useProfileFieldBuckets({
     profile,
     pubkey,
     relayAgent,
+    t,
   ]);
 }
 
@@ -156,12 +173,14 @@ export function buildPublicFields({
   profile,
   pubkey,
   relayAgent,
+  t,
 }: {
   isBot: boolean;
   persona?: AgentPersona;
   profile: Profile | undefined;
   pubkey: string | null;
   relayAgent: RelayAgent | undefined;
+  t: (key: string) => string;
 }): ProfileField[] {
   const fields: ProfileField[] = [];
 
@@ -170,7 +189,7 @@ export function buildPublicFields({
       displayValue: truncatePubkey(pubkey),
       displayNode: <PubKey pubkey={pubkey} testId="user-profile-copy-pubkey" />,
       icon: Fingerprint,
-      label: "Public key",
+      label: t("profile.public_key"),
     });
   }
 
@@ -187,16 +206,16 @@ export function buildPublicFields({
   if (isBot && relayAgent?.agentType) {
     fields.push({
       copyValue: relayAgent.agentType,
-      displayValue: runtimeLabel(relayAgent.agentType),
+      displayValue: runtimeLabel(relayAgent.agentType, t),
       icon: Cpu,
-      label: "Agent type",
+      label: t("profile.agent_type"),
       testId: "user-profile-agent-type",
     });
   }
 
   if (!pubkey && persona) {
     fields.push({
-      displayValue: "Not deployed",
+      displayValue: t("profile.not_deployed"),
       icon: Activity,
       label: "Status",
       testId: "user-profile-agent-status",
@@ -229,6 +248,7 @@ export function buildOwnerFields({
   presenceLoaded,
   presenceStatus,
   relayAgent,
+  t,
 }: {
   includeOperationalFields: boolean;
   managedAgent: ManagedAgent | undefined;
@@ -242,6 +262,7 @@ export function buildOwnerFields({
   presenceLoaded: boolean;
   presenceStatus: "online" | "away" | "offline" | undefined;
   relayAgent: RelayAgent | undefined;
+  t: (key: string) => string;
 }): ProfileField[] {
   const fields: ProfileField[] = [];
   const respondTo = managedAgent?.respondTo ?? relayAgent?.respondTo ?? null;
@@ -249,9 +270,9 @@ export function buildOwnerFields({
     ? respondTo === "owner-only"
       ? ownerDisplayName
         ? `Only ${ownerDisplayName} (owner)`
-        : "Only the owner"
+        : t("profile.only_owner")
       : respondTo === "allowlist"
-        ? "Selected people"
+        ? t("profile.selected_people")
         : "Anyone"
     : null;
 
@@ -281,7 +302,7 @@ export function buildOwnerFields({
         </span>
       ),
       icon: UserRound,
-      label: "Managed by",
+      label: t("profile.managed_by"),
       onClick:
         ownerClickable && ownerProfilePubkey
           ? () => onOpenProfile?.(ownerProfilePubkey)
@@ -297,7 +318,7 @@ export function buildOwnerFields({
   if (managedAgent?.agentCommand) {
     fields.push({
       copyValue: managedAgent.agentCommand,
-      displayValue: runtimeLabel(managedAgent.agentCommand),
+      displayValue: runtimeLabel(managedAgent.agentCommand, t),
       icon: Terminal,
       label: "Runtime",
       testId: "user-profile-runtime",
@@ -305,7 +326,7 @@ export function buildOwnerFields({
   } else if (relayAgent?.agentType) {
     fields.push({
       copyValue: relayAgent.agentType,
-      displayValue: runtimeLabel(relayAgent.agentType),
+      displayValue: runtimeLabel(relayAgent.agentType, t),
       icon: Terminal,
       label: "Runtime",
       testId: "user-profile-runtime",
@@ -313,7 +334,7 @@ export function buildOwnerFields({
   } else if (persona?.runtime) {
     fields.push({
       copyValue: persona.runtime,
-      displayValue: runtimeLabel(persona.runtime),
+      displayValue: runtimeLabel(persona.runtime, t),
       icon: Terminal,
       label: "Runtime",
       testId: "user-profile-runtime",
@@ -321,9 +342,9 @@ export function buildOwnerFields({
   } else if (ownerPubkey) {
     fields.push({
       copyValue: ownerPubkey,
-      displayValue: "Declared owner verified",
+      displayValue: t("profile.declared_owner_verified"),
       icon: UserRound,
-      label: "Agent profile",
+      label: t("profile.agent_profile"),
       testId: "user-profile-agent-profile",
     });
   }
@@ -351,7 +372,7 @@ export function buildOwnerFields({
       copyValue: managedAgent.acpCommand,
       displayValue: managedAgent.acpCommand,
       icon: Terminal,
-      label: "ACP command",
+      label: t("profile.acp_command"),
       testId: "user-profile-acp",
     });
   }
@@ -361,7 +382,7 @@ export function buildOwnerFields({
       copyValue: managedAgent.mcpCommand,
       displayValue: managedAgent.mcpCommand,
       icon: Terminal,
-      label: "MCP command",
+      label: t("profile.mcp_command"),
       testId: "user-profile-mcp",
     });
   }
@@ -381,7 +402,7 @@ export function buildOwnerFields({
     fields.push({
       displayValue: managedAgent.startOnAppLaunch ? "Yes" : "No",
       icon: Server,
-      label: "Start on launch",
+      label: t("profile.start_on_launch"),
       testId: "user-profile-start-on-launch",
     });
   }
@@ -390,7 +411,7 @@ export function buildOwnerFields({
     fields.push({
       displayValue: respondToDisplayValue,
       icon: Ear,
-      label: "Who can send instructions",
+      label: t("profile.who_can_send"),
       testId: "user-profile-respond-to",
     });
   }
@@ -400,7 +421,7 @@ export function buildOwnerFields({
       copyValue: managedAgent.lastError,
       displayValue: managedAgent.lastError,
       icon: Activity,
-      label: "Last error",
+      label: t("profile.last_error"),
       testId: "user-profile-last-error",
     });
   }
@@ -408,10 +429,13 @@ export function buildOwnerFields({
   return fields;
 }
 
-function orderProfileFields(fields: ProfileField[]) {
+function orderProfileFields(
+  fields: ProfileField[],
+  t: (key: string) => string,
+) {
   const visibilityLabel = "Visibility";
-  const publicKeyLabel = "Public key";
-  const managedByLabel = "Managed by";
+  const publicKeyLabel = t("profile.public_key");
+  const managedByLabel = t("profile.managed_by");
   const statusLabel = "Status";
   return [
     ...fields.filter((field) => field.label === visibilityLabel),
@@ -440,9 +464,10 @@ function orderProfileFields(fields: ProfileField[]) {
 }
 
 export function ProfileFieldRows({ fields }: { fields: ProfileField[] }) {
+  const { t } = useTranslation();
   return (
     <>
-      {orderProfileFields(fields).map((field) => (
+      {orderProfileFields(fields, t).map((field) => (
         <ProfileFieldRow field={field} key={field.testId ?? field.label} />
       ))}
     </>

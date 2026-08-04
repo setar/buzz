@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
 import { Headphones } from "lucide-react";
 import * as React from "react";
@@ -46,6 +47,7 @@ export function HuddleIndicator({
   onStart,
   startDisabled,
 }: HuddleIndicatorProps) {
+  const { t } = useTranslation();
   const { joinHuddle, isStarting } = useHuddle();
   const queryClient = useQueryClient();
   const [activeHuddle, setActiveHuddle] = React.useState<ActiveHuddle | null>(
@@ -264,7 +266,7 @@ export function HuddleIndicator({
       // Refetch channels so the ephemeral channel appears in the sidebar.
       void queryClient.invalidateQueries({ queryKey: ["channels"] });
     } catch (e) {
-      console.error("Failed to join huddle:", e);
+      console.error(t("huddle.failed_join"), e);
       toast.error(formatHuddleActionError(e, "join"));
     } finally {
       setIsJoining(false);

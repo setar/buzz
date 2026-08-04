@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   getShortcutsByCategory,
   getPlatformKeys,
@@ -29,13 +30,14 @@ function KeyCombo({ shortcut }: { shortcut: KeyboardShortcut }) {
 }
 
 export function KeyboardShortcutsCard() {
+  const { t } = useTranslation();
   const categories = getShortcutsByCategory();
 
   return (
     <section className="min-w-0" data-testid="settings-shortcuts">
       <SettingsSectionHeader
-        title="Keyboard shortcuts"
-        description="All available keyboard shortcuts. Shortcuts are read-only."
+        title={t("settings.keyboard_shortcuts")}
+        description={t("settings.shortcuts_description")}
       />
 
       <div className="space-y-4">

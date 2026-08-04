@@ -1,5 +1,6 @@
 import { SmilePlus } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { EmojiPicker } from "@/features/custom-emoji/ui/EmojiPicker";
 import { Button } from "@/shared/ui/button";
@@ -25,13 +26,14 @@ export const ComposerEmojiPicker = React.memo(function ComposerEmojiPicker({
   onTriggerMouseDown,
   open,
 }: ComposerEmojiPickerProps) {
+  const { t } = useTranslation();
   return (
     <Popover onOpenChange={onOpenChange} open={open}>
       <Tooltip disableHoverableContent>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
             <Button
-              aria-label="Insert emoji"
+              aria-label={t("messages.insert_emoji")}
               data-testid="composer-emoji-button"
               disabled={disabled}
               onMouseDown={onTriggerMouseDown}
@@ -43,7 +45,7 @@ export const ComposerEmojiPicker = React.memo(function ComposerEmojiPicker({
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent>Insert emoji</TooltipContent>
+        <TooltipContent>{t("messages.insert_emoji")}</TooltipContent>
       </Tooltip>
       <PopoverContent
         align="start"

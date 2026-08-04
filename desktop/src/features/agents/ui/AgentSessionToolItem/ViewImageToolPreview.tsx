@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { SimpleImageLightbox } from "@/shared/ui/SimpleImageLightbox";
 import { resolveToolImageSrc } from "../agentSessionUtils";
@@ -10,10 +11,11 @@ export function ViewImageToolPreview({
   src: string;
   title: string | null;
 }) {
+  const { t } = useTranslation();
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const [imageFailed, setImageFailed] = React.useState(false);
   const resolvedSrc = React.useMemo(() => resolveToolImageSrc(src), [src]);
-  const alt = title ?? "Viewed image";
+  const alt = title ?? t("agents.viewed_image");
 
   if (imageFailed) {
     return null;

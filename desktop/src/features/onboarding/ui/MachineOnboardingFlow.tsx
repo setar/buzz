@@ -11,6 +11,7 @@ import {
 } from "@/shared/api/tauriIdentity";
 import type { IdentityStorage } from "@/shared/api/types";
 import { Button } from "@/shared/ui/button";
+import { LanguageSwitcher } from "@/shared/ui/LanguageSwitcher";
 import { StartupWindowDragRegion } from "@/shared/ui/StartupWindowDragRegion";
 import { BackupStep } from "./BackupStep";
 import { DefaultConfigStep } from "./DefaultConfigStep";
@@ -123,12 +124,14 @@ export function MachineOnboardingFlow({
       setPage("backup");
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : t("onboarding.machine.error_load"),
+        cause instanceof Error
+          ? cause.message
+          : t("onboarding.machine.error_load"),
       );
     } finally {
       setIsPending(false);
     }
-  }, [queryClient]);
+  }, [queryClient, t]);
 
   const replaceLostIdentity = React.useCallback(async () => {
     const confirmed = window.confirm(
@@ -149,12 +152,14 @@ export function MachineOnboardingFlow({
       setPage("backup");
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : t("onboarding.machine.error_save"),
+        cause instanceof Error
+          ? cause.message
+          : t("onboarding.machine.error_save"),
       );
     } finally {
       setIsPending(false);
     }
-  }, [queryClient]);
+  }, [queryClient, t]);
 
   const importExistingIdentity = React.useCallback(
     async (nsec: string, password?: string) => {
@@ -180,6 +185,7 @@ export function MachineOnboardingFlow({
       data-testid="machine-onboarding-gate"
     >
       <StartupWindowDragRegion />
+      <LanguageSwitcher className="fixed right-4 top-4 z-30" />
       {page === "identity" ? <LandingBees /> : null}
       {isSecuritySubview ? (
         <div className="fixed inset-x-0 top-8 z-20 flex justify-center px-6">
@@ -291,7 +297,11 @@ export function MachineOnboardingFlow({
               </motion.div>
               <div className="buzz-onboarding-key-import-position w-full">
                 <NostrKeyImportForm
-                  backLabel={identityLost ? t("onboarding.machine.back_start_new") : t("common.back")}
+                  backLabel={
+                    identityLost
+                      ? t("onboarding.machine.back_start_new")
+                      : t("common.back")
+                  }
                   onBack={
                     identityLost
                       ? () => void replaceLostIdentity()

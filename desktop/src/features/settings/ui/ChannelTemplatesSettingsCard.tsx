@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Bot,
   Copy,
@@ -59,6 +60,7 @@ import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 
 export function ChannelTemplatesSettingsCard() {
+  const { t } = useTranslation();
   const templatesQuery = useChannelTemplatesQuery();
   const deleteMutation = useDeleteChannelTemplateMutation();
   const duplicateMutation = useDuplicateChannelTemplateMutation();
@@ -78,7 +80,9 @@ export function ChannelTemplatesSettingsCard() {
       },
       onError: (error) => {
         toast.error(
-          error instanceof Error ? error.message : "Failed to duplicate",
+          error instanceof Error
+            ? error.message
+            : t("settings.failed_duplicate"),
         );
       },
     });
@@ -93,7 +97,7 @@ export function ChannelTemplatesSettingsCard() {
       },
       onError: (error) => {
         toast.error(
-          error instanceof Error ? error.message : "Failed to delete",
+          error instanceof Error ? error.message : t("settings.failed_delete"),
         );
       },
     });
@@ -102,7 +106,7 @@ export function ChannelTemplatesSettingsCard() {
   return (
     <section className="min-w-0" data-testid="settings-channel-templates">
       <SettingsSectionHeader
-        title="Channel templates"
+        title={t("settings.channel_templates")}
         description={
           <>
             Save reusable channel configurations and apply them when creating
@@ -287,6 +291,7 @@ export function TemplateFormDialog({
   onOpenChange: (open: boolean) => void;
   onCreated?: (template: ChannelTemplate) => void;
 }) {
+  const { t } = useTranslation();
   const isEditing = template !== null;
   const createMutation = useCreateChannelTemplateMutation();
   const updateMutation = useUpdateChannelTemplateMutation();
@@ -377,7 +382,9 @@ export function TemplateFormDialog({
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Failed to update",
+            error instanceof Error
+              ? error.message
+              : t("settings.failed_update"),
           );
         },
       });
@@ -397,7 +404,9 @@ export function TemplateFormDialog({
         },
         onError: (error) => {
           toast.error(
-            error instanceof Error ? error.message : "Failed to create",
+            error instanceof Error
+              ? error.message
+              : t("settings.failed_create"),
           );
         },
       });
@@ -436,11 +445,15 @@ export function TemplateFormDialog({
     <Dialog onOpenChange={onOpenChange} open={open}>
       <ChooserDialogContent
         className="max-w-lg"
-        title={isEditing ? "Edit template" : "Create template"}
+        title={
+          isEditing
+            ? t("settings.edit_template")
+            : t("settings.create_template")
+        }
         description={
           isEditing
-            ? "Update this channel template configuration."
-            : "Save a reusable channel configuration."
+            ? t("settings.edit_template_desc")
+            : t("settings.templates_desc")
         }
         footer={
           <div className="flex w-full items-center justify-end gap-2">
@@ -482,7 +495,7 @@ export function TemplateFormDialog({
               disabled={isPending}
               id="template-name"
               onChange={(e) => setName(e.target.value)}
-              placeholder="Sprint Planning"
+              placeholder={t("settings.sprint_planning")}
               value={name}
             />
           </div>
@@ -503,7 +516,7 @@ export function TemplateFormDialog({
               disabled={isPending}
               id="template-description"
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What this template is for"
+              placeholder={t("settings.template_purpose")}
               rows={2}
               value={description}
             />
@@ -525,7 +538,7 @@ export function TemplateFormDialog({
               disabled={isPending}
               id="template-canvas"
               onChange={(e) => setCanvasTemplate(e.target.value)}
-              placeholder="Canvas content here..."
+              placeholder={t("settings.canvas_placeholder")}
               rows={4}
               value={canvasTemplate}
             />

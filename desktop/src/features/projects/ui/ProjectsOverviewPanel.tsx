@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CircleDot, FolderGit2, GitPullRequest, Radio } from "lucide-react";
 import type * as React from "react";
 
@@ -76,6 +77,7 @@ export function ProjectsOverviewPanel({
   projects,
   summaries,
 }: ProjectsOverviewPanelProps) {
+  const { t } = useTranslation();
   const stats = overviewStats(projects, summaries);
 
   return (
@@ -91,7 +93,7 @@ export function ProjectsOverviewPanel({
           <StatPill
             count={stats.prs}
             icon={GitPullRequest}
-            label="Pull requests"
+            label={t("projects.pull_requests")}
             onClick={() => onSelectSection("prs")}
           />
           <StatPill

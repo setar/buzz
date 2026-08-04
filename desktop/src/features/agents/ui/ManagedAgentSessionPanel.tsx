@@ -6,6 +6,7 @@ import {
   TerminalSquare,
   XCircle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { isManagedAgentActive } from "@/features/agents/lib/managedAgentControlActions";
 import type { UserProfileLookup } from "@/features/profile/lib/identity";
@@ -64,7 +65,7 @@ export function ManagedAgentSessionPanel({
   autoTail = false,
   channelId = null,
   className,
-  emptyDescription = "Mention this agent in a channel to watch the next turn.",
+  emptyDescription,
   emptyState = "idle",
   panelPadding = true,
   rawLayout = "responsive",
@@ -76,7 +77,10 @@ export function ManagedAgentSessionPanel({
   rawEventsOverride,
   transcriptOverride,
 }: ManagedAgentSessionPanelProps) {
+  const { t } = useTranslation();
   const hasObserver = isManagedAgentActive(agent);
+  const resolvedEmptyDescription =
+    emptyDescription ?? t("agents.mention_to_watch");
   // Always read from the store — archived frames are ingested regardless of
   // live status and must be renderable for idle agents with channel history.
   // The `hasObserver` flag still gates the relay subscription (via the
@@ -153,7 +157,7 @@ export function ManagedAgentSessionPanel({
         connectionState={connectionState}
         autoTail={autoTail}
         channelId={channelId}
-        emptyDescription={emptyDescription}
+        emptyDescription={resolvedEmptyDescription}
         emptyState={emptyState}
         errorMessage={errorMessage}
         events={displayEvents}
@@ -181,6 +185,7 @@ function SessionHeader({
   hasObserver: boolean;
   latestSessionId: string | null | undefined;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
@@ -194,8 +199,8 @@ function SessionHeader({
           {hasObserver
             ? latestSessionId
               ? `Session ${shorten(latestSessionId)}`
-              : "Waiting for the next agent turn."
-            : "Restart this local agent to attach the observer feed."}
+              : t("agents.waiting_next_turn")
+            : t("agents.restart_to_attach")}
         </p>
       </div>
       <Badge className="w-fit font-mono" variant="outline">
