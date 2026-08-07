@@ -393,8 +393,6 @@
     "test_your_backup": "Проверьте резервную копию"
   },
   "sidebar": {
-    "channels": "Каналы",
-    "direct_messages": "Личные сообщения",
     "add_community": "Добавить сообщество",
     "create_channel": "Создать канал",
     "new_dm": "Новое сообщение",

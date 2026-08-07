@@ -387,8 +387,6 @@
     "test_your_backup": "Test your backup"
   },
   "sidebar": {
-    "channels": "Channels",
-    "direct_messages": "Direct messages",
     "add_community": "Add a community",
     "create_channel": "Create channel",
     "new_dm": "New message",
