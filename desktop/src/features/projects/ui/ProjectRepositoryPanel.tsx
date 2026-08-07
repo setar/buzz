@@ -619,6 +619,7 @@ export function RepositoryFilesPanel({
   profiles,
   fallbackAuthorPubkey,
   sourceControls,
+  unavailableMessage,
 }: {
   files: ProjectRepoFile[];
   snapshot: ProjectRepoSnapshot | null | undefined;
@@ -628,6 +629,7 @@ export function RepositoryFilesPanel({
   fallbackAuthorPubkey?: string;
   /** Branch picker + remote/local toggle rendered in the panel header. */
   sourceControls?: RepoSourceHeaderControls;
+  unavailableMessage?: string;
 }) {
   const { t } = useTranslation();
   const [currentPath, setCurrentPath] = React.useState("");
@@ -685,11 +687,13 @@ export function RepositoryFilesPanel({
   // remote/local toggle must stay reachable when one source fails to load.
   const stateMessage = isLoading
     ? "Loading repository files…"
-    : error
-      ? t("projects.could_not_load_file_tree")
-      : files.length === 0
-        ? t("projects.no_files_pushed")
-        : null;
+    : unavailableMessage
+      ? unavailableMessage
+      : error
+        ? t("projects.could_not_load_file_tree")
+        : files.length === 0
+          ? t("projects.no_files_pushed")
+          : null;
   if (stateMessage) {
     if (!sourceControls) {
       return (

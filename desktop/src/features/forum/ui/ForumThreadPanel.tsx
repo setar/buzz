@@ -295,6 +295,7 @@ export function ForumThreadPanel({
       <div className="border-t border-border/60 p-4">
         <ForumComposer
           channelId={channelId}
+          channelType="forum"
           isSending={isSendingReply}
           onSubmit={onReply}
           placeholder={t("forum.reply_placeholder")}

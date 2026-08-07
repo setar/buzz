@@ -26,8 +26,8 @@ import {
   SettingsOptionRow,
 } from "@/features/settings/ui/SettingsOptionGroup";
 import { SettingsSectionHeader } from "@/features/settings/ui/SettingsSectionHeader";
-import { observerArchiveDefaultEnabled } from "@/shared/api/tauriArchive";
 import { setExplicitAgentMetricArchiveChoice } from "../agentMetricArchivePreference";
+import { setExplicitObserverArchiveChoice } from "../observerArchivePreference";
 
 import {
   buildSubscriptionRequest,
@@ -68,18 +68,16 @@ function kindSummary(kinds: number[]): string {
 
 type ObserverSectionProps = {
   enabled: boolean;
-  policy: boolean | undefined;
   toggling: boolean;
   onToggle: (checked: boolean) => void;
 };
 
 function ObserverArchiveSection({
   enabled,
-  policy,
   toggling,
   onToggle,
 }: ObserverSectionProps) {
-  const toggleDisabled = toggling || policy === undefined || policy === true;
+  const toggleDisabled = toggling;
   return (
     <div className="space-y-3" data-testid="local-archive-observer-section">
       <h2 className="text-lg font-semibold tracking-tight">
@@ -95,9 +93,7 @@ function ObserverArchiveSection({
               Archive my agents' observer frames
             </label>
             <p className="text-sm font-normal text-muted-foreground">
-              {policy === true
-                ? `Always on for internal builds. Kind ${KIND_AGENT_OBSERVER_FRAME} observer frames are ephemeral — not stored by the relay — so local archiving is the only way to retain them.`
-                : `Saves kind ${KIND_AGENT_OBSERVER_FRAME} observer frames addressed to your pubkey. These are ephemeral — not stored by the relay — so local archiving is the only way to retain them.`}
+              {`Saves kind ${KIND_AGENT_OBSERVER_FRAME} observer frames addressed to your pubkey. These are ephemeral — not stored by the relay — so local archiving is the only way to retain them.`}
             </p>
           </div>
           <Switch
@@ -396,17 +392,6 @@ export function LocalArchiveSettingsCard() {
   const [isAddingOpen, setIsAddingOpen] = React.useState(false);
   const [observerToggling, setObserverToggling] = React.useState(false);
   const [metricToggling, setMetricToggling] = React.useState(false);
-  const [observerPolicy, setObserverPolicy] = React.useState<
-    boolean | undefined
-  >(undefined);
-
-  React.useEffect(() => {
-    observerArchiveDefaultEnabled()
-      .then((on) => setObserverPolicy(on))
-      .catch(() => {
-        // Fail closed: leave as undefined so toggle stays disabled.
-      });
-  }, []);
 
   const pubkey = identityQuery.data?.pubkey ?? "";
 
@@ -469,7 +454,6 @@ export function LocalArchiveSettingsCard() {
   const handleObserverToggle = React.useCallback(
     async (checked: boolean) => {
       if (!pubkey) return;
-      if (!checked && observerPolicy !== false) return;
       setObserverToggling(true);
       try {
         if (checked) {
@@ -477,6 +461,7 @@ export function LocalArchiveSettingsCard() {
         } else {
           await removeSaveSubscriptionKind(KIND_AGENT_OBSERVER_FRAME);
         }
+        setExplicitObserverArchiveChoice(pubkey, checked);
         toast.success(
           checked
             ? t("local_archive.observer_enabled")
@@ -493,7 +478,7 @@ export function LocalArchiveSettingsCard() {
         setObserverToggling(false);
       }
     },
-    [pubkey, observerPolicy, reload, t],
+    [pubkey, reload, t],
   );
 
   const handleMetricToggle = React.useCallback(
@@ -543,7 +528,6 @@ export function LocalArchiveSettingsCard() {
         <ObserverArchiveSection
           enabled={observerEnabled}
           onToggle={(checked) => void handleObserverToggle(checked)}
-          policy={observerPolicy}
           toggling={observerToggling}
         />
 

@@ -904,7 +904,9 @@ export function MessageThreadPanel({
               placeholder={
                 isHuddleTranscript
                   ? t("messages.message_the_huddle")
-                  : t("messages.reply_in_thread_to", { author: threadHead.author })
+                  : t("messages.reply_in_thread_to", {
+                      author: threadHead.author,
+                    })
               }
               profiles={profiles}
               replyTarget={composerReplyTarget}

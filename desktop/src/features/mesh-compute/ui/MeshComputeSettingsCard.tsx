@@ -544,7 +544,6 @@ function MeshModelPicker({
     onModelChange(next);
   }
 
-
   return (
     <div className="space-y-1.5" data-testid="mesh-share-compute-catalog">
       <label className="text-sm font-medium" htmlFor="mesh-share-compute-model">

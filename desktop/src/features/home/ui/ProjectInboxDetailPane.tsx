@@ -63,13 +63,13 @@ export function ProjectInboxDetailPane({
       if (workItem.type !== "pull-request") {
         throw new Error(t("home.merge_recovery_pr_only"));
       }
-      const targetCloneUrl = workItem.project.cloneUrls[0];
+      const targetCloneUrl = workItem.repository.cloneUrls[0];
       if (!targetCloneUrl) {
-        throw new Error("This project has no clone URL.");
+        throw new Error("This repository has no clone URL.");
       }
       return openProjectMergeRecoveryTerminal({
         ...input,
-        projectDtag: workItem.project.dtag,
+        projectDtag: workItem.repository.dtag,
         reposDir: activeCommunity?.reposDir,
         targetCloneUrl,
       });
@@ -153,13 +153,13 @@ export function ProjectInboxDetailPane({
                     mode="conversation"
                     onOpenTerminal={handleOpenMergeRecoveryTerminal}
                     profiles={profiles}
-                    project={workItem.project}
+                    project={workItem.repository}
                     pullRequest={workItem.pullRequest}
                   />
                 </div>
                 <PullRequestMetaRail
                   profiles={profiles}
-                  project={workItem.project}
+                  project={workItem.repository}
                   pullRequest={workItem.pullRequest}
                   stacked={!showSideRail}
                 />
@@ -168,7 +168,7 @@ export function ProjectInboxDetailPane({
               <ProjectIssueDetail
                 issue={workItem.issue}
                 profiles={profiles}
-                project={workItem.project}
+                project={workItem.repository}
                 stackMetaRail={!showSideRail}
               />
             )}

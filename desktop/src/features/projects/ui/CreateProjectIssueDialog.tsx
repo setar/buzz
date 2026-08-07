@@ -2,8 +2,9 @@ import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { toast } from "sonner";
 
-import type { Project } from "@/features/projects/hooks";
+import type { Project, Repository } from "@/features/projects/hooks";
 import { useCreateProjectIssueMutation } from "@/features/projects/issueMutations";
+import { selectProjectRepository } from "@/features/projects/projectModels";
 import {
   CreateProjectWorkItemDialog,
   type CreateProjectWorkItemDialogInput,
@@ -17,40 +18,58 @@ export function CreateProjectIssueDialog({
   projects,
 }: {
   initialProjectId?: string;
-  onCreated: (project: Project, issueId: string) => void | Promise<void>;
+  onCreated: (
+    project: Project,
+    repository: Repository,
+    issueId: string,
+  ) => void | Promise<void>;
   onOpenChange: (open: boolean) => void;
   open: boolean;
   projects: Project[];
 }) {
   const { t } = useTranslation();
+  const repositoryOptions = React.useMemo(
+    () =>
+      projects.flatMap((project) =>
+        project.repositories.map((repository) => ({ project, repository })),
+      ),
+    [projects],
+  );
   const initialProject =
     projects.find((project) => project.id === initialProjectId) ?? projects[0];
-  const [projectId, setProjectId] = React.useState(initialProject?.id ?? "");
-  const project =
-    projects.find((candidate) => candidate.id === projectId) ?? initialProject;
-  const createMutation = useCreateProjectIssueMutation(project);
+  const [repositoryId, setRepositoryId] = React.useState(
+    selectProjectRepository(initialProject, null)?.id ?? "",
+  );
+  const selection =
+    repositoryOptions.find(
+      (candidate) => candidate.repository.id === repositoryId,
+    ) ?? repositoryOptions[0];
+  const project = selection?.project;
+  const repository = selection?.repository;
+  const createMutation = useCreateProjectIssueMutation(repository);
 
   React.useEffect(() => {
     if (!open) return;
     const nextProject =
       projects.find((candidate) => candidate.id === initialProjectId) ??
       projects[0];
-    setProjectId(nextProject?.id ?? "");
+    setRepositoryId(selectProjectRepository(nextProject, null)?.id ?? "");
   }, [initialProjectId, open, projects]);
 
   async function handleCreate(input: CreateProjectWorkItemDialogInput) {
-    if (!project) throw new Error(t("projects.choose_repository"));
+    if (!project || !repository)
+      throw new Error(t("projects.choose_repository"));
     const issueId = await createMutation.mutateAsync(input);
     toast.success(t("projects.issue_created"));
-    await onCreated(project, issueId);
+    await onCreated(project, repository, issueId);
   }
 
   return (
     <CreateProjectWorkItemDialog
       bodyPlaceholder={t("projects.issue_body_placeholder")}
       description={
-        project
-          ? `Create an issue in ${project.name}`
+        repository
+          ? `Create an issue in ${repository.name}`
           : t("projects.choose_repo_for_issue")
       }
       isCreating={createMutation.isPending}
@@ -58,7 +77,7 @@ export function CreateProjectIssueDialog({
       onCreate={handleCreate}
       onOpenChange={onOpenChange}
       open={open}
-      submitDisabled={!project}
+      submitDisabled={!repository}
       title={t("projects.create_issue")}
       titlePlaceholder={t("projects.describe_issue")}
     >
@@ -68,12 +87,17 @@ export function CreateProjectIssueDialog({
           className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm font-normal outline-hidden focus:ring-1 focus:ring-ring"
           data-testid="create-issue-repository"
           disabled={createMutation.isPending}
-          onChange={(event) => setProjectId(event.target.value)}
-          value={project?.id ?? ""}
+          onChange={(event) => setRepositoryId(event.target.value)}
+          value={repository?.id ?? ""}
         >
-          {projects.map((candidate) => (
-            <option key={candidate.id} value={candidate.id}>
-              {candidate.name}
+          {repositoryOptions.map((candidate) => (
+            <option
+              key={candidate.repository.id}
+              value={candidate.repository.id}
+            >
+              {candidate.project.repositories.length > 1
+                ? `${candidate.project.name} / ${candidate.repository.name}`
+                : candidate.project.name}
             </option>
           ))}
         </select>

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  addedByActionPrefix,
   describeChannelTextFieldChange,
   toInlineName,
 } from "./systemEventCopy.ts";
@@ -9,9 +10,10 @@ import {
 // Minimal EN translation mock for pure-function tests.
 const enMessages = {
   "messages.cleared_field": "cleared the {{field}}",
-  "messages.changed_field_to": "changed the {{field}} to “{{value}}”",
+  "messages.changed_field_to": `changed the {{field}} to “{{value}}”`,
   "messages.you_inline": "you",
 };
+
 function t(key, opts) {
   let str = enMessages[key] ?? key;
   if (opts) {
@@ -21,6 +23,11 @@ function t(key, opts) {
   }
   return str;
 }
+
+test("an add to the reader uses passive wording", () => {
+  assert.equal(addedByActionPrefix(true), "were added by");
+  assert.equal(addedByActionPrefix(false), "added by");
+});
 
 test("a set topic is quoted verbatim", () => {
   assert.equal(
@@ -70,7 +77,7 @@ test("no caption announces empty quotes", () => {
     for (const field of ["topic", "purpose"]) {
       assert.doesNotMatch(
         describeChannelTextFieldChange(field, value, t),
-        /“”|”“/,
+        /“”|“”/,
         `${field} with ${JSON.stringify(value)} must not render empty quotes`,
       );
     }

@@ -13,12 +13,12 @@ const MENU_ITEM_CLASS =
 
 export function ProjectsCreateMenu({
   onCreateIssue,
+  onCreateProject,
   onCreatePullRequest,
-  onCreateRepository,
 }: {
   onCreateIssue: () => void;
+  onCreateProject: () => void;
   onCreatePullRequest: () => void;
-  onCreateRepository: () => void;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
@@ -90,12 +90,12 @@ export function ProjectsCreateMenu({
           >
             <button
               className={MENU_ITEM_CLASS}
-              onClick={() => select(onCreateRepository)}
+              onClick={() => select(onCreateProject)}
               role="menuitem"
               type="button"
             >
               <FolderGit2 />
-              Repository
+              Project
             </button>
             <button
               className={MENU_ITEM_CLASS}

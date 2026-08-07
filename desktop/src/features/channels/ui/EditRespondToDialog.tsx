@@ -2,8 +2,12 @@ import { useTranslation } from "react-i18next";
 import * as React from "react";
 
 import { useUpdateManagedAgentMutation } from "@/features/agents/hooks";
+import { useAgentAccessOwnerOnlyQuery } from "@/features/agents/useAgentAccessOwnerOnly";
 import { runLocationForBackend } from "@/features/agents/lib/agentAccessWarning";
-import { CreateAgentRespondToField } from "@/features/agents/ui/RespondToField";
+import {
+  CreateAgentRespondToField,
+  OWNER_ONLY_ACCESS_DISABLED_REASON,
+} from "@/features/agents/ui/RespondToField";
 import type { ManagedAgent, RespondToMode } from "@/shared/api/types";
 import { Button } from "@/shared/ui/button";
 import {
@@ -27,6 +31,10 @@ export function EditRespondToDialog({
 }) {
   const { t } = useTranslation();
   const updateMutation = useUpdateManagedAgentMutation();
+  const { data: agentAccessOwnerOnly } = useAgentAccessOwnerOnlyQuery({
+    enabled: open,
+  });
+  const accessLocked = agentAccessOwnerOnly === true;
   const [respondTo, setRespondTo] = React.useState<RespondToMode>("owner-only");
   const [respondToAllowlist, setRespondToAllowlist] = React.useState<string[]>(
     [],
@@ -63,9 +71,12 @@ export function EditRespondToDialog({
           </DialogDescription>
         </DialogHeader>
         <CreateAgentRespondToField
-          allowlist={respondToAllowlist}
-          disabled={updateMutation.isPending}
-          mode={respondTo}
+          allowlist={accessLocked ? [] : respondToAllowlist}
+          disabled={updateMutation.isPending || accessLocked}
+          disabledReason={
+            accessLocked ? OWNER_ONLY_ACCESS_DISABLED_REASON : undefined
+          }
+          mode={accessLocked ? "owner-only" : respondTo}
           onAllowlistChange={setRespondToAllowlist}
           onModeChange={setRespondTo}
           ownerPubkey={currentPubkey}
@@ -86,7 +97,9 @@ export function EditRespondToDialog({
             Cancel
           </Button>
           <Button
-            disabled={!respondToValid || updateMutation.isPending}
+            disabled={
+              !respondToValid || updateMutation.isPending || accessLocked
+            }
             onClick={() => void handleSave()}
             size="sm"
             type="button"

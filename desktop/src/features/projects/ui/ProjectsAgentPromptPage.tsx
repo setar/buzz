@@ -79,16 +79,22 @@ const MAX_CONTEXT_REPOS = 8;
 /** Compact machine-readable footer so the agent can scope git queries
  * (repo announcements are addressable by these coordinates). Only sent
  * with the first message of a conversation. */
-function repoContextBlock(
-  projects: readonly Project[],
-  t: (key: string) => string,
-) {
+function repoContextBlock(projects: readonly Project[]) {
   if (projects.length === 0) return "";
-  const listed = projects
+  const repositories = projects.flatMap((project) =>
+    project.repositories.map((repository) => ({
+      label:
+        project.repositories.length > 1
+          ? `${project.name} / ${repository.name}`
+          : project.name,
+      repoAddress: repository.repoAddress,
+    })),
+  );
+  const listed = repositories
     .slice(0, MAX_CONTEXT_REPOS)
-    .map((project) => `- ${project.name} (${project.repoAddress})`);
-  const remaining = projects.length - listed.length;
-  return ["", "---", t("projects.workspace_repositories"), ...listed]
+    .map((repository) => `- ${repository.label} (${repository.repoAddress})`);
+  const remaining = repositories.length - listed.length;
+  return ["", "---", REPO_CONTEXT_MARKER, ...listed]
     .concat(remaining > 0 ? [`…and ${remaining} more`] : [])
     .join("\n");
 }
@@ -147,6 +153,7 @@ function useAgentCandidates() {
     );
     const mentionable = getMentionableAgentPubkeys({
       currentPubkey: identityQuery.data?.pubkey,
+      eligibilityScope: { type: "community" },
       managedAgentPubkeys: managedByPubkey.keys(),
       relayAgents,
       sharedChannelIds: getSharedChannelIds(channelsQuery.data),
@@ -384,7 +391,7 @@ export function ProjectsAgentPromptPage({
       // Repo context rides only on the conversation opener.
       const content = conversation
         ? trimmed
-        : `${trimmed}${repoContextBlock(projects, t)}`;
+        : `${trimmed}${repoContextBlock(projects)}`;
       await sendChannelMessage(channel.id, content, undefined, undefined, [
         selectedAgent.pubkey,
       ]);

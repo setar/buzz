@@ -101,13 +101,22 @@ export function AppSidebarPrimaryMenu({
       <SidebarMenu className="pb-2">
         <SidebarMenuItem>
           <SidebarMenuButton
+            className="data-[active=true]:font-normal"
             isActive={selectedView === "home"}
             onClick={onSelectHome}
             tooltip={t("sidebar.inbox")}
             type="button"
           >
-            <Inbox className="h-4 w-4" />
-            <SidebarMenuLabel>{t("sidebar.inbox")}</SidebarMenuLabel>
+            <Inbox
+              className={
+                selectedView !== "home" ? "h-4 w-4 opacity-80" : "h-4 w-4"
+              }
+            />
+            <SidebarMenuLabel
+              className={selectedView !== "home" ? "opacity-80" : undefined}
+            >
+              {t("sidebar.inbox")}
+            </SidebarMenuLabel>
           </SidebarMenuButton>
           {homeBadgeCount > 0 ? (
             <SidebarMenuBadge
@@ -148,14 +157,23 @@ export function AppSidebarPrimaryMenu({
         </FeatureGate>
         <SidebarMenuItem>
           <SidebarMenuButton
+            className="data-[active=true]:font-normal"
             data-testid="open-agents-view"
             isActive={selectedView === "agents"}
             onClick={onSelectAgents}
             tooltip={t("sidebar.agents")}
             type="button"
           >
-            <Bot className="h-4 w-4" />
-            <SidebarMenuLabel>{t("sidebar.agents")}</SidebarMenuLabel>
+            <Bot
+              className={
+                selectedView !== "agents" ? "h-4 w-4 opacity-80" : "h-4 w-4"
+              }
+            />
+            <SidebarMenuLabel
+              className={selectedView !== "agents" ? "opacity-80" : undefined}
+            >
+              {t("sidebar.agents")}
+            </SidebarMenuLabel>
           </SidebarMenuButton>
         </SidebarMenuItem>
         <FeatureGate feature="workflows">

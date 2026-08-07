@@ -27,6 +27,7 @@ import { normalizePubkey } from "@/shared/lib/pubkey";
 import {
   deleteManagedAgentWithRules,
   isManagedAgentActive,
+  respawnManagedAgentWithRules,
   startManagedAgentWithRules,
   stopManagedAgentWithRules,
 } from "../lib/managedAgentControlActions";
@@ -59,6 +60,9 @@ export function useManagedAgentActions() {
     ReadonlySet<string>
   >(() => new Set());
   const startingPersonaIdsRef = React.useRef(new Set<string>());
+  const [restartingAgentPubkey, setRestartingAgentPubkey] = React.useState<
+    string | null
+  >(null);
   const [logAgentPubkey, setLogAgentPubkey] = React.useState<string | null>(
     null,
   );
@@ -173,6 +177,30 @@ export function useManagedAgentActions() {
       setActionErrorMessage(
         error instanceof Error ? error.message : t("agents.failed_start_agent"),
       );
+    }
+  }
+
+  async function handleRestart(pubkey: string) {
+    if (restartingAgentPubkey) return;
+    clearFeedback();
+    setRestartingAgentPubkey(pubkey);
+    try {
+      const agent = managedAgents.find(
+        (candidate) => candidate.pubkey === pubkey,
+      );
+      if (!agent) return;
+      await respawnManagedAgentWithRules({
+        agent,
+        startManagedAgent: startMutation.mutateAsync,
+        stopManagedAgent: stopMutation.mutateAsync,
+        onStopped: () => clearActiveTurnsForAgentOnStop(agent.pubkey),
+      });
+    } catch (error) {
+      setActionErrorMessage(
+        error instanceof Error ? error.message : "Failed to restart agent.",
+      );
+    } finally {
+      setRestartingAgentPubkey(null);
     }
   }
 
@@ -391,6 +419,7 @@ export function useManagedAgentActions() {
   }
 
   const isPending =
+    restartingAgentPubkey !== null ||
     createAgentMutation.isPending ||
     startMutation.isPending ||
     stopMutation.isPending ||
@@ -424,8 +453,10 @@ export function useManagedAgentActions() {
     actionErrorMessage,
     setActionErrorMessage,
     startingAgentPubkey,
+    restartingAgentPubkey,
     startingPersonaIds,
     handleStart,
+    handleRestart,
     handleStartPersona,
     handleStop,
     handleDelete,

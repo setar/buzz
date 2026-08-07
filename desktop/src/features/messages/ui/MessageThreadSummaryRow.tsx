@@ -103,7 +103,10 @@ export function MessageThreadSummaryRow({
         label: replyLabel,
         time: formatThreadSummaryLastReplyTime(summary.lastReplyAt),
       })
-    : t("messages.thread_summary", { count: summary.replyCount, label: replyLabel });
+    : t("messages.thread_summary", {
+        count: summary.replyCount,
+        label: replyLabel,
+      });
   const guideDepths = depthGuideDepths
     ? [...depthGuideDepths]
     : Array.from({ length: Math.max(0, depth - 1) }, (_, index) => index + 1);

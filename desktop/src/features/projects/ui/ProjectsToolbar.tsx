@@ -62,7 +62,8 @@ export function ProjectsToolbar({
     label: string;
     value: ProjectsFilter;
   }> = [
-    { label: "Overview", value: "all" },
+    { label: "Activity", value: "all" },
+    { label: "Projects", value: "projects" },
     { label: "Repositories", value: "repositories" },
     { label: t("projects.pull_requests_title"), value: "prs" },
     { label: "Issues", value: "issues" },
@@ -85,6 +86,7 @@ export function ProjectsToolbar({
                 option.value === "all" && "pl-0 after:left-0",
                 filter === option.value && SELECTED_MENU_ITEM_CLASSES,
               )}
+              data-testid={`projects-section-${option.value}`}
               key={option.value}
               onClick={() => onFilterChange(option.value)}
               type="button"

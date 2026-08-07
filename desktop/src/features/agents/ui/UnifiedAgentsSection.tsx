@@ -1,12 +1,11 @@
 import * as React from "react";
-import {
-  AlertTriangle,
-  ChevronDown,
-  ChevronRight,
-  RefreshCw,
-} from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import {
+  isAgentCardAvatarLoading,
+  resolveAgentCardAvatarUrl,
+} from "@/features/agents/lib/agentCardAvatar";
 import { resolveAgentCardModelLabel } from "@/features/agents/lib/agentCardModelLabel";
 import { friendlyAgentLastError } from "@/features/agents/lib/friendlyAgentLastError";
 import { isManagedAgentActive } from "@/features/agents/lib/managedAgentControlActions";
@@ -37,6 +36,7 @@ type UnifiedAgentsSectionProps = {
   agentsError: Error | null;
   isActionPending: boolean;
   isAgentsLoading: boolean;
+  restartingAgentPubkey: string | null;
   startingAgentPubkey: string | null;
   startingPersonaIds: ReadonlySet<string>;
   onOpenAgentProfile: (
@@ -44,6 +44,7 @@ type UnifiedAgentsSectionProps = {
     options?: ProfilePanelOpenOptions,
   ) => void;
   onOpenPersonaProfile: (persona: AgentPersona) => void;
+  onRestartAgent: (pubkey: string) => void;
   onStartAgent: (pubkey: string) => void;
   onStartPersona: (persona: AgentPersona) => void;
   personas: AgentPersona[];
@@ -81,10 +82,12 @@ export function UnifiedAgentsSection(props: UnifiedAgentsSectionProps) {
     agentsError,
     isActionPending,
     isAgentsLoading,
+    restartingAgentPubkey,
     startingAgentPubkey,
     startingPersonaIds,
     onOpenAgentProfile,
     onOpenPersonaProfile,
+    onRestartAgent,
     onStartAgent,
     onStartPersona,
     personas,
@@ -181,10 +184,12 @@ export function UnifiedAgentsSection(props: UnifiedAgentsSectionProps) {
                   defaultModel={defaultModel}
                   key={group.persona.id}
                   persona={group.persona}
+                  restartingAgentPubkey={restartingAgentPubkey}
                   startingAgentPubkey={startingAgentPubkey}
                   startingPersonaIds={startingPersonaIds}
                   onOpenAgentProfile={onOpenAgentProfile}
                   onOpenPersonaProfile={onOpenPersonaProfile}
+                  onRestartAgent={onRestartAgent}
                   onStartAgent={onStartAgent}
                   onStartPersona={onStartPersona}
                 />
@@ -205,9 +210,11 @@ export function UnifiedAgentsSection(props: UnifiedAgentsSectionProps) {
               defaultModel={defaultModel}
               groupKey="__unknown__"
               label={t("agents.unknown_agents")}
+              restartingAgentPubkey={restartingAgentPubkey}
               startingAgentPubkey={startingAgentPubkey}
               onToggle={toggle}
               onOpenAgentProfile={onOpenAgentProfile}
+              onRestartAgent={onRestartAgent}
               onStartAgent={onStartAgent}
             />
           ) : null}
@@ -218,9 +225,11 @@ export function UnifiedAgentsSection(props: UnifiedAgentsSectionProps) {
               defaultModel={defaultModel}
               groupKey="__ungrouped__"
               label={t("agents.custom_agents")}
+              restartingAgentPubkey={restartingAgentPubkey}
               startingAgentPubkey={startingAgentPubkey}
               onToggle={toggle}
               onOpenAgentProfile={onOpenAgentProfile}
+              onRestartAgent={onRestartAgent}
               onStartAgent={onStartAgent}
             />
           ) : null}
@@ -250,10 +259,12 @@ function AgentPersonaCard({
   agent,
   defaultModel,
   persona,
+  restartingAgentPubkey,
   startingAgentPubkey,
   startingPersonaIds,
   onOpenAgentProfile,
   onOpenPersonaProfile,
+  onRestartAgent,
   onStartAgent,
   onStartPersona,
 }: {
@@ -264,6 +275,7 @@ function AgentPersonaCard({
   agent: ManagedAgent | undefined;
   defaultModel: string;
   persona: AgentPersona;
+  restartingAgentPubkey: string | null;
   startingAgentPubkey: string | null;
   startingPersonaIds: ReadonlySet<string>;
   onOpenAgentProfile: (
@@ -271,6 +283,7 @@ function AgentPersonaCard({
     options?: ProfilePanelOpenOptions,
   ) => void;
   onOpenPersonaProfile: (persona: AgentPersona) => void;
+  onRestartAgent: (pubkey: string) => void;
   onStartAgent: (pubkey: string) => void;
   onStartPersona: (persona: AgentPersona) => void;
 }) {
@@ -284,7 +297,7 @@ function AgentPersonaCard({
   const isActive = agent ? isManagedAgentActive(agent) : false;
   const profileQuery = useUserProfileQuery(agent?.pubkey);
   const avatarUrl = agent
-    ? firstAvatarUrl(persona.avatarUrl, profileQuery.data?.avatarUrl)
+    ? resolveAgentCardAvatarUrl(profileQuery.data?.avatarUrl, persona.avatarUrl)
     : persona.avatarUrl;
   const friendlyError = agent
     ? friendlyAgentLastError(agent.lastError, agent.lastErrorCode)?.copy
@@ -295,7 +308,7 @@ function AgentPersonaCard({
     <AgentIdentityCard
       actions={actions?.(
         avatarUrl,
-        Boolean(agent && !persona.avatarUrl && profileQuery.isPending),
+        isAgentCardAvatarLoading(Boolean(agent), profileQuery.isPending),
       )}
       ariaLabel={t("agents.agent_profile", { name: title })}
       avatar={
@@ -306,13 +319,19 @@ function AgentPersonaCard({
             errorLabel={friendlyError}
             errorTestId={`agent-runtime-error-${agent.pubkey}`}
             isActive={isActive}
+            isRestarting={restartingAgentPubkey === agent.pubkey}
             isStarting={startingAgentPubkey === agent.pubkey}
             label={title}
+            requiresRestart={agent.needsRestart}
             startTestId={`agent-runtime-start-${agent.pubkey}`}
             onOpenError={() => {
               onOpenAgentProfile(agent.pubkey, { tab: "runtime" });
             }}
-            onStart={() => onStartAgent(agent.pubkey)}
+            onStart={() =>
+              agent.needsRestart
+                ? onRestartAgent(agent.pubkey)
+                : onStartAgent(agent.pubkey)
+            }
           />
         ) : (
           <AgentRuntimeAvatarControl
@@ -346,11 +365,6 @@ function AgentPersonaCard({
             <AlertTriangle className="h-3 w-3" />
             {t("agents.configuration_missing")}
           </Badge>
-        ) : agent?.needsRestart ? (
-          <Badge className="gap-1" variant="warning">
-            <RefreshCw className="h-3 w-3" />
-            {t("agents.restart_required")}
-          </Badge>
         ) : null
       }
     />
@@ -360,17 +374,21 @@ function AgentPersonaCard({
 function StandaloneAgentCard({
   agent,
   defaultModel,
+  restartingAgentPubkey,
   startingAgentPubkey,
   onOpenAgentProfile,
+  onRestartAgent,
   onStartAgent,
 }: {
   agent: ManagedAgent;
   defaultModel: string;
+  restartingAgentPubkey: string | null;
   startingAgentPubkey: string | null;
   onOpenAgentProfile: (
     pubkey: string,
     options?: ProfilePanelOpenOptions,
   ) => void;
+  onRestartAgent: (pubkey: string) => void;
   onStartAgent: (pubkey: string) => void;
 }) {
   const { t } = useTranslation();
@@ -393,13 +411,19 @@ function StandaloneAgentCard({
           errorLabel={friendlyError}
           errorTestId={`agent-runtime-error-${agent.pubkey}`}
           isActive={isActive}
+          isRestarting={restartingAgentPubkey === agent.pubkey}
           isStarting={startingAgentPubkey === agent.pubkey}
           label={title}
+          requiresRestart={agent.needsRestart}
           startTestId={`agent-runtime-start-${agent.pubkey}`}
           onOpenError={() => {
             onOpenAgentProfile(agent.pubkey, { tab: "runtime" });
           }}
-          onStart={() => onStartAgent(agent.pubkey)}
+          onStart={() =>
+            agent.needsRestart
+              ? onRestartAgent(agent.pubkey)
+              : onStartAgent(agent.pubkey)
+          }
         />
       }
       avatarUrl={profileQuery.data?.avatarUrl}
@@ -422,25 +446,10 @@ function StandaloneAgentCard({
             <AlertTriangle className="h-3 w-3" />
             {t("agents.configuration_missing")}
           </Badge>
-        ) : agent.needsRestart ? (
-          <Badge className="gap-1" variant="warning">
-            <RefreshCw className="h-3 w-3" />
-            {t("agents.restart_required")}
-          </Badge>
         ) : null
       }
     />
   );
-}
-
-function firstAvatarUrl(
-  ...candidates: Array<string | null | undefined>
-): string | null {
-  for (const candidate of candidates) {
-    const trimmed = candidate?.trim();
-    if (trimmed) return trimmed;
-  }
-  return null;
 }
 
 function NewAgentCard({
@@ -510,9 +519,11 @@ function CollapsibleAgentGroup({
   agents,
   collapsed,
   defaultModel,
+  restartingAgentPubkey,
   startingAgentPubkey,
   onToggle,
   onOpenAgentProfile,
+  onRestartAgent,
   onStartAgent,
 }: {
   groupKey: string;
@@ -520,12 +531,14 @@ function CollapsibleAgentGroup({
   agents: ManagedAgent[];
   collapsed: ReadonlySet<string>;
   defaultModel: string;
+  restartingAgentPubkey: string | null;
   startingAgentPubkey: string | null;
   onToggle: (key: string) => void;
   onOpenAgentProfile: (
     pubkey: string,
     options?: ProfilePanelOpenOptions,
   ) => void;
+  onRestartAgent: (pubkey: string) => void;
   onStartAgent: (pubkey: string) => void;
 }) {
   const isCollapsed = collapsed.has(groupKey);
@@ -551,8 +564,10 @@ function CollapsibleAgentGroup({
               agent={agent}
               defaultModel={defaultModel}
               key={agent.pubkey}
+              restartingAgentPubkey={restartingAgentPubkey}
               startingAgentPubkey={startingAgentPubkey}
               onOpenAgentProfile={onOpenAgentProfile}
+              onRestartAgent={onRestartAgent}
               onStartAgent={onStartAgent}
             />
           ))}

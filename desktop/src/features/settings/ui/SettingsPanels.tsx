@@ -39,7 +39,10 @@ import {
   type ThreadViewMode,
 } from "@/features/channels/lib/threadViewModePreference";
 import { cn } from "@/shared/lib/cn";
+import { useCommunities } from "@/features/communities/useCommunities";
+import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import { SectionHeader } from "@/shared/ui/PageHeader";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,6 +73,7 @@ import {
   useThemePreviewVars,
   withAccentPreviewVars,
 } from "@/shared/theme/useThemePreviewVars";
+import { appearanceCommunityLabel } from "../lib/appearanceScopeCopy";
 import { ChannelTemplatesSettingsCard } from "./ChannelTemplatesSettingsCard";
 import { HarnessesSettingsPanel } from "./HarnessesSettingsPanel";
 import { ExperimentalFeaturesCard } from "./ExperimentalFeaturesCard";
@@ -437,6 +441,13 @@ function ThemeSettingsCard() {
   } = useTheme();
   const { t } = useTranslation();
 
+  // Per-community scoping labels only earn their place when the user is
+  // actually in more than one community; with a single community there is
+  // nothing to disambiguate.
+  const { activeCommunity, communities } = useCommunities();
+  const showCommunityScope = communities.length > 1;
+  const communityLabel = appearanceCommunityLabel(activeCommunity?.name);
+
   // Buzz themes pin a neutral accent (GitHub black in light, white in dark),
   // so the accent picker is hidden while a Buzz theme is active. `themeName` is
   // the effective theme, so this also covers System mode resolving to Buzz.
@@ -536,6 +547,34 @@ function ThemeSettingsCard() {
         title={t("settings.appearance")}
         description={t("settings.appearance_description")}
       />
+
+      {/* Mode, theme, and accent are saved per community
+          (CommunityThemeController restores them on switch). When the user is
+          in multiple communities, a subheader with an inline badge names the
+          community being edited; with one community there is nothing to
+          disambiguate, so no scoping labels are shown. */}
+      {showCommunityScope ? (
+        <SectionHeader
+          className="mb-4"
+          title={
+            <span className="flex min-w-0 items-center gap-2">
+              Theme{" "}
+              <span className="font-normal text-muted-foreground">
+                (per community)
+              </span>
+              {activeCommunity ? (
+                <Badge
+                  className="max-w-56 shrink-0 font-medium normal-case tracking-normal"
+                  data-testid="appearance-community-badge"
+                  variant="outline"
+                >
+                  <span className="truncate">{communityLabel}</span>
+                </Badge>
+              ) : null}
+            </span>
+          }
+        />
+      ) : null}
 
       {/* Mode selector: System / Light / Dark */}
       <div className="mb-4 flex gap-2">
@@ -688,6 +727,11 @@ function ThemeSettingsCard() {
 function ThreadLayoutSetting() {
   const threadViewMode = useThreadViewMode();
   const { t } = useTranslation();
+  // The "(all communities)" qualifier contrasts with the per-community theme
+  // controls above; it's only meaningful when the user has multiple
+  // communities.
+  const { communities } = useCommunities();
+  const showCommunityScope = communities.length > 1;
   const threadViewModeOptions = useMemo(
     () =>
       [
@@ -716,7 +760,15 @@ function ThreadLayoutSetting() {
     <SettingsOptionGroup className="mt-8">
       <SettingsOptionRow>
         <div className="min-w-0">
-          <p className="text-sm font-medium">{t("settings.thread_layout")}</p>
+          <p className="text-sm font-medium">
+            {t("settings.thread_layout")}
+            {showCommunityScope ? (
+              <span className="font-normal text-muted-foreground">
+                {" "}
+                ({t("settings.all_communities")})
+              </span>
+            ) : null}
+          </p>
           <p className="text-sm font-normal text-muted-foreground">
             {activeOption.description}
           </p>

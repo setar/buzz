@@ -3,7 +3,9 @@ import {
   ChevronDown,
   Cloud,
   DownloadCloud,
+  ExternalLink,
   GitBranch,
+  Globe,
   HardDrive,
   Loader2,
   Plus,
@@ -24,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
+import { GitHubMark } from "./GitHubMark";
 import { PROJECT_PANEL_ACTION_BUTTON_CLASS } from "./projectPanelStyles";
 
 /** Branch picker shared by the readme and files panel headers. */
@@ -182,6 +185,8 @@ export type RepoSourceHeaderControls = {
   localDisabled: boolean;
   localLabel: string;
   remoteLabel: string;
+  remoteKind?: "buzz" | "external";
+  externalUrl?: string | null;
   /** Clones the repository when no local checkout is available. */
   onCloneLocal?: () => void;
   clonePending?: boolean;
@@ -214,7 +219,13 @@ export function RepoSourceDropdown({
 }) {
   const isLocal = controls.source === "local";
   const cloneLocal = controls.localDisabled && controls.onCloneLocal;
-  const SourceIcon = isLocal ? HardDrive : Cloud;
+  const RemoteIcon =
+    controls.remoteKind === "external"
+      ? controls.remoteLabel === "github.com"
+        ? GitHubMark
+        : Globe
+      : Cloud;
+  const SourceIcon = isLocal ? HardDrive : RemoteIcon;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -239,7 +250,7 @@ export function RepoSourceDropdown({
           value={controls.source}
         >
           <DropdownMenuRadioItem value="remote">
-            <Cloud className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
+            <RemoteIcon className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
             {controls.remoteLabel}
           </DropdownMenuRadioItem>
           {!cloneLocal ? (
@@ -282,6 +293,23 @@ export function RepoSyncActionButton({
   controls: RepoSourceHeaderControls;
 }) {
   const { t } = useTranslation();
+  if (controls.remoteKind === "external") {
+    return controls.externalUrl ? (
+      <Button
+        asChild
+        className={PROJECT_PANEL_ACTION_BUTTON_CLASS}
+        size="sm"
+        title={`Open repository on ${controls.remoteLabel}`}
+        variant="ghost"
+      >
+        <a href={controls.externalUrl} rel="noreferrer" target="_blank">
+          <ExternalLink className="h-4 w-4" />
+          {t("common.open")}
+        </a>
+      </Button>
+    ) : null;
+  }
+
   const pull = controls.canPull && controls.onPull;
   const push = controls.canPush && controls.onPush;
 
