@@ -38,6 +38,11 @@ import {
   useThreadViewMode,
   type ThreadViewMode,
 } from "@/features/channels/lib/threadViewModePreference";
+import {
+  setLinkPreviewStyle,
+  useLinkPreviewStyle,
+  type LinkPreviewStyle,
+} from "@/shared/lib/linkPreviewStylePreference";
 import { cn } from "@/shared/lib/cn";
 import { useCommunities } from "@/features/communities/useCommunities";
 import { Badge } from "@/shared/ui/badge";
@@ -446,7 +451,10 @@ function ThemeSettingsCard() {
   // nothing to disambiguate.
   const { activeCommunity, communities } = useCommunities();
   const showCommunityScope = communities.length > 1;
-  const communityLabel = appearanceCommunityLabel(activeCommunity?.name);
+  const communityLabel = appearanceCommunityLabel(
+    activeCommunity?.name,
+    t("settings.this_community"),
+  );
 
   // Buzz themes pin a neutral accent (GitHub black in light, white in dark),
   // so the accent picker is hidden while a Buzz theme is active. `themeName` is
@@ -558,9 +566,9 @@ function ThemeSettingsCard() {
           className="mb-4"
           title={
             <span className="flex min-w-0 items-center gap-2">
-              Theme{" "}
+              {t("settings.theme_label")}{" "}
               <span className="font-normal text-muted-foreground">
-                (per community)
+                {t("settings.per_community_paren")}
               </span>
               {activeCommunity ? (
                 <Badge
@@ -714,10 +722,86 @@ function ThemeSettingsCard() {
         </AnimatePresence>
       )}
 
+      <LinkPreviewStyleSetting />
       <ThreadLayoutSetting />
     </section>
   );
 }
+
+
+function LinkPreviewStyleSetting() {
+  const { t } = useTranslation();
+  const style = useLinkPreviewStyle();
+  const linkPreviewStyleOptions = useMemo(
+    () => [
+      {
+        value: "compact" as const,
+        label: t("settings.link_preview_compact"),
+        description: t("settings.link_preview_compact_desc"),
+      },
+      {
+        value: "rich" as const,
+        label: t("settings.link_preview_rich"),
+        description: t("settings.link_preview_rich_desc"),
+      },
+    ],
+    [t],
+  );
+  const activeOption =
+    linkPreviewStyleOptions.find((option) => option.value === style) ??
+    linkPreviewStyleOptions[0];
+
+  return (
+    <SettingsOptionGroup className="mt-8">
+      <SettingsOptionRow>
+        <div className="min-w-0">
+          <p className="text-sm font-medium">{t("settings.links")}</p>
+          <p className="text-sm font-normal text-muted-foreground">
+            {activeOption.description}
+          </p>
+        </div>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              className="h-7 min-w-28 justify-between gap-1.5 rounded-full border border-border/50 bg-muted/45 px-2.5 text-xs font-medium text-foreground shadow-none hover:bg-muted/70"
+              data-testid="link-preview-style-trigger"
+              size="sm"
+              type="button"
+              variant="ghost"
+            >
+              <span className="truncate">{activeOption.label}</span>
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-72">
+            <DropdownMenuRadioGroup
+              onValueChange={(next) =>
+                setLinkPreviewStyle(next as LinkPreviewStyle)
+              }
+              value={style}
+            >
+              {linkPreviewStyleOptions.map((option) => (
+                <DropdownMenuRadioItem
+                  data-testid={`link-preview-style-${option.value}`}
+                  key={option.value}
+                  value={option.value}
+                >
+                  <span className="flex min-w-0 flex-col">
+                    <span className="font-medium">{option.label}</span>
+                    <span className="text-2xs text-muted-foreground">
+                      {option.description}
+                    </span>
+                  </span>
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SettingsOptionRow>
+    </SettingsOptionGroup>
+  );
+}
+
 
 /**
  * Thread layout picker. Uses the same dropdown radio group vocabulary as the
@@ -727,11 +811,6 @@ function ThemeSettingsCard() {
 function ThreadLayoutSetting() {
   const threadViewMode = useThreadViewMode();
   const { t } = useTranslation();
-  // The "(all communities)" qualifier contrasts with the per-community theme
-  // controls above; it's only meaningful when the user has multiple
-  // communities.
-  const { communities } = useCommunities();
-  const showCommunityScope = communities.length > 1;
   const threadViewModeOptions = useMemo(
     () =>
       [
@@ -752,6 +831,11 @@ function ThreadLayoutSetting() {
       }[],
     [t],
   );
+  // The "(all communities)" qualifier contrasts with the per-community theme
+  // controls above; it's only meaningful when the user has multiple
+  // communities.
+  const { communities } = useCommunities();
+  const showCommunityScope = communities.length > 1;
   const activeOption =
     threadViewModeOptions.find((option) => option.value === threadViewMode) ??
     threadViewModeOptions[0];
@@ -765,7 +849,7 @@ function ThreadLayoutSetting() {
             {showCommunityScope ? (
               <span className="font-normal text-muted-foreground">
                 {" "}
-                ({t("settings.all_communities")})
+                {t("settings.all_communities_paren")}
               </span>
             ) : null}
           </p>
@@ -825,9 +909,10 @@ function AccentPickerContent({
   isDark: boolean;
   setAccentColor: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="shrink-0 px-1 pb-2 pt-1">
-      <h3 className="mb-2 text-sm font-medium">Accent color</h3>
+      <h3 className="mb-2 text-sm font-medium">{t("settings.accent_color")}</h3>
       <div className="flex flex-wrap gap-2 p-1">
         {ACCENT_COLORS.map((color) => {
           const isNeutral = color.value === NEUTRAL_ACCENT;

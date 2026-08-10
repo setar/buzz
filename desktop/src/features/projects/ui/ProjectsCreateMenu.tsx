@@ -52,7 +52,7 @@ export function ProjectsCreateMenu({
   return (
     <nav
       aria-label={t("projects.create_project_item")}
-      className="relative shrink-0 pl-4"
+      className="relative shrink-0"
       onBlurCapture={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) {
           setOpen(false);

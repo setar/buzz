@@ -62,7 +62,6 @@
       "placeholder": "Enter your key here",
       "placeholder_nsec": "nsec1...",
       "choose_file": "Choose a backup file",
-      "drop_backup_here": "Drop your backup file here",
       "drop_key": "Drop a key here",
       "backup_password_label": "Backup password",
       "backup_password_placeholder": "Backup password",
@@ -81,7 +80,8 @@
       "error_enter_password": "Enter the password for this key backup.",
       "error_ncryptsec": "That doesn't look like a complete ncryptsec backup.",
       "error_invalid_nsec": "That doesn't look like a valid nsec. Paste an nsec1 key.",
-      "error_import_failed": "Couldn't import this key."
+      "error_import_failed": "Couldn't import this key.",
+      "drop_backup_here": "Drop your backup file here"
     },
     "invite": {
       "invite_label": "Invite link or code",
@@ -269,14 +269,15 @@
       "desc_unlock": "Enter your backup password to unlock your key and restore your identity.",
       "desc_reimport": "Your identity is no longer in the system keyring. Re-import your nsec to restore it.",
       "desc_enter_key": "If you already have a Buzz account, enter your private key below to get started.",
-      "desc_enter_key_prefix": "Paste your private key to sign in to Buzz. You can also use a",
+      "back_start_new": "Start new identity",
+      "return_to_onboarding": "Return to onboarding",
       "backup_file_link": "backup file",
+      "recover_phone_link": "recover from your phone",
+      "desc_enter_key_prefix": "Paste your private key to sign in to Buzz. You can also use a",
       "or_separator": ", or",
       "recover_from_phone_link": "recover from your phone",
       "desc_enter_key_suffix": ".",
-      "start_new_identity": "Start new identity",
-      "back_start_new": "Start new identity",
-      "return_to_onboarding": "Return to onboarding"
+      "start_new_identity": "Start new identity"
     },
     "membership_denied": {
       "unknown_pubkey": "Unknown public key",
@@ -396,6 +397,8 @@
     "test_your_backup": "Test your backup"
   },
   "sidebar": {
+    "channels": "Channels",
+    "direct_messages": "Direct messages",
     "add_community": "Add a community",
     "create_channel": "Create channel",
     "new_dm": "New message",
@@ -434,7 +437,15 @@
     "rename_section": "Rename section",
     "section_name": "Section name",
     "sections_desc": "Sections let you group related channels in the sidebar.",
-    "waiting_to_reconnect": "Waiting to reconnect"
+    "waiting_to_reconnect": "Waiting to reconnect",
+    "copy_community_url": "Copy community URL",
+    "invite_to_community": "Invite to community",
+    "community_settings": "Community settings",
+    "communities_nav": "Communities",
+    "community_mention_tooltip_one": "{{name}} — {{count}} mention",
+    "community_mention_tooltip_other": "{{name}} — {{count}} mentions",
+    "community_unread_tooltip": "{{name}} — unread",
+    "unread_sr": "unread"
   },
   "channel": {
     "create": {
@@ -626,7 +637,6 @@
     "already_added": "Already added",
     "anyone_can_send": "Anyone can send instructions to this agent",
     "attach_image": "Attach image",
-    "attach_file": "Attach file",
     "back_to_conversation": "Back to conversation",
     "back_to_drafts": "Back to drafts list",
     "bullet_list": "Bullet list",
@@ -712,7 +722,10 @@
     "reply_to_continue": "Reply in the thread to continue this branch.",
     "reply_in_thread_to": "Reply in thread to {{author}}",
     "message_the_huddle": "Message the huddle",
-    "new": "new"
+    "new": "new",
+    "were_added_by": "were added by",
+    "attach_file": "Attach file",
+    "sending": "Sending…"
   },
   "settings": {
     "title": "Settings",
@@ -772,10 +785,20 @@
     "mobile": "Mobile",
     "updates_section": "Updates",
     "thread_layout": "Thread layout",
+    "theme_label": "Theme",
+    "per_community_paren": "(per community)",
+    "all_communities_paren": "(all communities)",
+    "accent_color": "Accent color",
+    "this_community": "this community",
     "thread_focus_label": "Focus",
     "thread_focus_desc": "Threads open over the channel, full width",
     "thread_split_label": "Split",
     "thread_split_desc": "Threads open in a side panel next to the channel",
+    "links": "Links",
+    "link_preview_compact": "Compact",
+    "link_preview_compact_desc": "Show links as compact horizontal cards",
+    "link_preview_rich": "Rich",
+    "link_preview_rich_desc": "Unfurl links with larger images and descriptions",
     "update": {
       "title": "Software Updates",
       "description": "Keep Buzz up to date with the latest features and fixes.",
@@ -956,14 +979,7 @@
     "test_your_backup": "Test your backup",
     "address_taken": "That Buzz address is already taken.",
     "not_key_backup": "That doesn't look like a key backup file.",
-    "confirm_mobile_code": "Confirm mobile code",
-    "confirmation_code": "Confirmation code",
-    "codes_match": "Codes match",
     "codes_mismatch": "The codes didn't match. Pairing was canceled.",
-    "pairing_sas_status": "Verification code {{code}} ready. Check that it matches on your mobile device, then confirm the codes match.",
-    "pairing_transferring_status": "Codes confirmed. Pairing your mobile device.",
-    "pairing_done_status": "Your mobile app is now paired.",
-    "all_communities": "all communities",
     "no_relay_address": "The new community did not return a relay address.",
     "identity_reserved": "This device's Buzz identity is already reserved by another Builderlab account, so it can't be connected here. Sign in with that account, or transfer the identity there first.",
     "timeout_author": "Time out author",
@@ -999,7 +1015,14 @@
     "test_nip49_note": "Backups use the standard NIP-49 format, so this works for backups from compatible Nostr apps too.",
     "backup_this_works": "This backup works",
     "backup_test_another": "Test another backup",
-    "backup_checking": "Checking…"
+    "backup_checking": "Checking…",
+    "confirm_mobile_code": "Confirm mobile code",
+    "confirmation_code": "Confirmation code",
+    "codes_match": "Codes match",
+    "pairing_sas_status": "Verification code {{code}} ready. Check that it matches on your mobile device, then confirm the codes match.",
+    "pairing_transferring_status": "Codes confirmed. Pairing your mobile device.",
+    "pairing_done_status": "Your mobile app is now paired.",
+    "all_communities": "all communities"
   },
   "community": {
     "connecting": "Connecting…",
@@ -1218,7 +1241,14 @@
     "generating": "Generating QR code…",
     "connection_failed": "WebSocket connection failed",
     "verify_code": "Verification code",
-    "verify_hint": "Check the code matches what you see on your phone"
+    "verify_hint": "Check the code matches what you see on your phone",
+    "codes_match": "Codes match",
+    "confirm_code": "Confirm mobile code",
+    "code_expired": "Pairing code expired.",
+    "generate_new_code": "Generate new pairing code",
+    "start_pairing": "Start pairing",
+    "sign_in_to_pair": "Sign in to generate a mobile pairing code.",
+    "try_again": "Try again"
   },
   "agents": {
     "default_model": "Default model",
@@ -1270,6 +1300,7 @@
     "respond_selected_people": "Selected people",
     "who_can_send_instructions": "Who can send instructions",
     "only_you_can_send_instructions": "Only you can send instructions.",
+    "owner_only_access_disabled": "This build disallows changing this setting.",
     "selected_count_one": "{{count}} selected",
     "selected_count_other": "{{count}} selected",
     "owner_pubkey_note": "You ({{pubkey}}) can always use this agent. You don't need to add yourself.",
@@ -1808,7 +1839,15 @@
     "card_dismiss_failed_mint": "Dismiss failed mint",
     "card_minting": "Minting {{name}}'s card… (takes a few minutes)",
     "card_ready": "{{name}}'s card is ready — view it",
-    "card_failed": "Minting {{name}}'s card failed"
+    "card_failed": "Minting {{name}}'s card failed",
+    "no_shared_agents": "No shared agents",
+    "import_agent_title": "Import an agent",
+    "import_agent_description": "Drop an .agent.json or .agent.png file anywhere in this window, or choose a file.",
+    "choose_file": "Choose file",
+    "discard_agent_changes": "Discard agent changes?",
+    "discard_agent_changes_desc": "Your changes to this agent will be lost.",
+    "keep_editing": "Keep editing",
+    "discard_changes": "Discard changes"
   },
   "projects": {
     "add_context_for_reviewers": "Add context for reviewers",
@@ -1949,9 +1988,6 @@
     "workspace_repositories": "Workspace repositories:",
     "local": "Local",
     "remote": "Remote",
-    "buzz_hosted": "Buzz-hosted",
-    "linked": "Linked",
-    "updating": "Updating…",
     "approved": "Approved",
     "issues": "Issues",
     "activity": "Activity",
@@ -1976,7 +2012,10 @@
     "approve_pr": "Approve pull request",
     "merge_pr_confirm": "Merge pull request?",
     "could_not_load_changed_files": "Could not load changed files for this {{label}}.",
-    "add_reviewer": "Add reviewer"
+    "add_reviewer": "Add reviewer",
+    "buzz_hosted": "Buzz-hosted",
+    "linked": "Linked",
+    "updating": "Updating…"
   },
   "workflows": {
     "approval_note": "Approval note",
@@ -2191,13 +2230,14 @@
     "mic_unavailable_detail": "Microphone unavailable. Check app permissions or input device.",
     "mic_unavailable": "Microphone unavailable",
     "mute_agent_speech": "Mute agent speech",
-    "loading_agents": "Loading agents…",
     "mute_mic": "Mute microphone",
-    "unmute_mic": "Unmute microphone",
-    "click_unmute_or_hold": "Click to unmute or hold",
     "no_running_agents": "No running agents found.",
     "ptt_enabled": "Push to Talk is enabled.",
-    "reaction_failed": "Reaction failed"
+    "reaction_failed": "Reaction failed",
+    "loading_agents": "Loading agents…",
+    "unmute_mic": "Unmute microphone",
+    "ptt_click_unmute_or_hold": "Click to unmute or hold",
+    "click_unmute_or_hold": "Click to unmute or hold"
   },
   "community_members": {
     "add_member": "Add member",

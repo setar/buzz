@@ -68,7 +68,6 @@
       "placeholder": "Введите ваш ключ здесь",
       "placeholder_nsec": "nsec1...",
       "choose_file": "Выбрать файл резервной копии",
-      "drop_backup_here": "Перетащите файл резервной копии сюда",
       "drop_key": "Перетащите ключ сюда",
       "backup_password_label": "Пароль резервной копии",
       "backup_password_placeholder": "Пароль резервной копии",
@@ -87,7 +86,8 @@
       "error_enter_password": "Введите пароль для этой резервной копии.",
       "error_ncryptsec": "Это не похоже на полную резервную копию ncryptsec.",
       "error_invalid_nsec": "Это не похоже на действительный ключ nsec. Вставьте ключ nsec1.",
-      "error_import_failed": "Не удалось импортировать ключ."
+      "error_import_failed": "Не удалось импортировать ключ.",
+      "drop_backup_here": "Перетащите файл резервной копии сюда"
     },
     "invite": {
       "invite_label": "Ссылка-приглашение или код",
@@ -283,14 +283,15 @@
       "desc_unlock": "Введите пароль резервной копии, чтобы разблокировать ключ и восстановить идентификацию.",
       "desc_reimport": "Ваша идентификация больше не хранится в системном брелоке. Повторно импортируйте nsec для восстановления.",
       "desc_enter_key": "Если у вас уже есть аккаунт Buzz, введите приватный ключ ниже для начала работы.",
-      "desc_enter_key_prefix": "Вставьте приватный ключ для входа в Buzz. Также можно использовать",
+      "back_start_new": "Новая идентификация",
+      "return_to_onboarding": "Вернуться к настройке",
       "backup_file_link": "файл резервной копии",
+      "recover_phone_link": "восстановить с телефона",
+      "desc_enter_key_prefix": "Вставьте приватный ключ для входа в Buzz. Также можно использовать",
       "or_separator": " или",
       "recover_from_phone_link": "восстановить с телефона",
       "desc_enter_key_suffix": ".",
-      "start_new_identity": "Новая идентификация",
-      "back_start_new": "Новая идентификация",
-      "return_to_onboarding": "Вернуться к настройке"
+      "start_new_identity": "Новая идентификация"
     },
     "membership_denied": {
       "unknown_pubkey": "Неизвестный публичный ключ",
@@ -402,6 +403,8 @@
     "test_your_backup": "Проверьте резервную копию"
   },
   "sidebar": {
+    "channels": "Каналы",
+    "direct_messages": "Личные сообщения",
     "add_community": "Добавить сообщество",
     "create_channel": "Создать канал",
     "new_dm": "Новое сообщение",
@@ -440,7 +443,16 @@
     "rename_section": "Переименовать раздел",
     "section_name": "Название раздела",
     "sections_desc": "Разделы позволяют группировать связанные каналы в боковой панели.",
-    "waiting_to_reconnect": "Ожидание переподключения"
+    "waiting_to_reconnect": "Ожидание переподключения",
+    "copy_community_url": "Копировать URL сообщества",
+    "invite_to_community": "Пригласить в сообщество",
+    "community_settings": "Настройки сообщества",
+    "communities_nav": "Сообщества",
+    "community_mention_tooltip_one": "{{name}} — {{count}} упоминание",
+    "community_mention_tooltip_few": "{{name}} — {{count}} упоминания",
+    "community_mention_tooltip_other": "{{name}} — {{count}} упоминаний",
+    "community_unread_tooltip": "{{name}} — непрочитанное",
+    "unread_sr": "непрочитанное"
   },
   "channel": {
     "create": {
@@ -632,7 +644,6 @@
     "already_added": "Уже добавлено",
     "anyone_can_send": "Любой может отправлять инструкции этому агенту",
     "attach_image": "Прикрепить изображение",
-    "attach_file": "Прикрепить файл",
     "back_to_conversation": "Назад к беседе",
     "back_to_drafts": "Назад к списку черновиков",
     "bullet_list": "Маркированный список",
@@ -719,7 +730,10 @@
     "reply_to_continue": "Ответьте в ветке, чтобы продолжить.",
     "reply_in_thread_to": "Ответить в ветке {{author}}",
     "message_the_huddle": "Сообщение в хаддл",
-    "new": "новых"
+    "new": "новых",
+    "were_added_by": "был(а) добавлен(а)",
+    "attach_file": "Прикрепить файл",
+    "sending": "Отправка…"
   },
   "settings": {
     "title": "Настройки",
@@ -779,10 +793,20 @@
     "mobile": "Мобильное приложение",
     "updates_section": "Обновления",
     "thread_layout": "Раскладка тредов",
+    "theme_label": "Тема",
+    "per_community_paren": "(для каждого сообщества)",
+    "all_communities_paren": "(все сообщества)",
+    "accent_color": "Акцентный цвет",
+    "this_community": "это сообщество",
     "thread_focus_label": "Фокус",
     "thread_focus_desc": "Треды открываются поверх канала на всю ширину",
     "thread_split_label": "Разделение",
     "thread_split_desc": "Треды открываются в боковой панели рядом с каналом",
+    "links": "Ссылки",
+    "link_preview_compact": "Компактный",
+    "link_preview_compact_desc": "Показывать ссылки как компактные горизонтальные карточки",
+    "link_preview_rich": "Развёрнутый",
+    "link_preview_rich_desc": "Раскрывать ссылки с крупными изображениями и описанием",
     "update": {
       "title": "Обновления",
       "description": "Поддерживайте Buzz актуальным.",
@@ -963,14 +987,7 @@
     "test_your_backup": "Проверьте резервную копию",
     "address_taken": "Этот адрес Buzz уже занят.",
     "not_key_backup": "Это не похоже на файл резервной копии ключа.",
-    "confirm_mobile_code": "Подтвердить код мобильного устройства",
-    "confirmation_code": "Код подтверждения",
-    "codes_match": "Коды совпадают",
     "codes_mismatch": "Коды не совпали. Сопряжение отменено.",
-    "pairing_sas_status": "Код подтверждения {{code}} готов. Убедитесь, что он совпадает на мобильном устройстве, затем подтвердите.",
-    "pairing_transferring_status": "Коды подтверждены. Выполняется сопряжение мобильного устройства.",
-    "pairing_done_status": "Мобильное приложение успешно сопряжено.",
-    "all_communities": "все сообщества",
     "no_relay_address": "Новое сообщество не вернуло адрес relay.",
     "identity_reserved": "Личность Buzz этого устройства уже зарезервирована другим аккаунтом Builderlab, поэтому её нельзя подключить здесь. Войдите под тем аккаунтом или сначала передайте личность туда.",
     "timeout_author": "Заглушить автора",
@@ -1006,7 +1023,14 @@
     "test_nip49_note": "Резервные копии используют стандартный формат NIP-49, поэтому это работает и с копиями из совместимых приложений Nostr.",
     "backup_this_works": "Резервная копия работает",
     "backup_test_another": "Проверить другую копию",
-    "backup_checking": "Проверка…"
+    "backup_checking": "Проверка…",
+    "confirm_mobile_code": "Подтвердить код мобильного устройства",
+    "confirmation_code": "Код подтверждения",
+    "codes_match": "Коды совпадают",
+    "pairing_sas_status": "Код подтверждения {{code}} готов. Убедитесь, что он совпадает на мобильном устройстве, затем подтвердите.",
+    "pairing_transferring_status": "Коды подтверждены. Выполняется сопряжение мобильного устройства.",
+    "pairing_done_status": "Мобильное приложение успешно сопряжено.",
+    "all_communities": "все сообщества"
   },
   "community": {
     "connecting": "Подключение…",
@@ -1225,7 +1249,14 @@
     "generating": "Генерация QR-кода…",
     "connection_failed": "Ошибка подключения WebSocket",
     "verify_code": "Код подтверждения",
-    "verify_hint": "Убедитесь, что код совпадает с тем, что отображается на телефоне"
+    "verify_hint": "Убедитесь, что код совпадает с тем, что отображается на телефоне",
+    "codes_match": "Коды совпадают",
+    "confirm_code": "Подтвердите код мобильного устройства",
+    "code_expired": "Код пейринга истёк.",
+    "generate_new_code": "Создать новый код пейринга",
+    "start_pairing": "Начать пейринг",
+    "sign_in_to_pair": "Войдите, чтобы создать код пейринга для мобильного устройства.",
+    "try_again": "Повторить"
   },
   "agents": {
     "default_model": "Модель по умолчанию",
@@ -1277,6 +1308,7 @@
     "respond_selected_people": "Выбранные люди",
     "who_can_send_instructions": "Кто может отправлять инструкции",
     "only_you_can_send_instructions": "Только вы можете отправлять инструкции.",
+    "owner_only_access_disabled": "В этой сборке изменение настройки недоступно.",
     "selected_count_one": "Выбрано: {{count}}",
     "selected_count_few": "Выбрано: {{count}}",
     "selected_count_many": "Выбрано: {{count}}",
@@ -1853,7 +1885,15 @@
     "card_dismiss_failed_mint": "Закрыть ошибку минта",
     "card_minting": "Минтинг карточки {{name}}… (займёт несколько минут)",
     "card_ready": "Карточка {{name}} готова — открыть",
-    "card_failed": "Ошибка при минтинге карточки {{name}}"
+    "card_failed": "Ошибка при минтинге карточки {{name}}",
+    "no_shared_agents": "Нет общих агентов",
+    "import_agent_title": "Импортировать агента",
+    "import_agent_description": "Перетащите файл .agent.json или .agent.png в любое место этого окна, или выберите файл.",
+    "choose_file": "Выбрать файл",
+    "discard_agent_changes": "Отменить изменения агента?",
+    "discard_agent_changes_desc": "Ваши изменения в этом агенте будут потеряны.",
+    "keep_editing": "Продолжить редактирование",
+    "discard_changes": "Отменить изменения"
   },
   "projects": {
     "add_context_for_reviewers": "Добавьте контекст для ревьюеров",
@@ -1994,9 +2034,6 @@
     "workspace_repositories": "Репозитории рабочего пространства:",
     "local": "Локально",
     "remote": "Удалённо",
-    "buzz_hosted": "Размещённые в Buzz",
-    "linked": "Связанные",
-    "updating": "Обновление…",
     "approved": "Одобрено",
     "issues": "Issues",
     "activity": "Активность",
@@ -2021,7 +2058,10 @@
     "approve_pr": "Одобрить pull request",
     "merge_pr_confirm": "Объединить pull request?",
     "could_not_load_changed_files": "Не удалось загрузить изменённые файлы для {{label}}.",
-    "add_reviewer": "Добавить ревьюера"
+    "add_reviewer": "Добавить ревьюера",
+    "buzz_hosted": "Размещённые в Buzz",
+    "linked": "Связанные",
+    "updating": "Обновление…"
   },
   "workflows": {
     "approval_note": "Заметка об одобрении",
@@ -2238,13 +2278,14 @@
     "mic_unavailable_detail": "Микрофон недоступен. Проверьте разрешения приложения или устройство ввода.",
     "mic_unavailable": "Микрофон недоступен",
     "mute_agent_speech": "Отключить речь агента",
-    "loading_agents": "Загрузка агентов…",
     "mute_mic": "Отключить микрофон",
-    "unmute_mic": "Включить микрофон",
-    "click_unmute_or_hold": "Нажмите для включения или удерживайте",
     "no_running_agents": "Запущенных агентов не найдено.",
     "ptt_enabled": "Push to Talk включён.",
-    "reaction_failed": "Не удалось отправить реакцию"
+    "reaction_failed": "Не удалось отправить реакцию",
+    "loading_agents": "Загрузка агентов…",
+    "unmute_mic": "Включить микрофон",
+    "ptt_click_unmute_or_hold": "Нажмите для включения или удержите",
+    "click_unmute_or_hold": "Нажмите для включения или удерживайте"
   },
   "community_members": {
     "add_member": "Добавить участника",

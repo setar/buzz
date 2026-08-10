@@ -282,12 +282,6 @@ export function MembersSidebar({
         agent,
       ]),
     );
-    const memberAgentLabels = new Set(
-      rawMembers
-        .filter((member) => member.isAgent === true || member.role === "bot")
-        .map((member) => member.displayName?.trim().toLowerCase())
-        .filter((label): label is string => Boolean(label)),
-    );
     const sharedChannelIds = getSharedChannelIds(channelsQuery.data);
     const allowedAgentPubkeys = getMentionableAgentPubkeys({
       currentPubkey,
@@ -300,10 +294,6 @@ export function MembersSidebar({
     const addCandidate = (candidate: AddMemberSearchCandidate) => {
       const pubkey = normalizePubkey(candidate.pubkey);
       if (
-        (candidate.isAgent &&
-          memberAgentLabels.has(
-            formatAddCandidateName(candidate).toLowerCase(),
-          )) ||
         memberPubkeys.has(pubkey) ||
         isArchivedDiscovery(pubkey) ||
         !isAgentIdentityInAllowedList(candidate, allowedAgentPubkeys)
@@ -393,7 +383,6 @@ export function MembersSidebar({
     normalizedDeferredSearchQuery,
     relayAgentsQuery.data,
     userSearchResults,
-    rawMembers,
   ]);
   const isAddSearchLoading =
     userSearchQuery.isLoading ||
@@ -973,6 +962,9 @@ function AddMemberSearchResultRow({
                 agent
               </span>
             </div>
+            <span className="block truncate font-mono text-2xs text-muted-foreground">
+              {truncatePubkey(user.pubkey)}
+            </span>
             {ownerLabel ? (
               <span className="block truncate text-xs text-muted-foreground">
                 managed by {ownerLabel}

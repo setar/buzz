@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { useAgentManagement } from "@/features/agents/useAgentManagement";
 import { AgentCardDialogs } from "./AgentCardViewerDialog";
 import { AgentDialog } from "./AgentDialog";
-import { SecretRevealDialog } from "./SecretRevealDialog";
 
 /** Global review surfaces opened by owned agents through the Buzz harness. */
 export function AgentManagementDialogs() {
@@ -25,19 +24,6 @@ export function AgentManagementDialogs() {
           onSubmitDefinition={management.submitCreate}
           runtimes={management.runtimes}
           runtimeCatalogStatus={management.runtimeCatalogStatus}
-        />
-      ) : null}
-      {management.createdAgent ? (
-        <SecretRevealDialog
-          attachmentFailure={management.attachmentFailure}
-          created={management.createdAgent}
-          isRetryingAttachment={management.isRetryingAttachment}
-          onOpenChange={(open) => {
-            if (!open) management.dismissCreatedAgent();
-          }}
-          onRetryAttachment={() => {
-            void management.retryAttachment();
-          }}
         />
       ) : null}
       {management.request?.action === "update" ? (

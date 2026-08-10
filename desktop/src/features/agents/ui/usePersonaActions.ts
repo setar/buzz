@@ -259,10 +259,6 @@ export function usePersonaActions() {
                 error: created.spawnError,
               }),
             );
-          } else {
-            setPersonaNoticeMessage(
-              t("agents.created_and_started", { name: created.agent.name }),
-            );
           }
           if (created.profileSyncError) {
             setPersonaErrorMessage(
@@ -318,9 +314,10 @@ export function usePersonaActions() {
     persona: AgentPersona,
     active: boolean,
     surface: PersonaFeedbackSurface,
-  ) {
+  ): Promise<AgentPersona | null> {
     clearFeedback(surface);
     try {
+      let updatedPersona: AgentPersona;
       if (active && isCatalogPersona(persona)) {
         const localPersona = findLocalPersonaForCatalogEntry(
           personas,
@@ -329,13 +326,15 @@ export function usePersonaActions() {
 
         if (localPersona) {
           if (!localPersona.isActive) {
-            await setPersonaActiveMutation.mutateAsync({
+            updatedPersona = await setPersonaActiveMutation.mutateAsync({
               id: localPersona.id,
               active: true,
             });
+          } else {
+            updatedPersona = localPersona;
           }
         } else {
-          await createPersonaMutation.mutateAsync({
+          updatedPersona = await createPersonaMutation.mutateAsync({
             displayName: persona.displayName,
             avatarUrl: persona.avatarUrl ?? undefined,
             systemPrompt: persona.systemPrompt,
@@ -359,7 +358,10 @@ export function usePersonaActions() {
           });
         }
       } else {
-        await setPersonaActiveMutation.mutateAsync({ id: persona.id, active });
+        updatedPersona = await setPersonaActiveMutation.mutateAsync({
+          id: persona.id,
+          active,
+        });
       }
       setPersonaNoticeMessage(
         active
@@ -368,6 +370,7 @@ export function usePersonaActions() {
               name: persona.displayName,
             }),
       );
+      return updatedPersona;
     } catch (error) {
       setPersonaErrorMessage(
         error instanceof Error
@@ -376,6 +379,7 @@ export function usePersonaActions() {
             ? t("agents.failed_select_agent")
             : t("agents.failed_deselect_agent"),
       );
+      return null;
     }
   }
 

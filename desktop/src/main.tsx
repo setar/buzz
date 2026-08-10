@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "@/shared/i18n/i18n";
 import { App } from "@/app/App";
+import { RootErrorBoundary } from "@/app/RootErrorBoundary";
 import { NostrBindConsentDialog } from "@/features/profile/ui/NostrBindConsentDialog";
 import "@fontsource-variable/inter/wght.css";
 import "@fontsource/jetbrains-mono/400.css";
@@ -77,23 +78,29 @@ function configureDevE2eBridgeFromUrl() {
 function renderApp() {
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
-      <CommunitiesProvider>
-        <CommunityOnboardingProvider enabled={huddleWindowChannelId() === null}>
-          <ThemeProvider defaultTheme="buzz">
-            <TooltipProvider delayDuration={300}>
-              <EmojiBurstProvider>
-                <PoofBurstProvider>
-                  <UpdaterProvider>
-                    <App />
-                    <NostrBindConsentDialog />
-                  </UpdaterProvider>
-                  <Toaster />
-                </PoofBurstProvider>
-              </EmojiBurstProvider>
-            </TooltipProvider>
-          </ThemeProvider>
-        </CommunityOnboardingProvider>
-      </CommunitiesProvider>
+      {/* block/buzz#5078 — catch any uncaught render error so a WebKit
+          SecurityError from localStorage can't blank the whole window. */}
+      <RootErrorBoundary>
+        <CommunitiesProvider>
+          <CommunityOnboardingProvider
+            enabled={huddleWindowChannelId() === null}
+          >
+            <ThemeProvider defaultTheme="buzz">
+              <TooltipProvider delayDuration={300}>
+                <EmojiBurstProvider>
+                  <PoofBurstProvider>
+                    <UpdaterProvider>
+                      <App />
+                      <NostrBindConsentDialog />
+                    </UpdaterProvider>
+                    <Toaster />
+                  </PoofBurstProvider>
+                </EmojiBurstProvider>
+              </TooltipProvider>
+            </ThemeProvider>
+          </CommunityOnboardingProvider>
+        </CommunitiesProvider>
+      </RootErrorBoundary>
     </React.StrictMode>,
   );
 }

@@ -19,7 +19,7 @@ export function personaCatalogCopy(
   return {
     title: t("agents.agent_catalog"),
     description: t("agents.agent_catalog_description"),
-    dialogTitle: t("agents.agent_catalog"),
+    dialogTitle: t("agents.add_agent"),
     dialogDescription: t("agents.agent_catalog_description"),
     emptyTitle: t("agents.catalog_empty_title"),
     emptyDescription: t("agents.catalog_empty_description"),

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { ChevronDown, LoaderCircle } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import type { ChannelVisibility } from "@/shared/api/types";
 import { Button } from "@/shared/ui/button";
@@ -14,13 +14,11 @@ import { cn } from "@/shared/lib/cn";
 
 export function ChannelPermissionsSettings({
   disabled,
-  isPending = false,
   onVisibilityChange,
   testIdPrefix,
   visibility,
 }: {
   disabled?: boolean;
-  isPending?: boolean;
   onVisibilityChange: (visibility: ChannelVisibility) => void;
   testIdPrefix: string;
   visibility: ChannelVisibility;
@@ -40,12 +38,7 @@ export function ChannelPermissionsSettings({
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
-            aria-busy={isPending}
-            aria-label={
-              isPending
-                ? t("channel.updating_visibility")
-                : `Visibility: ${visibilityLabel}`
-            }
+            aria-label={`Visibility: ${visibilityLabel}`}
             className="-mr-2.5 ml-auto h-9 w-fit justify-end px-2.5 text-right text-sm font-medium text-foreground hover:bg-muted/50"
             data-testid={`${testIdPrefix}-permissions`}
             disabled={disabled}
@@ -53,16 +46,9 @@ export function ChannelPermissionsSettings({
             variant="ghost"
           >
             <span aria-live="polite" className="text-right">
-              {isPending ? "Updating…" : visibilityLabel}
+              {visibilityLabel}
             </span>
-            {isPending ? (
-              <LoaderCircle
-                aria-hidden="true"
-                className="size-4 shrink-0 text-muted-foreground/70 motion-safe:animate-spin"
-              />
-            ) : (
-              <ChevronDown className="size-4 shrink-0 text-muted-foreground/70" />
-            )}
+            <ChevronDown className="size-4 shrink-0 text-muted-foreground/70" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
