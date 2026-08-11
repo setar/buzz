@@ -23,6 +23,7 @@ import type { RelayEvent } from "@/shared/api/types";
 import { KIND_HUDDLE_REACTION } from "@/shared/constants/kinds";
 import { cn } from "@/shared/lib/cn";
 import { rewriteRelayUrl } from "@/shared/lib/mediaUrl";
+import { useDocumentVisible } from "@/shared/lib/useDocumentVisible";
 import { Button } from "@/shared/ui/button";
 import { useEmojiBurst } from "@/shared/ui/EmojiBurstProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
@@ -152,6 +153,7 @@ export function HuddleBar({
   onVisibilityChange,
 }: HuddleBarProps) {
   const { t } = useTranslation();
+  const documentVisible = useDocumentVisible();
   const {
     leaveHuddle,
     micConnected,
@@ -240,7 +242,7 @@ export function HuddleBar({
       }
     }
 
-    void fetchState();
+    if (documentVisible) void fetchState();
 
     // Primary: listen for Rust-emitted state change events
     listen<HuddleState>("huddle-state-changed", (event) => {
@@ -255,21 +257,27 @@ export function HuddleBar({
 
     // Fallback in case events are missed; keep it slow so normal huddle use is
     // event-driven and does not keep a sync IPC command warm on the main thread.
-    const id = window.setInterval(
-      () => void fetchState(),
-      HUDDLE_STATE_FALLBACK_INTERVAL_MS,
-    );
+    const id = documentVisible
+      ? window.setInterval(
+          () => void fetchState(),
+          HUDDLE_STATE_FALLBACK_INTERVAL_MS,
+        )
+      : null;
 
     return () => {
       cancelled = true;
       unlisten?.();
-      window.clearInterval(id);
+      if (id !== null) window.clearInterval(id);
     };
-  }, [applyIncomingState]);
+  }, [applyIncomingState, documentVisible]);
 
   const huddlePhase = state?.phase;
   React.useEffect(() => {
-    if (huddlePhase !== "active" && huddlePhase !== "connected") return;
+    if (
+      !documentVisible ||
+      (huddlePhase !== "active" && huddlePhase !== "connected")
+    )
+      return;
 
     let cancelled = false;
 
@@ -312,8 +320,12 @@ export function HuddleBar({
     return () => {
       cancelled = true;
       window.clearInterval(id);
-      setModelStatus(null); // Clear stale status on huddle end/phase change.
     };
+  }, [documentVisible, huddlePhase]);
+
+  React.useEffect(() => {
+    if (huddlePhase === "active" || huddlePhase === "connected") return;
+    setModelStatus(null);
   }, [huddlePhase]);
 
   const isHuddleVisible = isVisibleHuddleState(state);
@@ -538,7 +550,7 @@ export function HuddleBar({
       setState(s);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
-      setTranscriptError(`Transcript failed: ${message}`);
+      setTranscriptError(t("huddle.transcript_failed", { message }));
       console.error(t("huddle.failed_transcript"), e);
     }
   }
@@ -641,7 +653,7 @@ export function HuddleBar({
               return result;
             } catch (e: unknown) {
               const msg = e instanceof Error ? e.message : String(e);
-              setAgentAddError(`Failed to add agent: ${msg}`);
+              setAgentAddError(t("huddle.failed_add_agent", { msg }));
               throw e; // Re-throw so AddAgentDialog shows its inline error.
             }
           }}
@@ -706,7 +718,7 @@ export function HuddleBar({
               }}
               onRemoveAgent={async (pubkey) => {
                 const confirmed = window.confirm(
-                  "Remove this agent from the huddle?",
+                  t("huddle.remove_agent_confirm"),
                 );
                 if (!confirmed) return;
                 try {
@@ -776,7 +788,9 @@ export function HuddleBar({
             <TooltipTrigger asChild>
               <Button
                 aria-label={
-                  transcriptionEnabled ? "Stop transcript" : "Start transcript"
+                  transcriptionEnabled
+                    ? t("huddle.stop_transcript")
+                    : t("huddle.start_transcript")
                 }
                 aria-pressed={transcriptionEnabled}
                 className="buzz-huddle-control-button h-12 w-12 shrink-0 rounded-md"
@@ -789,7 +803,9 @@ export function HuddleBar({
               </Button>
             </TooltipTrigger>
             <TooltipContent className="buzz-huddle-tooltip" side="top">
-              {transcriptionEnabled ? "Stop transcript" : "Start transcript"}
+              {transcriptionEnabled
+                ? t("huddle.stop_transcript")
+                : t("huddle.start_transcript")}
             </TooltipContent>
           </Tooltip>
 
@@ -807,7 +823,7 @@ export function HuddleBar({
               </Button>
             </TooltipTrigger>
             <TooltipContent className="buzz-huddle-tooltip" side="top">
-              Add agent
+              {t("huddle.add_agent_tooltip")}
             </TooltipContent>
           </Tooltip>
         </div>
@@ -818,7 +834,7 @@ export function HuddleBar({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                aria-label="Open huddle in a new window"
+                aria-label={t("huddle.open_window_aria")}
                 className="buzz-huddle-control-button h-12 w-12 shrink-0 rounded-md"
                 onClick={() => void handleOpenHuddleWindow()}
                 size="icon"
@@ -829,14 +845,14 @@ export function HuddleBar({
               </Button>
             </TooltipTrigger>
             <TooltipContent className="buzz-huddle-tooltip" side="top">
-              Open huddle window
+              {t("huddle.open_window")}
             </TooltipContent>
           </Tooltip>
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                aria-label="Return huddle to drawer"
+                aria-label={t("huddle.return_to_drawer_aria")}
                 className="buzz-huddle-control-button h-12 w-12 shrink-0 rounded-md"
                 onClick={() => void handleReturnToDrawer()}
                 size="icon"
@@ -847,7 +863,7 @@ export function HuddleBar({
               </Button>
             </TooltipTrigger>
             <TooltipContent className="buzz-huddle-tooltip" side="top">
-              Return huddle to drawer
+              {t("huddle.return_to_drawer")}
             </TooltipContent>
           </Tooltip>
         )}

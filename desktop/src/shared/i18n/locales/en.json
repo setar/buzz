@@ -277,7 +277,18 @@
       "or_separator": ", or",
       "recover_from_phone_link": "recover from your phone",
       "desc_enter_key_suffix": ".",
-      "start_new_identity": "Start new identity"
+      "start_new_identity": "Start new identity",
+      "failed_load_identity": "Failed to load identity",
+      "paste_key_intro": "Paste your private key to sign in to Buzz. You can also use a",
+      "paste_key_or": ", or",
+      "paste_key_end": ".",
+      "replace_identity_confirm": "This will create a new identity and abandon your previous key. This cannot be undone. Continue?",
+      "backup_dialog_title": "Restore from a backup file",
+      "backup_dialog_desc": "Choose the encrypted backup file you saved from Buzz.",
+      "phone_dialog_title": "Use your Buzz identity",
+      "phone_dialog_title_lost": "Recover from your phone",
+      "phone_dialog_scan": "Scan this code with a signed-in Buzz phone.",
+      "phone_dialog_confirm": "Confirm the code before sharing your identity."
     },
     "membership_denied": {
       "unknown_pubkey": "Unknown public key",
@@ -375,7 +386,8 @@
       "loading_error": "Couldn't load harness settings. Go back and try again.",
       "harness_label": "Default harness",
       "title": "Configure your default model settings",
-      "description": "This will be set as your default model configuration across Buzz. You can always change this in your Settings or give specific agents a different configuration."
+      "description": "This will be set as your default model configuration across Buzz. You can always change this in your Settings or give specific agents a different configuration.",
+      "error_save_detail": "Couldn't save model settings. {{error}} Try again."
     },
     "add_display_image": "Add a display image",
     "choose_backup_file": "Choose a backup file",
@@ -2237,7 +2249,17 @@
     "loading_agents": "Loading agents…",
     "unmute_mic": "Unmute microphone",
     "ptt_click_unmute_or_hold": "Click to unmute or hold",
-    "click_unmute_or_hold": "Click to unmute or hold"
+    "click_unmute_or_hold": "Click to unmute or hold",
+    "stop_transcript": "Stop transcript",
+    "start_transcript": "Start transcript",
+    "add_agent_tooltip": "Add agent",
+    "open_window_aria": "Open huddle in a new window",
+    "open_window": "Open huddle window",
+    "return_to_drawer_aria": "Return huddle to drawer",
+    "return_to_drawer": "Return huddle to drawer",
+    "transcript_failed": "Transcript failed: {{message}}",
+    "remove_agent_confirm": "Remove this agent from the huddle?",
+    "failed_add_agent": "Failed to add agent: {{msg}}"
   },
   "community_members": {
     "add_member": "Add member",

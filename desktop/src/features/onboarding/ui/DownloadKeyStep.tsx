@@ -122,23 +122,25 @@ export function DownloadKeyStep({
           }
           ref={setPrimaryActionSlot}
         />
-        <Button
-          className={
-            hasVerifiedBackup
-              ? ONBOARDING_SECURITY_PRIMARY_CTA_CLASS
-              : ONBOARDING_SECONDARY_CTA_CLASS
-          }
-          data-testid="onboarding-back"
-          onClick={onBack}
-          type="button"
-          variant="ghost"
-        >
-          {hasVerifiedBackup
-            ? t("onboarding.download.finish")
-            : hasCreated
-              ? t("common.skip_for_now")
-              : t("common.back")}
-        </Button>
+        {hasCreated ? (
+          <Button
+            className={
+              hasVerifiedBackup
+                ? ONBOARDING_SECURITY_PRIMARY_CTA_CLASS
+                : ONBOARDING_SECONDARY_CTA_CLASS
+            }
+            data-testid={
+              hasVerifiedBackup ? "onboarding-finish" : "onboarding-skip"
+            }
+            onClick={onBack}
+            type="button"
+            variant="ghost"
+          >
+            {hasVerifiedBackup
+              ? t("onboarding.download.finish")
+              : t("common.skip_for_now")}
+          </Button>
+        ) : null}
       </OnboardingFooter>
     </OnboardingSlideTransition>
   );

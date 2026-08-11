@@ -1,6 +1,5 @@
 import * as React from "react";
 import type { QueryClient } from "@tanstack/react-query";
-import { ArrowUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "motion/react";
 
@@ -41,7 +40,10 @@ import {
   OnboardingChrome,
 } from "./OnboardingChrome";
 import { OnboardingFooterProvider } from "./OnboardingFooter";
-import { OnboardingSlideTransition } from "./OnboardingSlideTransition";
+import {
+  type OnboardingTransitionDirection,
+  OnboardingSlideTransition,
+} from "./OnboardingSlideTransition";
 import { SetupStep } from "./SetupStep";
 import type { DefaultConfigDraft } from "./types";
 
@@ -87,11 +89,15 @@ export function MachineOnboardingFlow({
   const [page, setPage] = React.useState<MachineOnboardingPage>(
     identityLost ? "key-import" : (initialPage ?? "identity"),
   );
+  const [transitionDirection, setTransitionDirection] =
+    React.useState<OnboardingTransitionDirection>("forward");
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, setIsPending] = React.useState(false);
   const [identityWasImported, setIdentityWasImported] = React.useState(false);
   const [keyImportStage, setKeyImportStage] =
     React.useState<NostrKeyImportStage>("key-entry");
+  const [isKeyImporting, setIsKeyImporting] = React.useState(false);
+  const [keyImportFormKey, setKeyImportFormKey] = React.useState(0);
   const [keyImportDialog, setKeyImportDialog] = React.useState<
     "backup" | "phone" | null
   >(null);
@@ -105,6 +111,8 @@ export function MachineOnboardingFlow({
   const [readyRuntimeIds, setReadyRuntimeIds] = React.useState<string[]>([]);
   const [defaultConfigDraft, setDefaultConfigDraft] =
     React.useState<DefaultConfigDraft | null>(null);
+  const [isDefaultConfigSaving, setIsDefaultConfigSaving] =
+    React.useState(false);
   const [backupSubview, setBackupSubview] =
     React.useState<BackupSubview>("created");
   const [backupDirection, setBackupDirection] = React.useState<
@@ -133,6 +141,7 @@ export function MachineOnboardingFlow({
       setSelectedPubkey(identity.pubkey);
       setIdentityStorage(identity.storage);
       setBackupDirection("forward");
+      setTransitionDirection("forward");
       setReturningFromSecurity(false);
       setBackupSubview("created");
       setPage("backup");
@@ -157,19 +166,20 @@ export function MachineOnboardingFlow({
       setIdentityWasImported(true);
       setSelectedPubkey(identity.pubkey);
       setIdentityStorage(identity.storage);
+      setTransitionDirection("forward");
       setPage("setup");
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "Failed to load identity",
+        cause instanceof Error ? cause.message : t("onboarding.machine.failed_load_identity"),
       );
     } finally {
       setIsPending(false);
     }
-  }, [continueWithRecoveredIdentity, queryClient]);
+  }, [continueWithRecoveredIdentity, queryClient, t]);
 
   const replaceLostIdentity = React.useCallback(async () => {
     const confirmed = window.confirm(
-      "This will create a new identity and abandon your previous key. This cannot be undone. Continue?",
+      t("onboarding.machine.replace_identity_confirm"),
     );
     if (!confirmed) return;
 
@@ -181,6 +191,7 @@ export function MachineOnboardingFlow({
       setSelectedPubkey(identity.pubkey);
       setIdentityStorage(identity.storage);
       setBackupDirection("forward");
+      setTransitionDirection("forward");
       setReturningFromSecurity(false);
       setBackupSubview("created");
       setPage("backup");
@@ -202,10 +213,80 @@ export function MachineOnboardingFlow({
       queryClient.setQueryData(["identity"], identity);
       setIdentityWasImported(true);
       setSelectedPubkey(identity.pubkey);
+      setTransitionDirection("forward");
       setPage("setup");
     },
     [continueWithIdentity, queryClient],
   );
+
+  const backFromKeyImport = React.useCallback(() => {
+    if (keyImportStage === "backup-password") {
+      setKeyImportFormKey((current) => current + 1);
+      setKeyImportStage("key-entry");
+      return;
+    }
+    setTransitionDirection("backward");
+    setPage("identity");
+  }, [keyImportStage]);
+
+  const returnToCreatedKey = React.useCallback(() => {
+    setBackupDirection("backward");
+    setReturningFromSecurity(true);
+    setBackupSubview("created");
+  }, []);
+
+  const backFromPasswordBackup = React.useCallback(() => {
+    resetEncryptedBackupSession(backupSession);
+    setBackupDirection("backward");
+    setReturningFromSecurity(false);
+    setBackupSubview("options");
+  }, [backupSession]);
+
+  const backFromSetup = React.useCallback(() => {
+    if (identityWasImported) {
+      setKeyImportFormKey((current) => current + 1);
+      setKeyImportStage("key-entry");
+      setTransitionDirection("backward");
+      setPage("key-import");
+      return;
+    }
+    if (backupSubview === "password") {
+      backupSessionToPasswordEntry(backupSession);
+    }
+    setBackupDirection("backward");
+    setTransitionDirection("backward");
+    setReturningFromSecurity(false);
+    setPage("backup");
+  }, [backupSession, backupSubview, identityWasImported]);
+
+  const chromeBackAction =
+    page === "key-import" &&
+    (!identityLost || keyImportStage === "backup-password")
+      ? { disabled: isKeyImporting, onClick: backFromKeyImport }
+      : page === "backup" && backupSubview !== "created"
+        ? {
+            label: "Return to onboarding",
+            onClick: returnToCreatedKey,
+            testId: "backup-return-to-onboarding",
+          }
+        : page === "backup"
+          ? {
+              onClick: () => {
+                setTransitionDirection("backward");
+                setPage("identity");
+              },
+            }
+          : page === "setup"
+            ? { onClick: backFromSetup }
+            : page === "config"
+              ? {
+                  disabled: isDefaultConfigSaving,
+                  onClick: () => {
+                    setTransitionDirection("backward");
+                    setPage("setup");
+                  },
+                }
+              : undefined;
 
   return (
     <div
@@ -221,29 +302,12 @@ export function MachineOnboardingFlow({
       <StartupWindowDragRegion />
       <LanguageSwitcher className="fixed right-4 top-4 z-30" />
       {page === "identity" ? <LandingBees /> : null}
-      {isSecuritySubview ? (
-        <div className="fixed inset-x-0 top-8 z-20 flex justify-center px-6">
-          <Button
-            className={`${ONBOARDING_SECONDARY_CTA_CLASS} gap-2 px-5`}
-            data-testid="backup-return-to-onboarding"
-            onClick={() => {
-              setBackupDirection("backward");
-              setReturningFromSecurity(true);
-              setBackupSubview("created");
-            }}
-            type="button"
-            variant="ghost"
-          >
-            <ArrowUp className="h-4 w-4" aria-hidden="true" />
-            {t("onboarding.machine.return_to_onboarding")}
-          </Button>
-        </div>
-      ) : page !== "identity" ? (
+      {page !== "identity" && !isSecuritySubview ? (
         <OnboardingChrome
           current={page === "config" ? 4 : page === "setup" ? 3 : 2}
         />
       ) : null}
-      <OnboardingFooterProvider>
+      <OnboardingFooterProvider backAction={chromeBackAction}>
         <div
           className={`relative flex w-full max-w-[1040px] flex-col items-center text-center ${
             page === "identity" ? "my-auto" : "buzz-onboarding-step-frame"
@@ -252,9 +316,8 @@ export function MachineOnboardingFlow({
           {page === "identity" ? (
             <OnboardingSlideTransition
               className="flex w-full max-w-[720px] flex-col items-center text-center"
-              direction="forward"
-              effect="mask-reveal-up"
-              transitionKey="machine-identity"
+              direction={transitionDirection}
+              transitionKey={`machine-identity-${transitionDirection}`}
             >
               <img
                 alt="Buzz"
@@ -286,6 +349,7 @@ export function MachineOnboardingFlow({
                   onClick={() => {
                     setKeyImportDialog(null);
                     setKeyImportStage("key-entry");
+                    setTransitionDirection("forward");
                     setPage("key-import");
                   }}
                   type="button"
@@ -301,9 +365,8 @@ export function MachineOnboardingFlow({
           ) : page === "key-import" ? (
             <OnboardingSlideTransition
               className="flex min-h-[calc(100dvh-13.25rem)] w-full max-w-[837px] flex-col items-center text-center"
-              direction="forward"
-              effect="fade"
-              transitionKey="machine-key-import"
+              direction={transitionDirection}
+              transitionKey={`machine-key-import-${transitionDirection}`}
             >
               <motion.div
                 animate={{ opacity: 1, y: 0 }}
@@ -354,21 +417,19 @@ export function MachineOnboardingFlow({
                 <div className="flex flex-col items-center">
                   <NostrKeyImportForm
                     backLabel={t("common.back")}
-                    onBack={() => {
-                      setKeyImportStage("key-entry");
-                      if (identityLost) {
-                        return;
-                      }
-                      setPage("identity");
-                    }}
+                    key={keyImportFormKey}
+                    onBack={backFromKeyImport}
                     onImport={importExistingIdentity}
+                    onImportingChange={setIsKeyImporting}
                     onStageChange={setKeyImportStage}
-                    showBack={!identityLost}
+                    showBack={false}
+                    showPasswordStageBack={false}
                     variant="spotlight"
                   />
                   {identityLost && keyImportStage === "key-entry" ? (
                     <Button
                       className={`${ONBOARDING_SECONDARY_CTA_CLASS} mt-2 px-5`}
+                      disabled={isPending || isKeyImporting}
                       onClick={() => void replaceLostIdentity()}
                       type="button"
                       variant="ghost"
@@ -393,10 +454,10 @@ export function MachineOnboardingFlow({
                 >
                   <div className="mx-auto w-full max-w-[35rem] pb-6 pt-10 text-center max-sm:pb-4 max-sm:pt-6">
                     <DialogTitle className="text-balance px-8 text-3xl font-normal text-foreground">
-                      Restore from a backup file
+                      {t("onboarding.machine.backup_dialog_title")}
                     </DialogTitle>
                     <DialogDescription className="mx-auto mt-4 max-w-[28rem] text-sm leading-6 text-foreground/80">
-                      Choose the encrypted backup file you saved from Buzz.
+                      {t("onboarding.machine.backup_dialog_desc")}
                     </DialogDescription>
                     <NostrKeyImportForm
                       footerMode="inline"
@@ -425,14 +486,14 @@ export function MachineOnboardingFlow({
                   <div className="mx-auto flex w-full max-w-[35rem] flex-col items-center pb-6 pt-8 text-center max-sm:pb-4 max-sm:pt-4">
                     <DialogTitle className="text-balance px-8 text-3xl font-normal text-foreground">
                       {identityLost
-                        ? "Recover from your phone"
-                        : "Use your Buzz identity"}
+                        ? t("onboarding.machine.phone_dialog_title_lost")
+                        : t("onboarding.machine.phone_dialog_title")}
                     </DialogTitle>
                     <DialogDescription className="mt-4 text-sm leading-6 text-foreground/80">
                       {phoneRecoveryStep === "loading" ||
                       phoneRecoveryStep === "qr"
-                        ? "Scan this code with a signed-in Buzz phone."
-                        : "Confirm the code before sharing your identity."}
+                        ? t("onboarding.machine.phone_dialog_scan")
+                        : t("onboarding.machine.phone_dialog_confirm")}
                     </DialogDescription>
                     <div className="mt-5">
                       <IdentityRecoveryPairing
@@ -448,20 +509,17 @@ export function MachineOnboardingFlow({
             backupSubview === "password" ? (
               <DownloadKeyStep
                 direction={backupDirection}
-                onBack={() => {
-                  resetEncryptedBackupSession(backupSession);
-                  setBackupDirection("backward");
-                  setReturningFromSecurity(false);
-                  setBackupSubview("options");
-                }}
+                onBack={backFromPasswordBackup}
                 session={backupSession}
               />
             ) : (
               <BackupStep
                 direction={backupDirection}
                 identityStorage={identityStorage}
-                onBack={() => setPage("identity")}
-                onNext={() => setPage("setup")}
+                onNext={() => {
+                  setTransitionDirection("forward");
+                  setPage("setup");
+                }}
                 onOpenPasswordBackup={() => {
                   resetEncryptedBackupSession(backupSession);
                   setBackupDirection("forward");
@@ -483,17 +541,7 @@ export function MachineOnboardingFlow({
                 // Fresh-key users return to whichever identity backup subview
                 // they used to reach setup; imported keys skip backup entirely.
                 back: () => {
-                  if (identityWasImported) {
-                    setKeyImportStage("key-entry");
-                    setPage("key-import");
-                    return;
-                  }
-                  if (backupSubview === "password") {
-                    backupSessionToPasswordEntry(backupSession);
-                  }
-                  setBackupDirection("backward");
-                  setReturningFromSecurity(false);
-                  setPage("backup");
+                  backFromSetup();
                 },
                 next: (runtimeIds) => {
                   const ids = Array.from(runtimeIds);
@@ -504,6 +552,7 @@ export function MachineOnboardingFlow({
                     complete(selectedPubkey ?? undefined);
                     return;
                   }
+                  setTransitionDirection("forward");
                   setPage("config");
                 },
                 navigateToAgentSettings: () => {
@@ -518,19 +567,23 @@ export function MachineOnboardingFlow({
                   });
                 },
               }}
-              direction="forward"
+              direction={transitionDirection}
               onReadyRuntimeIdsChange={handleReadyRuntimeIdsChange}
             />
           ) : (
             <DefaultConfigStep
               actions={{
-                back: () => setPage("setup"),
+                back: () => {
+                  setTransitionDirection("backward");
+                  setPage("setup");
+                },
                 complete: () => complete(selectedPubkey ?? undefined),
                 discardDraft: () => setDefaultConfigDraft(null),
                 updateDraft: setDefaultConfigDraft,
               }}
-              direction="forward"
+              direction={transitionDirection}
               draft={defaultConfigDraft}
+              onSavingChange={setIsDefaultConfigSaving}
               readyRuntimeIds={readyRuntimeIds}
             />
           )}
