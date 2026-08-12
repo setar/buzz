@@ -18,14 +18,15 @@ export function UpdateChecker() {
         description={t("settings.update.description")}
       />
 
-      <SettingsOptionGroup>
+      <SettingsOptionGroup title="Update status">
         {status.state === "idle" && (
           <SettingsOptionRow>
             <div className="min-w-0">
-              <p className="text-sm font-medium">
-                {t("settings.update.status_label")}
-              </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p className="text-sm font-medium">{t("settings.update.status_label")}</p>
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.check_desc")}
               </p>
             </div>
@@ -38,10 +39,11 @@ export function UpdateChecker() {
         {status.state === "checking" && (
           <SettingsOptionRow>
             <div className="min-w-0">
-              <p className="text-sm font-medium">
-                {t("settings.update.status_label")}
-              </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p className="text-sm font-medium">{t("settings.update.status_label")}</p>
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.checking")}
               </p>
             </div>
@@ -51,10 +53,11 @@ export function UpdateChecker() {
         {status.state === "up-to-date" && (
           <SettingsOptionRow>
             <div className="min-w-0">
-              <p className="text-sm font-medium">
-                {t("settings.update.status_label")}
-              </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p className="text-sm font-medium">{t("settings.update.status_label")}</p>
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.up_to_date")}
               </p>
             </div>
@@ -67,10 +70,11 @@ export function UpdateChecker() {
         {status.state === "unavailable" && (
           <SettingsOptionRow>
             <div className="min-w-0">
-              <p className="text-sm font-medium">
-                {t("settings.update.status_label")}
-              </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p className="text-sm font-medium">{t("settings.update.status_label")}</p>
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.unavailable")}
               </p>
             </div>
@@ -88,11 +92,12 @@ export function UpdateChecker() {
                   version: status.version,
                 })}
               </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.manual_linux")}{" "}
-                <span className="text-muted-foreground">
-                  {t("settings.update.manual_linux_hint")}
-                </span>
+                <span>{t("settings.update.manual_linux_hint")}</span>
               </p>
             </div>
             <Button size="sm" onClick={() => void openUrl(status.releaseUrl)}>
@@ -104,10 +109,11 @@ export function UpdateChecker() {
         {status.state === "available" && (
           <SettingsOptionRow>
             <div className="min-w-0">
-              <p className="text-sm font-medium">
-                {t("settings.update.status_label")}
-              </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p className="text-sm font-medium">{t("settings.update.status_label")}</p>
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.preparing")}
               </p>
             </div>
@@ -117,10 +123,11 @@ export function UpdateChecker() {
         {status.state === "downloading" && (
           <SettingsOptionRow>
             <div className="min-w-0">
-              <p className="text-sm font-medium">
-                {t("settings.update.status_label")}
-              </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p className="text-sm font-medium">{t("settings.update.status_label")}</p>
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.downloading")}
               </p>
             </div>
@@ -130,10 +137,11 @@ export function UpdateChecker() {
         {status.state === "installing" && (
           <SettingsOptionRow>
             <div className="min-w-0">
-              <p className="text-sm font-medium">
-                {t("settings.update.status_label")}
-              </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p className="text-sm font-medium">{t("settings.update.status_label")}</p>
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.installing")}
               </p>
             </div>
@@ -143,10 +151,11 @@ export function UpdateChecker() {
         {status.state === "ready" && (
           <SettingsOptionRow>
             <div className="min-w-0">
-              <p className="text-sm font-medium">
-                {t("settings.update.status_label")}
-              </p>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p className="text-sm font-medium">{t("settings.update.status_label")}</p>
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {t("settings.update.ready")}
               </p>
             </div>

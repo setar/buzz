@@ -1,19 +1,18 @@
 import { useTranslation } from "react-i18next";
 import { AgentDefaultsEditor } from "@/features/agents/ui/AgentDefaultsEditor";
-import { SectionHeader } from "@/shared/ui/PageHeader";
+import { SettingsOptionGroup } from "./SettingsOptionGroup";
 
 export function AgentDefaultsSettingsCard() {
   const { t } = useTranslation();
   return (
-    <section
-      className="min-w-0 space-y-4"
+    <SettingsOptionGroup
       data-testid="settings-global-agent-config"
+      description={t("settings.agent_defaults_inherited_desc")}
+      title={t("settings.agent_defaults")}
     >
-      <SectionHeader
-        title={t("settings.agent_defaults")}
-        description="Provider, model, effort, and environment settings inherited by local agents. Agent-specific settings always take priority."
-      />
-      <AgentDefaultsEditor />
-    </section>
+      <div className="px-4 py-4">
+        <AgentDefaultsEditor layout="flat" />
+      </div>
+    </SettingsOptionGroup>
   );
 }

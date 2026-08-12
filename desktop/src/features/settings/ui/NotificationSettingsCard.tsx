@@ -79,7 +79,7 @@ export function NotificationSettingsCard({
       </span>
 
       <div className="flex flex-col gap-4">
-        <SettingsOptionGroup>
+        <SettingsOptionGroup title="Desktop">
           <SettingsOptionRow>
             <div className="min-w-0">
               <label
@@ -90,7 +90,10 @@ export function NotificationSettingsCard({
                   ? "Requesting..."
                   : t("settings.desktop_alerts")}
               </label>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {notificationSettings.desktopEnabled
                   ? t("settings.native_alerts_desc")
                   : t("settings.request_os_permission_desc")}
@@ -115,7 +118,10 @@ export function NotificationSettingsCard({
               >
                 Notify while viewing
               </label>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 Also alert for direct messages in the conversation you have
                 open.
               </p>
@@ -137,7 +143,7 @@ export function NotificationSettingsCard({
 
         {notificationSettings.desktopEnabled ? (
           <>
-            <SettingsOptionGroup>
+            <SettingsOptionGroup title="Sound">
               <SettingsOptionRow>
                 <div className="min-w-0">
                   <label
@@ -146,7 +152,10 @@ export function NotificationSettingsCard({
                   >
                     Sound
                   </label>
-                  <p className="text-sm font-normal text-muted-foreground">
+                  <p
+                    className="text-sm font-normal text-muted-foreground/70"
+                    data-settings-subcopy
+                  >
                     Alert with a sound for the events below.
                   </p>
                 </div>
@@ -163,7 +172,7 @@ export function NotificationSettingsCard({
 
             {anyAlertsOn ? (
               <>
-                <SettingsOptionGroup>
+                <SettingsOptionGroup title="Alert sounds">
                   {visibleSlots.map((slot) => {
                     const comingSoon = COMING_SOON_SLOTS.has(slot);
                     const alertsOn =
@@ -185,7 +194,10 @@ export function NotificationSettingsCard({
                               </span>
                             ) : null}
                           </span>
-                          <p className="text-sm font-normal text-muted-foreground">
+                          <p
+                            className="text-sm font-normal text-muted-foreground/70"
+                            data-settings-subcopy
+                          >
                             {SLOT_DESCRIPTIONS[slot]}
                           </p>
                         </div>
@@ -244,7 +256,7 @@ export function NotificationSettingsCard({
           </>
         ) : null}
 
-        <SettingsOptionGroup>
+        <SettingsOptionGroup title="Badges">
           <SettingsOptionRow>
             <div className="min-w-0">
               <label
@@ -253,7 +265,10 @@ export function NotificationSettingsCard({
               >
                 Home badge
               </label>
-              <p className="text-sm font-normal text-muted-foreground">
+              <p
+                className="text-sm font-normal text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 Show a Home badge for mentions and needs-action items in the
                 sidebar.
               </p>

@@ -229,7 +229,12 @@ function ReporterLine({
         </span>
       </div>
       {report.note ? (
-        <p className="mt-1 text-xs text-muted-foreground">{report.note}</p>
+        <p
+          className="mt-1 text-xs text-muted-foreground/70"
+          data-settings-subcopy
+        >
+          {report.note}
+        </p>
       ) : null}
     </div>
   );
@@ -272,7 +277,10 @@ function ResolveMenu({
           >
             <div className="flex flex-col">
               <span className="text-sm font-medium">{option.label}</span>
-              <span className="text-xs text-muted-foreground">
+              <span
+                className="text-xs text-muted-foreground/70"
+                data-settings-subcopy
+              >
                 {option.description}
               </span>
             </div>
@@ -496,7 +504,9 @@ function AuditRow({
         </span>
       </div>
       {action.publicReason ? (
-        <p className="text-xs text-muted-foreground">{action.publicReason}</p>
+        <p className="text-xs text-muted-foreground/70" data-settings-subcopy>
+          {action.publicReason}
+        </p>
       ) : null}
     </div>
   );

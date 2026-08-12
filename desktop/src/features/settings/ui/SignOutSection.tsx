@@ -17,6 +17,7 @@ import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Input } from "@/shared/ui/input";
 import { Spinner } from "@/shared/ui/spinner";
+import { SettingsOptionGroup } from "./SettingsOptionGroup";
 
 /**
  * The exact phrase the user must type before the destructive sign-out button
@@ -126,38 +127,30 @@ export function SignOutSection() {
   }
 
   return (
-    <div
-      className="mt-8 border-t border-border/60 pb-6 pt-5"
-      data-testid="settings-signout"
-    >
-      <div className="flex items-center justify-between gap-4 px-1">
-        <div className="min-w-0 space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {t("settings.signout.title")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t("settings.signout.description")}
-          </p>
-        </div>
-        <Button
-          className="shrink-0"
-          data-testid="signout-open-dialog"
-          disabled={isPending}
-          onClick={() => void openDialog()}
-          type="button"
-          variant="destructive"
-        >
-          {isPending ? (
-            <Spinner
-              aria-label={t("settings.signout.btn_signing_out")}
-              className="h-4 w-4 border-2"
-            />
-          ) : null}
-          {isPending
-            ? t("settings.signout.btn_signing_out")
-            : t("settings.signout.btn_delete")}
-        </Button>
-      </div>
+    <div className="mt-12 pb-6" data-testid="settings-signout">
+      <SettingsOptionGroup
+        description={t("settings.signout.description")}
+        headerAction={
+          <Button
+            data-testid="signout-open-dialog"
+            disabled={isPending}
+            onClick={() => void openDialog()}
+            type="button"
+            variant="destructive"
+          >
+            {isPending ? (
+              <Spinner
+                aria-label={t("settings.signout.btn_signing_out")}
+                className="h-4 w-4 border-2"
+              />
+            ) : null}
+            {isPending
+              ? t("settings.signout.btn_signing_out")
+              : t("settings.signout.btn_delete")}
+          </Button>
+        }
+        title={t("settings.signout.title")}
+      />
       <AlertDialog
         onOpenChange={(open) => {
           if (!open && !isPending) {

@@ -45,9 +45,7 @@
     "sr_toggle_sidebar": "Toggle Sidebar",
     "creating": "Creating...",
     "approver": "Approver",
-    "expires": "Expires",
-    "retry": "Retry",
-    "open": "Open"
+    "expires": "Expires"
   },
   "onboarding": {
     "welcome": {
@@ -80,8 +78,7 @@
       "error_enter_password": "Enter the password for this key backup.",
       "error_ncryptsec": "That doesn't look like a complete ncryptsec backup.",
       "error_invalid_nsec": "That doesn't look like a valid nsec. Paste an nsec1 key.",
-      "error_import_failed": "Couldn't import this key.",
-      "drop_backup_here": "Drop your backup file here"
+      "error_import_failed": "Couldn't import this key."
     },
     "invite": {
       "invite_label": "Invite link or code",
@@ -273,11 +270,6 @@
       "return_to_onboarding": "Return to onboarding",
       "backup_file_link": "backup file",
       "recover_phone_link": "recover from your phone",
-      "desc_enter_key_prefix": "Paste your private key to sign in to Buzz. You can also use a",
-      "or_separator": ", or",
-      "recover_from_phone_link": "recover from your phone",
-      "desc_enter_key_suffix": ".",
-      "start_new_identity": "Start new identity",
       "failed_load_identity": "Failed to load identity",
       "paste_key_intro": "Paste your private key to sign in to Buzz. You can also use a",
       "paste_key_or": ", or",
@@ -383,11 +375,11 @@
     "config": {
       "select_harness": "Select a harness",
       "error_save": "Couldn't save your default harness. Try again.",
+      "error_save_detail": "Couldn't save model settings. {{error}} Try again.",
       "loading_error": "Couldn't load harness settings. Go back and try again.",
       "harness_label": "Default harness",
       "title": "Configure your default model settings",
-      "description": "This will be set as your default model configuration across Buzz. You can always change this in your Settings or give specific agents a different configuration.",
-      "error_save_detail": "Couldn't save model settings. {{error}} Try again."
+      "description": "This will be set as your default model configuration across Buzz. You can always change this in your Settings or give specific agents a different configuration."
     },
     "add_display_image": "Add a display image",
     "choose_backup_file": "Choose a backup file",
@@ -596,7 +588,10 @@
     "anyone": "Anyone",
     "selected_people": "Selected people ({{count}})",
     "sort_alpha": "Alphabetical",
-    "sort_recent": "Recent"
+    "sort_recent": "Recent",
+    "visibility": "Visibility",
+    "public": "Public",
+    "private": "Private"
   },
   "messages": {
     "placeholder": "Message {{channel}}",
@@ -737,7 +732,10 @@
     "new": "new",
     "were_added_by": "were added by",
     "attach_file": "Attach file",
-    "sending": "Sending…"
+    "sending": "Sending…",
+    "send_to_channel": "Send to channel",
+    "sent_to_channel": "Sent to channel",
+    "send_to_channel_failed": "Couldn't send to channel"
   },
   "settings": {
     "title": "Settings",
@@ -1028,13 +1026,27 @@
     "backup_this_works": "This backup works",
     "backup_test_another": "Test another backup",
     "backup_checking": "Checking…",
-    "confirm_mobile_code": "Confirm mobile code",
-    "confirmation_code": "Confirmation code",
-    "codes_match": "Codes match",
-    "pairing_sas_status": "Verification code {{code}} ready. Check that it matches on your mobile device, then confirm the codes match.",
-    "pairing_transferring_status": "Codes confirmed. Pairing your mobile device.",
-    "pairing_done_status": "Your mobile app is now paired.",
-    "all_communities": "all communities"
+    "preferences": "Preferences",
+    "color_mode": "Color mode",
+    "color_mode_desc": "Follow your system or choose a light or dark appearance.",
+    "color_mode_legend": "Color mode",
+    "theme_style": "Theme style",
+    "theme_style_desc": "Choose the colors used throughout Buzz.",
+    "theme_style_aria": "Theme style, {{name}}",
+    "appearance_desc": "Choose how Buzz looks and feels.",
+    "glass_background": "Glass background",
+    "glass_background_desc": "Blur the desktop behind navigation while keeping content solid.",
+    "glass_not_supported": "Available in the macOS desktop app.",
+    "glass_opacity": "Glass opacity",
+    "glass_opacity_desc": "Lower values reveal more of the desktop blur.",
+    "glass_opacity_reset": "Reset glass opacity",
+    "prominent_active_tab": "Prominent active tab",
+    "prominent_active_tab_desc": "Give the selected navigation item a higher-contrast background.",
+    "accent_color_desc": "Choose the highlight color used throughout Buzz.",
+    "accent_use": "Use {{name}} accent",
+    "features": "Features",
+    "experiments_desc": "These features are functional but still being refined. Enable them to try new capabilities early.",
+    "agent_defaults_inherited_desc": "Provider, model, effort, and environment settings inherited by local agents. Agent-specific settings always take priority."
   },
   "community": {
     "connecting": "Connecting…",
@@ -1211,7 +1223,8 @@
     "unknown_channel": "Unknown channel",
     "thread": "Thread",
     "message": "Message",
-    "in": "in"
+    "in": "in",
+    "search_in": "Search in {{scope}}"
   },
   "moderation": {
     "ban": "Ban",
@@ -2026,8 +2039,7 @@
     "could_not_load_changed_files": "Could not load changed files for this {{label}}.",
     "add_reviewer": "Add reviewer",
     "buzz_hosted": "Buzz-hosted",
-    "linked": "Linked",
-    "updating": "Updating…"
+    "linked": "Linked"
   },
   "workflows": {
     "approval_note": "Approval note",
@@ -2249,7 +2261,6 @@
     "loading_agents": "Loading agents…",
     "unmute_mic": "Unmute microphone",
     "ptt_click_unmute_or_hold": "Click to unmute or hold",
-    "click_unmute_or_hold": "Click to unmute or hold",
     "stop_transcript": "Stop transcript",
     "start_transcript": "Start transcript",
     "add_agent_tooltip": "Add agent",
