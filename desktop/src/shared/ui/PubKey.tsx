@@ -26,6 +26,8 @@ type PubKeyProps = {
    * decisions must be made against the whole key.
    */
   variant?: "compact" | "full";
+  /** Render compact keys as text when a parent row owns the interaction. */
+  interactive?: boolean;
   className?: string;
   testId?: string;
 };
@@ -78,6 +80,7 @@ function PubKeyDetails({ pubkey }: { pubkey: string }) {
 export function PubKey({
   pubkey,
   variant = "compact",
+  interactive = true,
   className,
   testId,
 }: PubKeyProps) {
@@ -137,6 +140,14 @@ export function PubKey({
             <PubKeyDetails pubkey={pubkey} />
           </PopoverContent>
         </Popover>
+      </span>
+    );
+  }
+
+  if (!interactive) {
+    return (
+      <span className={cn("font-mono", className)} data-testid={testId}>
+        {truncatePubkey(pubkey)}
       </span>
     );
   }

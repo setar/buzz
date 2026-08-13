@@ -11,6 +11,7 @@ import {
   AuxiliaryPanelHeaderGroup,
   AuxiliaryPanelHeaderTitleBlock,
 } from "@/shared/layout/AuxiliaryPanel";
+import { Button } from "@/shared/ui/button";
 
 export function getUserProfilePanelHeaderContent({
   agentSettingsMenu,
@@ -18,6 +19,7 @@ export function getUserProfilePanelHeaderContent({
   logCopyValue,
   logSubtitle,
   onBack,
+  onEditAgent,
   view,
   viewerIsOwner,
   t,
@@ -28,6 +30,7 @@ export function getUserProfilePanelHeaderContent({
   logCopyValue?: string | null;
   logSubtitle?: string | null;
   onBack: () => void;
+  onEditAgent?: () => void;
   view: ProfilePanelView;
   viewerIsOwner: boolean;
 }) {
@@ -58,6 +61,19 @@ export function getUserProfilePanelHeaderContent({
         />
       ) : null}
       {view === "summary" ? agentSettingsMenu : null}
+      {view === "summary" && onEditAgent ? (
+        <Button
+          aria-label="Edit agent"
+          className="text-sm"
+          data-testid="user-profile-header-edit-agent"
+          onClick={onEditAgent}
+          size="sm"
+          type="button"
+          variant="ghost"
+        >
+          Edit
+        </Button>
+      ) : null}
       {shouldShowLogDetails ? (
         <CopyButton
           className="text-muted-foreground hover:text-foreground"

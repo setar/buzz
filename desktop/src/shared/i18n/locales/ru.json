@@ -51,9 +51,7 @@
     "skip_for_now": "Пропустить",
     "creating": "Создание...",
     "approver": "Одобряющий",
-    "expires": "Истекает",
-    "retry": "Повторить",
-    "open": "Открыть"
+    "expires": "Истекает"
   },
   "onboarding": {
     "welcome": {
@@ -86,8 +84,7 @@
       "error_enter_password": "Введите пароль для этой резервной копии.",
       "error_ncryptsec": "Это не похоже на полную резервную копию ncryptsec.",
       "error_invalid_nsec": "Это не похоже на действительный ключ nsec. Вставьте ключ nsec1.",
-      "error_import_failed": "Не удалось импортировать ключ.",
-      "drop_backup_here": "Перетащите файл резервной копии сюда"
+      "error_import_failed": "Не удалось импортировать ключ."
     },
     "invite": {
       "invite_label": "Ссылка-приглашение или код",
@@ -227,11 +224,11 @@
     "config": {
       "select_harness": "Выберите среду выполнения",
       "error_save": "Не удалось сохранить среду выполнения по умолчанию. Попробуйте снова.",
+      "error_save_detail": "Не удалось сохранить настройки модели. {{error}} Попробуйте снова.",
       "loading_error": "Не удалось загрузить настройки. Вернитесь и попробуйте снова.",
       "harness_label": "Среда выполнения по умолчанию",
       "title": "Настройте параметры модели по умолчанию",
-      "description": "Это будет применяться как настройка модели по умолчанию во всём Buzz. Вы всегда можете изменить её в Настройках или задать отдельную конфигурацию для конкретных агентов.",
-      "error_save_detail": "Не удалось сохранить настройки модели. {{error}} Попробуйте снова."
+      "description": "Это будет применяться как настройка модели по умолчанию во всём Buzz. Вы всегда можете изменить её в Настройках или задать отдельную конфигурацию для конкретных агентов."
     },
     "download": {
       "title_verified": "Резервная копия проверена",
@@ -286,13 +283,8 @@
       "desc_enter_key": "Если у вас уже есть аккаунт Buzz, введите приватный ключ ниже для начала работы.",
       "back_start_new": "Новая идентификация",
       "return_to_onboarding": "Вернуться к настройке",
-      "backup_file_link": "файл резервной копии",
+      "backup_file_link": "резервный файл",
       "recover_phone_link": "восстановить с телефона",
-      "desc_enter_key_prefix": "Вставьте приватный ключ для входа в Buzz. Также можно использовать",
-      "or_separator": " или",
-      "recover_from_phone_link": "восстановить с телефона",
-      "desc_enter_key_suffix": ".",
-      "start_new_identity": "Новая идентификация",
       "failed_load_identity": "Не удалось загрузить идентификацию",
       "paste_key_intro": "Вставьте приватный ключ для входа в Buzz. Также можно использовать",
       "paste_key_or": ", или",
@@ -603,7 +595,35 @@
     "anyone": "Любой",
     "selected_people": "Выбранные люди ({{count}})",
     "sort_alpha": "По алфавиту",
-    "sort_recent": "Недавние"
+    "sort_recent": "Недавние",
+    "visibility": "Видимость",
+    "public": "Публичный",
+    "private": "Приватный",
+    "channel_settings_title": "Настройки канала",
+    "canvas_title": "Холст",
+    "details_section": "Детали",
+    "channel_type_label": "Тип канала",
+    "channel_type_ongoing": "Постоянный",
+    "channel_type_temporary": "Временный · {{duration}}",
+    "visibility_label": "Видимость",
+    "visibility_private": "Приватный",
+    "visibility_public": "Публичный",
+    "members_label": "Участники",
+    "members_count_label": "{{count}} участник",
+    "members_count_label_other": "{{count}} участников",
+    "channel_id_label": "ID канала",
+    "canvas_help_text": "Используйте холст как общее пространство для заметок, планов и другой информации о канале.",
+    "join_channel_desc": "Добавить канал на боковую панель",
+    "joining_channel": "Вступление в канал...",
+    "join_channel": "Вступить в канал",
+    "leaving_channel": "Выход из канала...",
+    "leave_channel": "Покинуть канал",
+    "restoring_channel_label": "Восстановление канала...",
+    "unarchive_channel_label": "Разархивировать канал",
+    "archiving_channel_label": "Архивирование канала...",
+    "archive_channel_label": "Архивировать канал",
+    "delete_channel_label": "Удалить канал",
+    "saving": "Сохранение..."
   },
   "messages": {
     "placeholder": "Сообщение в {{channel}}",
@@ -745,7 +765,10 @@
     "new": "новых",
     "were_added_by": "был(а) добавлен(а)",
     "attach_file": "Прикрепить файл",
-    "sending": "Отправка…"
+    "sending": "Отправка…",
+    "send_to_channel": "Отправить в канал",
+    "sent_to_channel": "Отправлено в канал",
+    "send_to_channel_failed": "Не удалось отправить в канал"
   },
   "settings": {
     "title": "Настройки",
@@ -1036,13 +1059,27 @@
     "backup_this_works": "Резервная копия работает",
     "backup_test_another": "Проверить другую копию",
     "backup_checking": "Проверка…",
-    "confirm_mobile_code": "Подтвердить код мобильного устройства",
-    "confirmation_code": "Код подтверждения",
-    "codes_match": "Коды совпадают",
-    "pairing_sas_status": "Код подтверждения {{code}} готов. Убедитесь, что он совпадает на мобильном устройстве, затем подтвердите.",
-    "pairing_transferring_status": "Коды подтверждены. Выполняется сопряжение мобильного устройства.",
-    "pairing_done_status": "Мобильное приложение успешно сопряжено.",
-    "all_communities": "все сообщества"
+    "preferences": "Настройки",
+    "color_mode": "Цветовой режим",
+    "color_mode_desc": "Следовать системным настройкам или выбрать светлый/тёмный вид.",
+    "color_mode_legend": "Цветовой режим",
+    "theme_style": "Стиль темы",
+    "theme_style_desc": "Выберите цвета, используемые во всём интерфейсе Buzz.",
+    "theme_style_aria": "Стиль темы: {{name}}",
+    "appearance_desc": "Выберите, как выглядит и ощущается Buzz.",
+    "glass_background": "Стеклянный фон",
+    "glass_background_desc": "Размыть рабочий стол за панелью навигации, сохраняя содержимое чётким.",
+    "glass_not_supported": "Доступно в настольном приложении для macOS.",
+    "glass_opacity": "Прозрачность стекла",
+    "glass_opacity_desc": "Меньшее значение — больше размытия рабочего стола.",
+    "glass_opacity_reset": "Сбросить прозрачность стекла",
+    "prominent_active_tab": "Выделять активную вкладку",
+    "prominent_active_tab_desc": "Добавить более контрастный фон для выбранного элемента навигации.",
+    "accent_color_desc": "Выберите акцентный цвет для всего интерфейса Buzz.",
+    "accent_use": "Использовать акцент {{name}}",
+    "features": "Функции",
+    "experiments_desc": "Эти функции работают, но ещё дорабатываются. Включите их, чтобы попробовать новые возможности раньше других.",
+    "agent_defaults_inherited_desc": "Провайдер, модель, уровень усилий и переменные среды, наследуемые локальными агентами. Настройки конкретного агента всегда имеют приоритет."
   },
   "community": {
     "connecting": "Подключение…",
@@ -1219,7 +1256,8 @@
     "unknown_channel": "Неизвестный канал",
     "thread": "Тред",
     "message": "Сообщение",
-    "in": "в"
+    "in": "в",
+    "search_in": "Поиск в {{scope}}"
   },
   "moderation": {
     "ban": "Заблокировать",
@@ -2071,9 +2109,8 @@
     "merge_pr_confirm": "Объединить pull request?",
     "could_not_load_changed_files": "Не удалось загрузить изменённые файлы для {{label}}.",
     "add_reviewer": "Добавить ревьюера",
-    "buzz_hosted": "Размещённые в Buzz",
-    "linked": "Связанные",
-    "updating": "Обновление…"
+    "buzz_hosted": "На Buzz",
+    "linked": "Связанный"
   },
   "workflows": {
     "approval_note": "Заметка об одобрении",
@@ -2297,7 +2334,6 @@
     "loading_agents": "Загрузка агентов…",
     "unmute_mic": "Включить микрофон",
     "ptt_click_unmute_or_hold": "Нажмите для включения или удержите",
-    "click_unmute_or_hold": "Нажмите для включения или удерживайте",
     "stop_transcript": "Остановить расшифровку",
     "start_transcript": "Начать расшифровку",
     "add_agent_tooltip": "Добавить агента",
