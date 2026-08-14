@@ -48,11 +48,11 @@ export function WorkflowDetailPanel({
   const workflowStatus = workflow ? getWorkflowDisplayStatus(workflow) : null;
   const triggerError = errorMessage(
     triggerMutation.error,
-    "The relay did not create a workflow run.",
+    t("workflows.trigger_error_fallback"),
   );
   const runsError = errorMessage(
     runsQuery.error,
-    "Run history could not be loaded.",
+    t("workflows.runs_error_fallback"),
   );
   const selectedRunIsPendingHistory =
     selectedRunId !== null && !runs.some((run) => run.id === selectedRunId);
@@ -106,7 +106,7 @@ export function WorkflowDetailPanel({
               variant="outline"
             >
               <Pencil className="mr-1 h-4 w-4" />
-              Edit
+              {t("common.edit")}
             </Button>
           ) : null}
           <Button
@@ -116,7 +116,7 @@ export function WorkflowDetailPanel({
             variant="outline"
           >
             <Play className="mr-1 h-4 w-4" />
-            {triggerMutation.isPending ? "Triggering..." : "Trigger"}
+            {triggerMutation.isPending ? t("workflows.triggering") : t("workflows.trigger")}
           </Button>
           <Button
             aria-label={t("workflows.close_detail_panel")}
@@ -134,7 +134,7 @@ export function WorkflowDetailPanel({
           className="border-b px-4 py-2 text-xs text-destructive"
           role="alert"
         >
-          <p className="font-medium">Failed to trigger workflow</p>
+          <p className="font-medium">{t("workflows.failed_trigger")}</p>
           <p className="mt-1 break-words text-muted-foreground">
             {triggerError}
           </p>
@@ -149,7 +149,7 @@ export function WorkflowDetailPanel({
           <div className="space-y-4 p-4">
             <div>
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Definition
+                {t("workflows.definition")}
               </h4>
               <pre className="max-h-64 overflow-auto rounded-md bg-muted/50 p-3 font-mono text-xs leading-relaxed">
                 {JSON.stringify(workflow.definition, null, 2)}
@@ -158,20 +158,20 @@ export function WorkflowDetailPanel({
 
             <div>
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Run History
+                {t("workflows.run_history")}
               </h4>
               {runsQuery.isError ? (
                 <div
                   className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
                   role="alert"
                 >
-                  <p className="font-medium">Failed to load run history</p>
+                  <p className="font-medium">{t("workflows.failed_load_run_history")}</p>
                   <p className="mt-1 break-words">{runsError}</p>
                 </div>
               ) : runsQuery.isLoading ? (
                 <div
                   className="space-y-2"
-                  aria-label="Loading run history"
+                  aria-label={t("workflows.loading_run_history")}
                   role="status"
                 >
                   <Skeleton className="h-16 w-full rounded-xl" />
@@ -182,16 +182,16 @@ export function WorkflowDetailPanel({
                   data-testid="workflow-run-created"
                   role="status"
                 >
-                  <p className="font-medium">Run created</p>
+                  <p className="font-medium">{t("workflows.run_created")}</p>
                   <p className="mt-1 break-all font-mono text-muted-foreground">
                     {selectedRunId}
                   </p>
                   <p className="mt-1 text-muted-foreground">
-                    Waiting for its persisted trace…
+                    {t("workflows.waiting_for_trace")}
                   </p>
                 </div>
               ) : runs.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No runs yet.</p>
+                <p className="text-sm text-muted-foreground">{t("workflows.no_runs_yet")}</p>
               ) : (
                 <div className="space-y-2">
                   {runs.map((run) => {
@@ -203,6 +203,7 @@ export function WorkflowDetailPanel({
                     const failureReason = workflowRunFailureReason(
                       run.errorCode,
                       run.errorMessage,
+                      t,
                     );
 
                     return (
@@ -245,15 +246,12 @@ export function WorkflowDetailPanel({
                                   ).toLocaleString()}
                                 </span>
                                 <span>
-                                  {run.executionTrace.length}{" "}
-                                  {run.executionTrace.length === 1
-                                    ? "step"
-                                    : "steps"}
+                                  {t("workflows.steps_count", { count: run.executionTrace.length })}
                                 </span>
                                 {duration ? <span>{duration}</span> : null}
                                 {run.currentStep !== null ? (
                                   <span>
-                                    Current step {run.currentStep + 1}
+                                    {t("workflows.current_step", { step: run.currentStep + 1 })}
                                   </span>
                                 ) : null}
                               </div>
@@ -269,10 +267,10 @@ export function WorkflowDetailPanel({
                         {isSelected ? (
                           <div className="border-t border-border/60 bg-background/60 px-4 py-4">
                             <div className="mb-3 flex items-center gap-2 text-2xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                              <span>Execution Trace</span>
+                              <span>{t("workflows.execution_trace")}</span>
                               {approvalsQuery.isFetching ? (
                                 <span className="text-2xs tracking-[0.12em] text-muted-foreground/80">
-                                  Refreshing approvals...
+                                  {t("workflows.refreshing_approvals")}
                                 </span>
                               ) : null}
                             </div>
@@ -296,7 +294,7 @@ export function WorkflowDetailPanel({
           </div>
         ) : workflowQuery.isError ? (
           <div className="flex h-32 flex-col items-center justify-center gap-2">
-            <p className="text-sm text-red-400">Failed to load workflow</p>
+            <p className="text-sm text-red-400">{t("workflows.failed_load_workflow")}</p>
           </div>
         ) : (
           <div className="space-y-4 p-4">
@@ -321,19 +319,19 @@ export function WorkflowDetailPanel({
 function workflowRunFailureReason(
   errorCode: string | null,
   diagnostic: string | null,
+  t: (key: string, opts?: Record<string, unknown>) => string,
 ) {
   if (diagnostic?.trim()) return diagnostic;
   if (!errorCode) return null;
-  const knownReasons: Record<string, string> = {
-    approval_denied: "Approval was denied.",
-    approval_expired: "Approval expired before the workflow could continue.",
-    external_outcome_unknown:
-      "The external action may have completed, but its outcome could not be confirmed.",
-    run_interrupted: "The run was interrupted before it could finish.",
+  const knownReasonKeys: Record<string, string> = {
+    approval_denied: "workflows.error_approval_denied",
+    approval_expired: "workflows.error_approval_expired",
+    external_outcome_unknown: "workflows.error_external_outcome_unknown",
+    run_interrupted: "workflows.error_run_interrupted",
   };
-  return (
-    knownReasons[errorCode] ?? `Run failed (${errorCode.replace(/_/g, " ")}).`
-  );
+  const key = knownReasonKeys[errorCode];
+  if (key) return t(key);
+  return t("workflows.error_run_failed", { code: errorCode.replace(/_/g, " ") });
 }
 
 function errorMessage(error: unknown, fallback: string) {
